@@ -1,0 +1,37 @@
+server:
+  port: 9003
+
+spring:
+  application:
+    name: transfer-service
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9002/realms/bank-realm
+
+      client:
+        registration:
+          transfer-service:
+            provider: keycloak
+            client-id: transfer-service
+            client-secret: DckEm7LP72T5fYo47q7utlTlWz4g3xKr
+            authorization-grant-type: client_credentials
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:9002/realms/bank-realm
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+bank:
+  accounts-service:
+    base-url: http://localhost:9005
+
+logging:
+  level:
+    root: INFO

@@ -1,3 +1,22 @@
+server:
+  port: 9000
+
 spring:
   application:
-    name: frontui-service
+    name: front-ui
+
+  security:
+    oauth2:
+      client:
+        registration:
+          # Регистрация для пользователей (Authorization Code Flow)
+          keycloak:
+            client-id: front-ui
+            client-secret: rcqOYFqePM1oGsBKqk28oi15Ps31yo5P
+            authorization-grant-type: authorization_code
+            scope: openid, profile
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            provider: keycloak
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:9002/realms/bank-realm

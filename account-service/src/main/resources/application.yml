@@ -1,0 +1,22 @@
+server:
+  port: 9005
+
+spring:
+  application:
+    name: account-service
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9002/realms/bank-realm
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+logging:
+  level:
+    root: INFO
