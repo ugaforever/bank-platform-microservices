@@ -1,0 +1,55 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+.settings/
+.classpath
+.project
+
+### Maven output
+target/
+/target/
+*/target/
+**/target/
+**/target/**
+target/**/*
+**/target/**/*
+target/classes/
+target/test-classes/
+target/generated-sources/
+target/maven-archiver/
+target/maven-status/
+
+### Java ###
+*.class
+*.log
+*.jar
+*.war
+*.ear
+*.db
+*.mv.db
+*.h2.db
+
+### Maven ###
+*.jar
+*.war
+*.ear
+
+### Logs ###
+*.log
+logs/
+**/logs/
+
+### Application Properties with secrets ###
+**/application-*.properties
+!**/application.properties
+
+### OS ###
+.DS_Store
+Thumbs.db
