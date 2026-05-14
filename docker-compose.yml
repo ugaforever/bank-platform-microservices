@@ -1,0 +1,51 @@
+#services:
+#  user-service:
+#    build:
+#      context: ./user-application
+#      dockerfile: Dockerfile
+#    ports:
+#      - "${SERVER_PORT}:${SERVER_PORT}"
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://${USER_DB_HOST}:5432/${USER_DB_NAME}
+#      SPRING_DATASOURCE_USERNAME: ${USER_DB_USERNAME}
+#      SPRING_DATASOURCE_PASSWORD: ${USER_DB_PASSWORD}
+#      SERVER_PORT: ${SERVER_PORT}
+#    depends_on:
+#      - user-db
+#
+#  user-db:
+#    image: postgres:16
+#    container_name: user-db
+#    environment:
+#      POSTGRES_DB: ${USER_DB_NAME}
+#      POSTGRES_USER: ${USER_DB_USERNAME}
+#      POSTGRES_PASSWORD: ${USER_DB_PASSWORD}
+#    ports:
+#      - "5433:5432"
+#
+#  order-service:
+#    build:
+#      context: ./order-application
+#      dockerfile: Dockerfile
+#    ports:
+#      - "${ORDER_SERVICE_PORT}:${ORDER_SERVICE_PORT}"
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://${ORDER_DB_HOST}:5432/${ORDER_DB_NAME}
+#      SPRING_DATASOURCE_USERNAME: ${ORDER_DB_USERNAME}
+#      SPRING_DATASOURCE_PASSWORD: ${ORDER_DB_PASSWORD}
+#      SERVER_PORT: ${ORDER_SERVICE_PORT}
+#
+#      # Конфигурация user-client
+#      USER_CLIENT_BASE_URL: ${USER_CLIENT_BASE_URL}
+#    depends_on:
+#      - order-db
+#
+#  order-db:
+#    image: postgres:16
+#    container_name: order-db
+#    environment:
+#      POSTGRES_DB: ${ORDER_DB_NAME}
+#      POSTGRES_USER: ${ORDER_DB_USERNAME}
+#      POSTGRES_PASSWORD: ${ORDER_DB_PASSWORD}
+#    ports:
+#      - "5434:5432"
