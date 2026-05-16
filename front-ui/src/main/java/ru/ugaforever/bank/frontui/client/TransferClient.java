@@ -1,3 +1,4 @@
+/*
 package ru.ugaforever.bank.frontui.client;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -44,3 +45,4 @@ public class TransferClient {
     }
 }
 
+*/

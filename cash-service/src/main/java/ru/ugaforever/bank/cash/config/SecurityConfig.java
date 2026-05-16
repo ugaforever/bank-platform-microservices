@@ -1,6 +1,5 @@
-package ru.ugaforever.bank.account.config;
+package ru.ugaforever.bank.cash.config;
 
-import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -23,10 +22,9 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
-
                     auth.requestMatchers("/**").permitAll();
                     //auth.requestMatchers("/actuator/**").permitAll();
-                    auth.anyRequest().authenticated();
+                     auth.anyRequest().authenticated();
                 });
 
         http.oauth2ResourceServer(oauth2 ->

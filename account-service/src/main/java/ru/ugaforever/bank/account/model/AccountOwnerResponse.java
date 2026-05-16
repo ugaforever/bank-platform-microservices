@@ -1,3 +1,4 @@
+/*
 package ru.ugaforever.bank.account.model;
 
 public class AccountOwnerResponse {
@@ -29,3 +30,4 @@ public class AccountOwnerResponse {
         this.ownerUsername = ownerUsername;
     }
 }
+*/

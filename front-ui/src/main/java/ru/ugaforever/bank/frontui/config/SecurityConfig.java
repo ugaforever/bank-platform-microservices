@@ -1,3 +1,4 @@
+/*
 package ru.ugaforever.bank.frontui.config;
 
 import org.springframework.context.annotation.Bean;
@@ -25,3 +26,4 @@ public class SecurityConfig {
         return http.build();
     }
 }
+*/
