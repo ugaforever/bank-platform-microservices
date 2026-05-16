@@ -1,43 +1,27 @@
 package ru.ugaforever.bank.account.model;
 
-import java.math.BigDecimal;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.*;
 
+import java.time.LocalDate;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity
+@Table(name = "accounts")
 public class Account {
 
-    private String id;
-    private String ownerUsername;
-    private BigDecimal balance;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    public Account() {
-    }
-
-    public Account(String id, String ownerUsername, BigDecimal balance) {
-        this.id = id;
-        this.ownerUsername = ownerUsername;
-        this.balance = balance;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getOwnerUsername() {
-        return ownerUsername;
-    }
-
-    public BigDecimal getBalance() {
-        return balance;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setOwnerUsername(String ownerUsername) {
-        this.ownerUsername = ownerUsername;
-    }
-
-    public void setBalance(BigDecimal balance) {
-        this.balance = balance;
-    }
+    private String name;
+    LocalDate birthdate;
 }

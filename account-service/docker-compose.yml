@@ -1,0 +1,11 @@
+services:
+
+  account-db:
+    image: postgres:16
+    container_name: account-db
+    environment:
+      POSTGRES_DB: accounts
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"

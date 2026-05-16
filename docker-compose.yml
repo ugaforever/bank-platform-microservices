@@ -1,44 +1,44 @@
 services:
-  keycloak:
-    image: quay.io/keycloak/keycloak:24.0
-    container_name: bank-keycloak
-    command: start-dev --import-realm
-    environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-    ports:
-      - "9092:8080"
-    volumes:
-      - ./keycloak:/opt/keycloak/data/import
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9092/health/ready" ]
-      interval: 10s
-      timeout: 10s
-      retries: 5
+#  keycloak:
+#    image: quay.io/keycloak/keycloak:24.0
+#    container_name: bank-keycloak
+#    command: start-dev # --import-realm
+#    environment:
+#      KEYCLOAK_ADMIN: admin
+#      KEYCLOAK_ADMIN_PASSWORD: admin
+#    ports:
+#      - "9092:8080"
+#    volumes:
+#      - ./keycloak:/opt/keycloak/data/import
+#    healthcheck:
+#      test: [ "CMD", "curl", "-f", "http://localhost:9092/health/ready" ]
+#      interval: 10s
+#      timeout: 10s
+#      retries: 5
 
-#  user-service:
-#    build:
-#      context: ./user-application
-#      dockerfile: Dockerfile
-#    ports:
-#      - "${SERVER_PORT}:${SERVER_PORT}"
-#    environment:
-#      SPRING_DATASOURCE_URL: jdbc:postgresql://${USER_DB_HOST}:5432/${USER_DB_NAME}
-#      SPRING_DATASOURCE_USERNAME: ${USER_DB_USERNAME}
-#      SPRING_DATASOURCE_PASSWORD: ${USER_DB_PASSWORD}
-#      SERVER_PORT: ${SERVER_PORT}
-#    depends_on:
-#      - user-db
-#
-#  user-db:
-#    image: postgres:16
-#    container_name: user-db
-#    environment:
-#      POSTGRES_DB: ${USER_DB_NAME}
-#      POSTGRES_USER: ${USER_DB_USERNAME}
-#      POSTGRES_PASSWORD: ${USER_DB_PASSWORD}
-#    ports:
-#      - "5433:5432"
+  account-service:
+    build:
+      context: ./account-service
+      dockerfile: Dockerfile
+    ports:
+      - "${ACCOUNT_SERVER_PORT}:${ACCOUNT_SERVER_PORT}"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${ACCOUNT_DB_HOST}:5432/${ACCOUNT_DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${ACCOUNT_DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${ACCOUNT_DB_PASSWORD}
+      SERVER_PORT: ${ACCOUNT_SERVER_PORT}
+    depends_on:
+      - account-db
+
+  account-db:
+    image: postgres:16
+    container_name: account-db
+    environment:
+      POSTGRES_DB: ${ACCOUNT_DB_NAME}
+      POSTGRES_USER: ${ACCOUNT_DB_USERNAME}
+      POSTGRES_PASSWORD: ${ACCOUNT_DB_PASSWORD}
+    ports:
+      - "5433:5432"
 #
 #  order-service:
 #    build:

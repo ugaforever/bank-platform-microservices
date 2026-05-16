@@ -1,3 +1,4 @@
+/*
 package ru.ugaforever.bank.account.model;
 
 import java.math.BigDecimal;
@@ -32,3 +33,4 @@ public class TransferRequest {
         this.amount = amount;
     }
 }
+*/

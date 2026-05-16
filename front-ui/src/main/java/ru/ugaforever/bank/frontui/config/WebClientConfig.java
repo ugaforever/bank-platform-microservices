@@ -28,11 +28,12 @@ public class WebClientConfig {
                 .build();
     }
 
-    /**
+/**
      * Фильтр для передачи JWT токена пользователя в Gateway API.
      * Извлекает Access Token из OAuth2AuthorizedClient и добавляет его в заголовок Authorization.
      * Access Token содержит информацию о пользователе, ролях и правах, необходимую для Resource Server.
      */
+
     private ExchangeFilterFunction addAccessTokenHeader() {
         return (request, next) -> {
             // Достаём текущую аутентификацию из SecurityContext
@@ -68,4 +69,3 @@ public class WebClientConfig {
         };
     }
 }
-

@@ -21,7 +21,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain accountsSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> {
-            auth.requestMatchers("/actuator/**").permitAll();
+
+            auth.requestMatchers("/**").permitAll();
+            //auth.requestMatchers("/actuator/**").permitAll();
+
             auth.anyRequest().authenticated();
         });
 

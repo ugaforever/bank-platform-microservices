@@ -16,7 +16,7 @@ spring:
           transfer-service:
             provider: keycloak
             client-id: transfer-service
-            client-secret: DckEm7LP72T5fYo47q7utlTlWz4g3xKr
+            client-secret: D68a7ktWHTKeZIwQRwTI0FrpJLZzq3AK
             authorization-grant-type: client_credentials
         provider:
           keycloak:
