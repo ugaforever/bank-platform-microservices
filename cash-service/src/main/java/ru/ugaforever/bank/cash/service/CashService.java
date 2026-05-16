@@ -8,11 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.ugaforever.bank.cash.dto.CashResponseDto;
 import ru.ugaforever.bank.cash.dto.DepositRequestDto;
 import ru.ugaforever.bank.cash.dto.WithdrawRequestDto;
-import ru.ugaforever.bank.cash.exception.AccountNotFoundException;
-import ru.ugaforever.bank.cash.exception.InsufficientFundsException;
 import ru.ugaforever.bank.cash.mapper.CashMapper;
 import ru.ugaforever.bank.cash.model.Cash;
 import ru.ugaforever.bank.cash.repository.CashRepository;
+import ru.ugaforever.bank.chassis.exception.AccountNotFoundException;
+import ru.ugaforever.bank.chassis.exception.InsufficientFundsException;
+import ru.ugaforever.bank.chassis.exception.ValidationException;
 
 import java.math.BigDecimal;
 
@@ -31,13 +32,13 @@ public class CashService {
 
         if (request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             log.warn("Некорректная сумма пополнения: {}", request.getAmount());
-            throw new IllegalArgumentException("Сумма пополнения должна быть больше 0");
+            throw new ValidationException("Сумма пополнения должна быть больше 0");
         }
 
         Cash cash = repository.findById(request.getAccountId())
                 .orElseThrow(() -> {
                     log.warn("Аккаунт не найден: {}", request.getAccountId());
-                    return new AccountNotFoundException("Аккаунт ID " + request.getAccountId() + " не найден");
+                    return new AccountNotFoundException(request.getAccountId());
                 });
 
         BigDecimal newBalance = cash.getBalance().add(request.getAmount());
@@ -56,19 +57,20 @@ public class CashService {
 
         if (request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             log.warn("Некорректная сумма снятия: {}", request.getAmount());
-            throw new IllegalArgumentException("Сумма снятия должна быть больше 0");
+            throw new ValidationException("Сумма снятия должна быть больше 0");
         }
 
         Cash cash = repository.findById(request.getAccountId())
                 .orElseThrow(() -> {
                     log.warn("Аккаунт не найден: {}", request.getAccountId());
-                    return new AccountNotFoundException("Аккаунт ID " + request.getAccountId() + " не найден");
+                    return new AccountNotFoundException(request.getAccountId());
                 });
 
         if (cash.getBalance().compareTo(request.getAmount()) < 0) {
             log.warn("Недостаточно средств: accountId={}, balance={}, requested={}",
-                    cash.getId(), cash.getBalance(), request.getAmount());
-            throw new InsufficientFundsException("Недостаточно средств. Баланс: " + cash.getBalance());
+                    cash.getAccountId(), cash.getBalance(), request.getAmount());
+
+            throw new InsufficientFundsException(cash.getAccountId(), cash.getBalance(), request.getAmount());
         }
 
         BigDecimal newBalance = cash.getBalance().subtract(request.getAmount());
@@ -88,7 +90,7 @@ public class CashService {
         Cash cash = repository.findById(accountId)
                 .orElseThrow(() -> {
                     log.warn("Аккаунт не найден: {}", accountId);
-                    return new AccountNotFoundException("Аккаунт ID " + accountId + " не найден");
+                    return new AccountNotFoundException(accountId);
                 });
 
         return cash.getBalance();

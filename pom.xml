@@ -39,6 +39,7 @@
         <module>notification-service</module>
         <module>cash-service</module>
         <module>gateway</module>
+        <module>chassis</module>
     </modules>
 
     <dependencyManagement>
@@ -67,6 +68,11 @@
                 <artifactId>mapstruct-processor</artifactId>
                 <version>${mapstruct.version}</version>
                 <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>ru.ugaforever.bank</groupId>
+                <artifactId>chassis</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.ugaforever.bank.account.dto.AccountRequestDto;
 import ru.ugaforever.bank.account.dto.AccountResponseDto;
-import ru.ugaforever.bank.account.exception.AccountNotFoundException;
+import ru.ugaforever.bank.chassis.exception.AccountNotFoundException;
 import ru.ugaforever.bank.account.mapper.AccountMapper;
 import ru.ugaforever.bank.account.model.Account;
 import ru.ugaforever.bank.account.repository.AccountRepository;
@@ -36,7 +36,7 @@ public class AccountService {
                 .map(mapper::toDto)
                 .orElseThrow(() -> {
                     log.warn("Аккаунт не найден: {}", id);
-                    return new AccountNotFoundException("Аккаунт ID " + id + " не найден");
+                    return new AccountNotFoundException(id);
                 });
     }
 }
