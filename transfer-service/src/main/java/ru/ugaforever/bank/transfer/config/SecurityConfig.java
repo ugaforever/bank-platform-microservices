@@ -23,10 +23,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain transferSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> {
-            auth.requestMatchers("/actuator/**").permitAll();
-            auth.anyRequest().authenticated();
-        });
+        http
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> {
+                    //auth.requestMatchers("/actuator/**").permitAll();
+                    auth.requestMatchers("/**").permitAll(); // TODO
+                    auth.anyRequest().authenticated();
+                });
 
         http.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))

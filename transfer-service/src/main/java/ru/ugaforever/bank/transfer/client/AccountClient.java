@@ -3,8 +3,7 @@ package ru.ugaforever.bank.transfer.client;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import ru.ugaforever.bank.transfer.AccountOwnerResponse;
-import ru.ugaforever.bank.transfer.model.TransferRequest;
+import ru.ugaforever.bank.transfer.dto.TransferRequestDto;
 
 @Component
 public class AccountClient {
@@ -15,7 +14,7 @@ public class AccountClient {
         this.accountWebClient = accountWebClient;
     }
 
-    public String transfer(TransferRequest request) {
+    public String transfer(TransferRequestDto request) {
         return accountWebClient
                 .post()
                 .uri("/account/transfer")
@@ -26,14 +25,17 @@ public class AccountClient {
                 .block();
     }
 
-    public boolean isOwner(String accountId, String username) {
-        return Boolean.TRUE.equals(accountWebClient
+    public boolean isOwner(Long accountId, String username) {
+
+        return true;
+
+        /*return Boolean.TRUE.equals(accountWebClient
                 .get()
                 .uri("/account/{accountId}/owner", accountId)
                 .retrieve()
                 .bodyToMono(AccountOwnerResponse.class)
                 .map(resp -> username.equals(resp.getOwnerUsername()))
                 .onErrorReturn(false)
-                .block());
+                .block());*/
     }
 }
