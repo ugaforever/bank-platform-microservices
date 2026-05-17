@@ -49,8 +49,7 @@ public class MainController {
     private AccountStub accountStub;
 
     /**
-     * GET /.
-     * Редирект на GET /account
+     * GET / — редирект на GET /account
      */
     @GetMapping
     public String index() {
@@ -59,10 +58,6 @@ public class MainController {
 
     /**
      * GET /account — получение данных текущего пользователя
-     * Что нужно сделать:
-     * 1. Сходить в сервис accounts через Gateway API для получения данных аккаунта по REST
-     * 2. Заполнить модель main.html полученными из ответа данными
-     * 3. Текущего пользователя можно получить из контекста Security
      */
     @GetMapping("/account")
     public String getAccount(Model model/*, @AuthenticationPrincipal OidcUser principal*/) {
@@ -78,13 +73,7 @@ public class MainController {
     }
 
     /**
-     * POST /account.
-     * Что нужно сделать:
-     * 1. Сходить в сервис accounts через Gateway API для изменения данных текущего пользователя по REST
-     * 2. Заполнить модель main.html полученными из ответа данными
-     * 3. Текущего пользователя можно получить из контекста Security
-     *
-     * Изменяемые данные:
+     * POST /account - изменение данных
      * 1. name - Фамилия Имя
      * 2. birthdate - дата рождения в формате YYYY-DD-MM
      */

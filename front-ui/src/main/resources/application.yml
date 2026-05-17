@@ -14,17 +14,17 @@ spring:
 gateway:
   url: http://localhost:9001
 
-transfer:
-  service:
-    url: ${GATEWAY_URL:http://localhost:9001}
-
-cash:
-  service:
-    url: ${GATEWAY_URL:http://localhost:9001}
-
-account:
-  service:
-    url: ${GATEWAY_URL:http://localhost:9001}
+#transfer:
+#  service:
+#    url: ${GATEWAY_URL:http://localhost:9001}
+#
+#cash:
+#  service:
+#    url: ${GATEWAY_URL:http://localhost:9001}
+#
+#account:
+#  service:
+#    url: ${GATEWAY_URL:http://localhost:9001}
 
 #  security:
 #    oauth2:
