@@ -36,7 +36,6 @@ spring:
     gateway:
       routes:
         - id: account-service-route
-          #uri: http://localhost:9005
           uri: lb://account-service
           predicates:
             - Path=/account/**
@@ -45,7 +44,6 @@ spring:
 #            - name: TokenRelay
 
         - id: cash-service-route
-          #uri: http://localhost:9004
           uri: lb://cash-service
           predicates:
             - Path=/cash/**
@@ -54,7 +52,6 @@ spring:
 #            - name: TokenRelay
 
         - id: transfer-service-route
-          #uri: http://localhost:9003
           uri: lb://transfer-service
           predicates:
             - Path=/transfer/**

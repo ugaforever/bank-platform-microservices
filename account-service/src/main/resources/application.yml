@@ -12,6 +12,15 @@ spring:
         service-name: ${spring.application.name}
         health-check-path: /actuator/health
         health-check-interval: 10s
+    gateway:
+      routes:
+        - id: notification-service-route
+          uri: lb://notification-service
+          predicates:
+            - Path=/notification/**
+        #          TODO: uncomment
+        #          filters:
+        #            - name: TokenRelay
 
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/accounts}
