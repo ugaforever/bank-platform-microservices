@@ -58,36 +58,24 @@ public class MainController {
     }
 
     /**
-     * GET /account.
+     * GET /account — получение данных текущего пользователя
      * Что нужно сделать:
      * 1. Сходить в сервис accounts через Gateway API для получения данных аккаунта по REST
      * 2. Заполнить модель main.html полученными из ответа данными
      * 3. Текущего пользователя можно получить из контекста Security
-     */
-/*    @GetMapping("/account")
-    public String getAccount(Model model) {
-        // TODO: Заменить на то, что описано в комментарии к методу
-        accountStub.fillModel(model, null, null);
-
-        return "main";
-    }*/
-
-    /**
-     * GET /account — получение данных текущего пользователя
      */
     @GetMapping("/account")
     public String getAccount(Model model/*, @AuthenticationPrincipal OidcUser principal*/) {
         //String login = principal.getPreferredUsername();
 
         AccountResponseDto account = accountClient.getAccount(1L);
+        model.addAttribute("login", account.getLogin());
         model.addAttribute("name", account.getName());
         model.addAttribute("birthdate", account.getBirthdate());
         model.addAttribute("balance", account.getBalance());
-        model.addAttribute("login", account.getLogin());
 
         return "main";
     }
-
 
     /**
      * POST /account.
@@ -106,9 +94,12 @@ public class MainController {
             @RequestParam("name") String name,
             @RequestParam("birthdate") LocalDate birthdate
     ) {
-        // TODO: Заменить на то, что описано в комментарии к методу
-        accountStub.setNameAndBirthdate(name, birthdate);
-        accountStub.fillModel(model, null, null);
+        // TODO: 1L заменить на login (nекущего пользователя можно получить из контекста Security)
+        AccountResponseDto account = accountClient.patchAccount(1L,name, birthdate);
+        model.addAttribute("login", account.getLogin());
+        model.addAttribute("name", account.getName());
+        model.addAttribute("birthdate", account.getBirthdate());
+        model.addAttribute("balance", account.getBalance());
 
         return "main";
     }
