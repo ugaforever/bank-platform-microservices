@@ -2,7 +2,7 @@ services:
 # ================================
 # Keycloak (Auth)
 # ================================
-  keycloak:
+  bank-keycloak:
     image: quay.io/keycloak/keycloak:24.0
     container_name: bank-keycloak
     command: start-dev # --import-realm
@@ -15,15 +15,16 @@ services:
     volumes:
       - ./keycloak:/opt/keycloak/data/import
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9002/health/ready" ]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health/ready"]
       interval: 10s
       timeout: 10s
       retries: 5
+      start_period: 30s
 
 # ================================
 # Consul (Service Discovery)
 # ================================
-  consul:
+  bank-consul:
     image: hashicorp/consul:latest
     container_name: bank-consul
     restart: unless-stopped
@@ -35,7 +36,7 @@ services:
 # ================================
 # PostgreSQL Databases
 # ================================
-  account-db:
+  bank-account-db:
     image: postgres:16
     container_name: bank-account-db
     environment:
@@ -52,7 +53,7 @@ services:
     volumes:
       - account-db-data:/var/lib/postgresql/data
 
-  cash-db:
+  bank-cash-db:
     image: postgres:16
     container_name: bank-cash-db
     environment:
@@ -69,7 +70,7 @@ services:
     volumes:
       - cash-db-data:/var/lib/postgresql/data
 
-  transfer-db:
+  bank-transfer-db:
     image: postgres:16
     container_name: bank-transfer-db
     environment:
@@ -86,31 +87,36 @@ services:
     volumes:
       - transfer-db-data:/var/lib/postgresql/data
 
+# ================================
+# Services
+# ================================
+  account-service:
+    build:
+      context: ./account-service
+      dockerfile: Dockerfile
+    container_name: bank-account-service
+    environment:
+      SERVER_PORT: ${ACCOUNT_SERVICE_PORT}
+      CONSUL_HOST: ${CONSUL_HOST}
+      CONSUL_PORT: ${CONSUL_HTTP_PORT}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL_ACCOUNT}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
+    ports:
+      - "${ACCOUNT_SERVICE_PORT}:${ACCOUNT_SERVICE_PORT}"
+    depends_on:
+      bank-account-db:
+        condition: service_healthy
+      bank-consul:
+        condition: service_started
+#     bank-keycloak:
+#        condition: service_healthy
+
 volumes:
   account-db-data:
   cash-db-data:
   transfer-db-data:
-  # ================================
-  # Services
-  # ================================
-#  account-service:
-#    build:
-#      context: ./account-service
-#      dockerfile: Dockerfile
-#    container_name: account-service
-#    environment:
-#      SPRING_DATASOURCE_URL: ${ACCOUNT_DB_URL}
-#      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-#      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-#      SERVER_PORT: ${ACCOUNT_SERVICE_PORT}
-#      SPRING_PROFILES_ACTIVE: docker
-#    ports:
-#      - "${ACCOUNT_SERVICE_PORT}:${ACCOUNT_SERVICE_PORT}"
-#    depends_on:
-#      account-db:
-#        condition: service_healthy
-
-
 
 
 

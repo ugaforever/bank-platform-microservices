@@ -1,3 +1,6 @@
+server:
+  port: ${SERVER_PORT:9005}
+
 spring:
   application:
     name: account-service
@@ -5,7 +8,7 @@ spring:
   cloud:
     consul:
       host: ${CONSUL_HOST:localhost}
-      port: ${CONSUL_HTTP_PORT:8500}
+      port: ${CONSUL_PORT:8500}
       discovery:
         instance-id: ${spring.application.name}:${random.value}
         prefer-ip-address: true
@@ -23,9 +26,9 @@ spring:
         #            - name: TokenRelay
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL_ACCOUNT:jdbc:postgresql://localhost:5433/accounts}
-    username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:postgres}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/accounts}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
   jpa:
     hibernate:
       ddl-auto: update
@@ -35,9 +38,6 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9002/realms/bank-realm}
-
-server:
-  port: ${ACCOUNT_SERVICE_PORT:9005}
 
 management:
   endpoints:

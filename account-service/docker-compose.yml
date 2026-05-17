@@ -1,6 +1,6 @@
 services:
 
-  account-db:
+  bank-account-db:
     image: postgres:16
     container_name: account-db
     environment:
