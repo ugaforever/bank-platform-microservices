@@ -12,11 +12,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.ugaforever.bank.account.dto.AccountRequestDto;
-import ru.ugaforever.bank.account.dto.AccountResponseDto;
-import ru.ugaforever.bank.account.dto.AccountUpdateDto;
 import ru.ugaforever.bank.account.service.AccountService;
-import ru.ugaforever.bank.chassis.exception.ValidationException;
+import ru.ugaforever.bank.chassis.dto.AccountRequestDto;
+import ru.ugaforever.bank.chassis.dto.AccountResponseDto;
+import ru.ugaforever.bank.chassis.dto.AccountUpdateDto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

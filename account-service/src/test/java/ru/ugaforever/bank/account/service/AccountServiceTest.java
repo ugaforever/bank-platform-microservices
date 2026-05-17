@@ -6,11 +6,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.ugaforever.bank.account.dto.AccountResponseDto;
-import ru.ugaforever.bank.account.dto.AccountUpdateDto;
 import ru.ugaforever.bank.account.mapper.AccountMapper;
 import ru.ugaforever.bank.account.model.Account;
 import ru.ugaforever.bank.account.repository.AccountRepository;
+import ru.ugaforever.bank.chassis.dto.AccountResponseDto;
+import ru.ugaforever.bank.chassis.dto.AccountUpdateDto;
 import ru.ugaforever.bank.chassis.exception.ValidationException;
 
 import java.math.BigDecimal;

@@ -1,11 +1,16 @@
 package ru.ugaforever.bank.frontui.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import ru.ugaforever.bank.chassis.dto.AccountResponseDto;
+import ru.ugaforever.bank.frontui.client.AccountClient;
 import ru.ugaforever.bank.frontui.controller.dto.CashAction;
 import ru.ugaforever.bank.frontui.controller.stub.AccountStub;
 
@@ -34,7 +39,11 @@ import java.time.LocalDate;
  * С примерами использования можно ознакомиться в тестовом классе заглушке AccountStub
  */
 @Controller
+@RequiredArgsConstructor
 public class MainController {
+
+    private final AccountClient accountClient;
+
     // TODO: Удалить заглушку, так как используется только для ознакомительных целей
     @Autowired
     private AccountStub accountStub;
@@ -55,13 +64,30 @@ public class MainController {
      * 2. Заполнить модель main.html полученными из ответа данными
      * 3. Текущего пользователя можно получить из контекста Security
      */
-    @GetMapping("/account")
+/*    @GetMapping("/account")
     public String getAccount(Model model) {
         // TODO: Заменить на то, что описано в комментарии к методу
         accountStub.fillModel(model, null, null);
 
         return "main";
+    }*/
+
+    /**
+     * GET /account — получение данных текущего пользователя
+     */
+    @GetMapping("/account")
+    public String getAccount(Model model/*, @AuthenticationPrincipal OidcUser principal*/) {
+        //String login = principal.getPreferredUsername();
+
+        AccountResponseDto account = accountClient.getAccount(1L);
+        model.addAttribute("name", account.getName());
+        model.addAttribute("birthdate", account.getBirthdate());
+        model.addAttribute("balance", account.getBalance());
+        model.addAttribute("login", account.getLogin());
+
+        return "main";
     }
+
 
     /**
      * POST /account.
@@ -86,6 +112,7 @@ public class MainController {
 
         return "main";
     }
+
 
     /**
      * POST /cash.

@@ -21,7 +21,7 @@ spring:
             - id: transfer-service
               uri: http://localhost:9003
               predicates:
-                - Path=/transfers/**
+                - Path=/transfer/**
               filters:
                 - name: JwtTokenRelay
 

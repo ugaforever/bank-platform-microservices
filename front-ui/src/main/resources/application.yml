@@ -4,6 +4,26 @@ server:
 spring:
   application:
     name: front-ui
+# TODO remove
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
+
+transfer:
+  service:
+    url: http://localhost:9003
+
+cash:
+  service:
+    url: http://localhost:9004
+
+account:
+  service:
+    url: http://localhost:9005
+
+
+
 
 #  security:
 #    oauth2:

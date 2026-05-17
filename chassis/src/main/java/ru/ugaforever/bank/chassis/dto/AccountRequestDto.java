@@ -1,6 +1,5 @@
-package ru.ugaforever.bank.account.dto;
+package ru.ugaforever.bank.chassis.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;

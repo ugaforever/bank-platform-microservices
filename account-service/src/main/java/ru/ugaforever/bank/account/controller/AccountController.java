@@ -3,12 +3,11 @@ package ru.ugaforever.bank.account.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import ru.ugaforever.bank.account.dto.AccountRequestDto;
-import ru.ugaforever.bank.account.dto.AccountResponseDto;
-import ru.ugaforever.bank.account.dto.AccountUpdateDto;
 import ru.ugaforever.bank.account.service.AccountService;
+import ru.ugaforever.bank.chassis.dto.AccountRequestDto;
+import ru.ugaforever.bank.chassis.dto.AccountResponseDto;
+import ru.ugaforever.bank.chassis.dto.AccountUpdateDto;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,7 +23,7 @@ public class AccountController {
         return accountService.createAccount(dto);
     }
 
-    //curl -X GET http://localhost:9005/accounts/1
+    //curl -X GET http://localhost:9005/account/1
     @GetMapping("/{id}")
     //@PreAuthorize ??
     public AccountResponseDto get(@PathVariable Long id) {

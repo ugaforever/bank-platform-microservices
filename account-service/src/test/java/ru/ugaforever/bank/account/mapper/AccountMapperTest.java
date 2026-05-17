@@ -2,9 +2,9 @@ package ru.ugaforever.bank.account.mapper;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import ru.ugaforever.bank.account.dto.AccountRequestDto;
-import ru.ugaforever.bank.account.dto.AccountResponseDto;
 import ru.ugaforever.bank.account.model.Account;
+import ru.ugaforever.bank.chassis.dto.AccountRequestDto;
+import ru.ugaforever.bank.chassis.dto.AccountResponseDto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 
 public class AccountMapperTest {
