@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.ugaforever.bank.account.dto.AccountRequestDto;
 import ru.ugaforever.bank.account.dto.AccountResponseDto;
+import ru.ugaforever.bank.account.dto.AccountUpdateDto;
 import ru.ugaforever.bank.account.service.AccountService;
 
 @RestController
@@ -28,5 +29,15 @@ public class AccountController {
     //@PreAuthorize ??
     public AccountResponseDto get(@PathVariable Long id) {
         return accountService.getAccount(id);
+    }
+
+    @PatchMapping("/{id}")
+    //@PreAuthorize ??
+    public AccountResponseDto patchAccount(
+            @PathVariable Long id,
+            @Valid @RequestBody AccountUpdateDto updateDto
+    ) {
+
+        return accountService.updateAccount(id, updateDto);
     }
 }

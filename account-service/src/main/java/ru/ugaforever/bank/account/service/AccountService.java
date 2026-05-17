@@ -7,10 +7,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.ugaforever.bank.account.dto.AccountRequestDto;
 import ru.ugaforever.bank.account.dto.AccountResponseDto;
+import ru.ugaforever.bank.account.dto.AccountUpdateDto;
 import ru.ugaforever.bank.chassis.exception.AccountNotFoundException;
 import ru.ugaforever.bank.account.mapper.AccountMapper;
 import ru.ugaforever.bank.account.model.Account;
 import ru.ugaforever.bank.account.repository.AccountRepository;
+import ru.ugaforever.bank.chassis.exception.ValidationException;
 
 @Service
 @RequiredArgsConstructor
@@ -39,4 +41,29 @@ public class AccountService {
                     return new AccountNotFoundException(id);
                 });
     }
+
+    public AccountResponseDto updateAccount(Long id, AccountUpdateDto updateDto) {
+        log.info("Обновление аккаунта: id={}, fields={}", id, updateDto);
+
+        if (!updateDto.hasUpdates()) {
+            throw new ValidationException("Не указаны поля для обновления");
+        }
+
+        Account account = repository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException(id));
+
+        if (updateDto.getName() != null) {
+            account.setName(updateDto.getName());
+        }
+
+        if (updateDto.getBirthdate() != null) {
+            account.setBirthdate(updateDto.getBirthdate());
+        }
+
+        Account saved = repository.save(account);
+        log.info("Аккаунт обновлён: id={}", saved.getId());
+
+        return mapper.toDto(saved);
+    }
+
 }

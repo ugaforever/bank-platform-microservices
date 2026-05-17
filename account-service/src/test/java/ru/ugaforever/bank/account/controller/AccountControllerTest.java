@@ -9,19 +9,24 @@ import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAu
 import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.ugaforever.bank.account.dto.AccountRequestDto;
 import ru.ugaforever.bank.account.dto.AccountResponseDto;
+import ru.ugaforever.bank.account.dto.AccountUpdateDto;
 import ru.ugaforever.bank.account.service.AccountService;
+import ru.ugaforever.bank.chassis.exception.ValidationException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -41,6 +46,9 @@ public class AccountControllerTest {
     private static final String NAME = "Иванов Иван";
     private static final LocalDate BIRTHDATE = LocalDate.of(2001, 1, 1);
     private static final BigDecimal BALANCE = BigDecimal.valueOf(100);
+
+    private static final String UPDATE_NAME = "Иванов Сергей";
+    private static final LocalDate UPDATE_BIRTHDATE = LocalDate.of(2003, 3, 3);
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -87,6 +95,37 @@ public class AccountControllerTest {
         mockMvc.perform(get(BASE_URL + "/" + missingId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Account with ID 999 not found"));
+    }
+
+    @Test
+    @DisplayName("PATCH /account/{id} — должен обновить несколько полей и вернуть 200")
+    void shouldUpdateMultipleFields() throws Exception {
+        // given
+        AccountUpdateDto updateDto = AccountUpdateDto.builder()
+                .name(UPDATE_NAME)
+                .birthdate(UPDATE_BIRTHDATE)
+                .build();
+
+        AccountResponseDto responseDto = AccountResponseDto.builder()
+                .id(ACCOUNT_ID)
+                .login(LOGIN)
+                .name(UPDATE_NAME)
+                .birthdate(UPDATE_BIRTHDATE)
+                .balance(BALANCE)
+                .build();
+
+        when(service.updateAccount(eq(ACCOUNT_ID), any(AccountUpdateDto.class))).thenReturn(responseDto);
+
+        // when & then
+        mockMvc.perform(patch(BASE_URL + "/" + ACCOUNT_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toJson(updateDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(ACCOUNT_ID))
+                .andExpect(jsonPath("$.login").value(LOGIN))
+                .andExpect(jsonPath("$.name").value(UPDATE_NAME))
+                .andExpect(jsonPath("$.birthdate").value(UPDATE_BIRTHDATE.format(FORMATTER)))
+                .andExpect(jsonPath("$.balance").value(BALANCE.doubleValue()));
     }
 
     private String toJson(Object obj) throws Exception {
