@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import ru.ugaforever.bank.account.model.Account;
 
-import javax.print.attribute.standard.MediaSize;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
