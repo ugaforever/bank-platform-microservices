@@ -1,3 +1,4 @@
+/*
 package ru.ugaforever.bank.gateway.config;
 
 import org.springframework.context.annotation.Bean;
@@ -30,3 +31,4 @@ public class GatewaySecurityConfig {
         return new JwtTokenRelayGatewayFilterFactory();
     }
 }
+*/

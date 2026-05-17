@@ -4,26 +4,27 @@ server:
 spring:
   application:
     name: front-ui
+
 # TODO remove
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
       - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
 
+gateway:
+  url: http://localhost:9001
+
 transfer:
   service:
-    url: http://localhost:9003
+    url: ${GATEWAY_URL:http://localhost:9001}
 
 cash:
   service:
-    url: http://localhost:9004
+    url: ${GATEWAY_URL:http://localhost:9001}
 
 account:
   service:
-    url: http://localhost:9005
-
-
-
+    url: ${GATEWAY_URL:http://localhost:9001}
 
 #  security:
 #    oauth2:
