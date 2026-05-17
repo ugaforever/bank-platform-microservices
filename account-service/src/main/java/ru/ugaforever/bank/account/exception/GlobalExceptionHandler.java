@@ -15,7 +15,7 @@ import ru.ugaforever.bank.chassis.exception.AccountNotFoundException;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-//@RestControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccountNotFoundException.class)
