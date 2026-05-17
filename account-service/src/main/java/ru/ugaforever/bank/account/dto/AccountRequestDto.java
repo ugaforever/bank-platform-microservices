@@ -2,10 +2,12 @@ package ru.ugaforever.bank.account.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
@@ -13,9 +15,16 @@ import java.time.LocalDate;
 @Builder
 public class AccountRequestDto {
 
-    @NotBlank(message = "Name must not be blank")
+    @NotBlank(message = "Логин не должен быть пустым")
+    private String login;
+
+    @NotBlank(message = "Имя не должно быть пустым")
     private String name;
 
-    @NotBlank(message = "Birthdate must not be blank")
+    @NotBlank(message = "День рождения не должен быть пустым")
     private LocalDate birthdate;
+
+    @Positive(message = "Сумма должна быть больше 0")
+    private BigDecimal balance;
+
 }

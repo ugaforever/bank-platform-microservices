@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.ugaforever.bank.account.model.Account;
 import ru.ugaforever.bank.account.repository.AccountRepository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Component
@@ -21,12 +22,16 @@ public class DataInitializer implements ApplicationRunner {
         if (repository.count() == 0) {
 
             Account account1 = new Account();
+            account1.setLogin("ivanov");
             account1.setName("Иванов Иван");
             account1.setBirthdate(LocalDate.of(2001, 1, 1));
+            account1.setBalance(BigDecimal.valueOf(100));
 
             Account account2 = new Account();
+            account2.setLogin("petrov");
             account2.setName("Петров Петр");
             account2.setBirthdate(LocalDate.of(2002, 2, 2));
+            account2.setBalance(BigDecimal.valueOf(200));
 
             repository.save(account1);
             repository.save(account2);
