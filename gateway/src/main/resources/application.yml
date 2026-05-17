@@ -15,19 +15,29 @@ spring:
       - org.springframework.boot.actuate.autoconfigure.security.reactive.ReactiveManagementWebSecurityAutoConfiguration
 
 
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          # Адрес issuer (Keycloak realm). Gateway по нему получает ключи
-          # и параметры токена, чтобы валидировать JWT от UI
-          issuer-uri: http://localhost:9002/realms/bank-realm
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          # Адрес issuer (Keycloak realm). Gateway по нему получает ключи
+#          # и параметры токена, чтобы валидировать JWT от UI
+#          issuer-uri: http://localhost:9002/realms/bank-realm
 
   cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        instance-id: ${spring.application.name}:${random.value}
+        prefer-ip-address: true
+        service-name: ${spring.application.name}
+        health-check-path: /actuator/health
+        health-check-interval: 10s
     gateway:
       routes:
         - id: account-service-route
-          uri: http://localhost:9005
+          #uri: http://localhost:9005
+          uri: lb://account-service
           predicates:
             - Path=/account/**
 #          TODO: uncomment
@@ -35,7 +45,8 @@ spring:
 #            - name: TokenRelay
 
         - id: cash-service-route
-          uri: http://localhost:9004
+          #uri: http://localhost:9004
+          uri: lb://cash-service
           predicates:
             - Path=/cash/**
 #          TODO: uncomment
@@ -43,7 +54,8 @@ spring:
 #            - name: TokenRelay
 
         - id: transfer-service-route
-          uri: http://localhost:9003
+          #uri: http://localhost:9003
+          uri: lb://transfer-service
           predicates:
             - Path=/transfer/**
 #          TODO: uncomment
@@ -54,7 +66,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: health, info
+  endpoint:
+    health:
+      show-details: always
 
 logging:
   level:

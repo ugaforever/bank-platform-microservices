@@ -11,10 +11,28 @@ services:
     volumes:
       - ./keycloak:/opt/keycloak/data/import
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9092/health/ready" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:9002/health/ready" ]
       interval: 10s
       timeout: 10s
       retries: 5
+
+  consul-server:
+      image: hashicorp/consul:latest
+      container_name: consul-server
+      restart: unless-stopped
+      ports:
+        - "8500:8500"
+        - "8600:8600/udp"
+      command: 'agent -server -bootstrap-expect=1 -ui -bind=0.0.0.0 -client=0.0.0.0'
+
+#      networks:
+#        - microservices-network
+
+
+
+#  networks:
+#    microservices-network:
+#      driver: bridge
 
 #  account-service:
 #    build:
