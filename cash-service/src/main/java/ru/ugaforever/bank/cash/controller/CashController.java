@@ -2,12 +2,11 @@ package ru.ugaforever.bank.cash.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.ugaforever.bank.cash.dto.CashResponseDto;
-import ru.ugaforever.bank.cash.dto.DepositRequestDto;
-import ru.ugaforever.bank.cash.dto.WithdrawRequestDto;
+import ru.ugaforever.bank.chassis.dto.cash.CashResponseDto;
+import ru.ugaforever.bank.chassis.dto.cash.DepositRequestDto;
+import ru.ugaforever.bank.chassis.dto.cash.WithdrawRequestDto;
 import ru.ugaforever.bank.cash.service.CashService;
 
 import java.math.BigDecimal;

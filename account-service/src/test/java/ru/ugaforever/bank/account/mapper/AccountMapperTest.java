@@ -3,8 +3,8 @@ package ru.ugaforever.bank.account.mapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.ugaforever.bank.account.model.Account;
-import ru.ugaforever.bank.chassis.dto.AccountRequestDto;
-import ru.ugaforever.bank.chassis.dto.AccountResponseDto;
+import ru.ugaforever.bank.chassis.dto.account.AccountRequestDto;
+import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

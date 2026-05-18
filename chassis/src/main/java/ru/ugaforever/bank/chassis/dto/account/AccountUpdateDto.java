@@ -1,4 +1,4 @@
-package ru.ugaforever.bank.chassis.dto;
+package ru.ugaforever.bank.chassis.dto.account;
 
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;

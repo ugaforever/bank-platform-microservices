@@ -3,10 +3,9 @@ package ru.ugaforever.bank.frontui.client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.function.client.WebClient;
-import ru.ugaforever.bank.chassis.dto.AccountResponseDto;
-import ru.ugaforever.bank.chassis.dto.AccountUpdateDto;
+import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
+import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
 
 import java.time.LocalDate;
 

@@ -1,4 +1,4 @@
-package ru.ugaforever.bank.chassis.dto;
+package ru.ugaforever.bank.chassis.dto.account;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

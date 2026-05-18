@@ -41,14 +41,14 @@ public class AccountStub {
         this.birthdate = birthdate;
     }
 
-    public void editCash(Model model, int value, CashAction action) {
+    /*public void editCash(Model model, int value, CashAction action) {
         if (action == CashAction.GET && sum < value) {
             fillModel(model, List.of("Недостаточно средств на счету"), null);
         } else {
             sum = action == CashAction.GET ? sum - value : sum + value;
             fillModel(model, null, action == CashAction.GET ? "Снято %d руб".formatted(value) : "Положено %d руб".formatted(value));
         }
-    }
+    }*/
 
     public String transfer(Model model, @RequestParam("value") int value, @RequestParam("login") String login) {
         if (sum < value) {

@@ -1,11 +1,10 @@
-package ru.ugaforever.bank.cash.dto;
+package ru.ugaforever.bank.chassis.dto.cash;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Getter
 @AllArgsConstructor

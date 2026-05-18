@@ -2,17 +2,19 @@ package ru.ugaforever.bank.frontui.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import ru.ugaforever.bank.chassis.dto.AccountResponseDto;
+import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
+import ru.ugaforever.bank.chassis.dto.cash.CashResponseDto;
 import ru.ugaforever.bank.frontui.client.AccountClient;
+import ru.ugaforever.bank.frontui.client.CashClient;
 import ru.ugaforever.bank.frontui.controller.dto.CashAction;
 import ru.ugaforever.bank.frontui.controller.stub.AccountStub;
+import ru.ugaforever.bank.frontui.service.AccountService;
+import ru.ugaforever.bank.frontui.service.CashService;
 
 
 import java.time.LocalDate;
@@ -42,7 +44,10 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class MainController {
 
-    private final AccountClient accountClient;
+    private final AccountService accountService;
+    private final CashService cashService;
+
+
 
     // TODO: Удалить заглушку, так как используется только для ознакомительных целей
     @Autowired
@@ -63,7 +68,8 @@ public class MainController {
     public String getAccount(Model model/*, @AuthenticationPrincipal OidcUser principal*/) {
         //String login = principal.getPreferredUsername();
 
-        AccountResponseDto account = accountClient.getAccount(1L);
+        AccountResponseDto account = accountService.getAccount(1L);
+
         model.addAttribute("login", account.getLogin());
         model.addAttribute("name", account.getName());
         model.addAttribute("birthdate", account.getBirthdate());
@@ -84,7 +90,7 @@ public class MainController {
             @RequestParam("birthdate") LocalDate birthdate
     ) {
         // TODO: 1L заменить на login (nекущего пользователя можно получить из контекста Security)
-        AccountResponseDto account = accountClient.patchAccount(1L,name, birthdate);
+        AccountResponseDto account = accountService.patchAccount(1L, name, birthdate);
         model.addAttribute("login", account.getLogin());
         model.addAttribute("name", account.getName());
         model.addAttribute("birthdate", account.getBirthdate());
@@ -112,7 +118,24 @@ public class MainController {
             @RequestParam("action") CashAction action
             ) {
         // TODO: Заменить на то, что описано в комментарии к методу
-        accountStub.editCash(model, value, action);
+        //accountStub.editCash(model, value, action);
+
+        // TODO: 1L заменить на login (nекущего пользователя можно получить из контекста Security)
+        AccountResponseDto account = accountService.getAccount(1L);
+
+        CashResponseDto cash = switch (action) {
+            case GET -> cashService.withdraw(account, value);
+            case PUT -> cashService.deposit(account, value);
+        };
+
+        model.addAttribute("balance", cash.getBalance());
+
+        /*if (action == CashAction.GET && sum < value) {
+            fillModel(model, List.of("Недостаточно средств на счету"), null);
+        } else {
+            sum = action == CashAction.GET ? sum - value : sum + value;
+            fillModel(model, null, action == CashAction.GET ? "Снято %d руб".formatted(value) : "Положено %d руб".formatted(value));
+        }*/
 
         return "main";
     }
@@ -139,4 +162,13 @@ public class MainController {
 
         return "main";
     }
+
+    /*private void fillModel(Model model, @Nullable List<String> errors, @Nullable String info) {
+        model.addAttribute("name", name);
+        model.addAttribute("birthdate", birthdate.format(DateTimeFormatter.ISO_DATE));
+        model.addAttribute("sum", sum);
+        model.addAttribute("accounts", accounts);
+        model.addAttribute("errors", errors);
+        model.addAttribute("info", info);
+    }*/
 }

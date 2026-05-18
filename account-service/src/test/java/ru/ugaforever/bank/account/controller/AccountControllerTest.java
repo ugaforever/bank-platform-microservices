@@ -13,9 +13,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.ugaforever.bank.account.service.AccountService;
-import ru.ugaforever.bank.chassis.dto.AccountRequestDto;
-import ru.ugaforever.bank.chassis.dto.AccountResponseDto;
-import ru.ugaforever.bank.chassis.dto.AccountUpdateDto;
+import ru.ugaforever.bank.chassis.dto.account.AccountRequestDto;
+import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
+import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

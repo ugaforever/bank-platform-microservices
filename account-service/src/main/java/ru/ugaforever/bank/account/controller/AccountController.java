@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.ugaforever.bank.account.service.AccountService;
-import ru.ugaforever.bank.chassis.dto.AccountRequestDto;
-import ru.ugaforever.bank.chassis.dto.AccountResponseDto;
-import ru.ugaforever.bank.chassis.dto.AccountUpdateDto;
+import ru.ugaforever.bank.chassis.dto.account.AccountRequestDto;
+import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
+import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
 
 @RestController
 @RequiredArgsConstructor

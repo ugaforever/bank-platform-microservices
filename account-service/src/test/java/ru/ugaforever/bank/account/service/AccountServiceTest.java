@@ -9,8 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.ugaforever.bank.account.mapper.AccountMapper;
 import ru.ugaforever.bank.account.model.Account;
 import ru.ugaforever.bank.account.repository.AccountRepository;
-import ru.ugaforever.bank.chassis.dto.AccountResponseDto;
-import ru.ugaforever.bank.chassis.dto.AccountUpdateDto;
+import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
+import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
 import ru.ugaforever.bank.chassis.exception.ValidationException;
 
 import java.math.BigDecimal;
