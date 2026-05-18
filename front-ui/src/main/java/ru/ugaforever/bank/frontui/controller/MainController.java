@@ -8,11 +8,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
+import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
 import ru.ugaforever.bank.chassis.dto.cash.CashResponseDto;
 import ru.ugaforever.bank.chassis.dto.cash.CashAction;
 import ru.ugaforever.bank.frontui.controller.stub.AccountStub;
 import ru.ugaforever.bank.frontui.service.AccountService;
-import ru.ugaforever.bank.frontui.service.CashService;
+//import ru.ugaforever.bank.frontui.service.CashService;
 
 
 import java.time.LocalDate;
@@ -43,7 +44,7 @@ import java.time.LocalDate;
 public class MainController {
 
     private final AccountService accountService;
-    private final CashService cashService;
+    //private final CashService cashService;
 
 
 
@@ -88,7 +89,14 @@ public class MainController {
             @RequestParam("birthdate") LocalDate birthdate
     ) {
         // TODO: 1L заменить на login (nекущего пользователя можно получить из контекста Security)
-        AccountResponseDto account = accountService.patchAccount(1L, name, birthdate);
+
+        AccountUpdateDto update = AccountUpdateDto.builder()
+                .name(name)
+                .birthdate(birthdate)
+                .build();
+
+        AccountResponseDto account = accountService.patchAccount(1L, update);
+
         model.addAttribute("login", account.getLogin());
         model.addAttribute("name", account.getName());
         model.addAttribute("birthdate", account.getBirthdate());
@@ -109,7 +117,7 @@ public class MainController {
      * 1. value - сумма списания
      * 2. action - GET (снять), PUT (пополнить)
      */
-    @PostMapping("/cash")
+    /*@PostMapping("/cash")
     public String editCash(
             Model model,
             @RequestParam("value") int value,
@@ -128,15 +136,15 @@ public class MainController {
 
         model.addAttribute("balance", cash.getAmount());
 
-        /*if (action == CashAction.GET && sum < value) {
+        *//*if (action == CashAction.GET && sum < value) {
             fillModel(model, List.of("Недостаточно средств на счету"), null);
         } else {
             sum = action == CashAction.GET ? sum - value : sum + value;
             fillModel(model, null, action == CashAction.GET ? "Снято %d руб".formatted(value) : "Положено %d руб".formatted(value));
-        }*/
+        }*//*
 
         return "main";
-    }
+    }*/
 
     /**
      * POST /transfer.

@@ -41,3 +41,7 @@ gateway:
 #        provider:
 #          keycloak:
 #            issuer-uri: http://localhost:9002/realms/bank-realm
+
+feign:
+  httpclient:
+    enabled: true

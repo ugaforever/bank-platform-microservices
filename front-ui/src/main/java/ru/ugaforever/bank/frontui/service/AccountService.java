@@ -4,7 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
-import ru.ugaforever.bank.frontui.client.AccountClient;
+import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
+import ru.ugaforever.bank.frontui.client.GatewayClient;
 
 import java.time.LocalDate;
 
@@ -12,30 +13,34 @@ import java.time.LocalDate;
 @Service
 @RequiredArgsConstructor
 public class AccountService {
-    private final AccountClient accountClient;
+
+    private final GatewayClient gatewayClient;
+
+    //private final AccountClient accountClient;
 
     public AccountResponseDto getAccount(Long id){
         log.info("Получение аккаунта: id={}", id);
 
         //бизнес-логика на будущее
 
-        return accountClient.getAccount(id);
+        return gatewayClient.getAccount(id);
     }
 
-    public AccountResponseDto patchAccount(Long id, String name, LocalDate birthdate) {
-        log.info("Обновление аккаунта: id={}, name={}, birthdate={}", id, name, birthdate);
+    public AccountResponseDto patchAccount(Long id, AccountUpdateDto update) {
+        log.info("Обновление аккаунта: id={}, name={}, birthdate={}", id, update.getName(), update.getBirthdate());
 
         // бизнес-логика на будущее
 
-        if (name == null || name.isBlank()) {
+        // TODO: проверки через аннотации в DTO
+        if (update.getName() == null || update.getName().isBlank()) {
             throw new IllegalArgumentException("Имя не может быть пустым");
         }
 
-        if (birthdate != null && birthdate.isAfter(LocalDate.now())) {
+        if (update.getBirthdate() != null && update.getBirthdate().isAfter(LocalDate.now())) {
             throw new IllegalArgumentException("Дата рождения не может быть в будущем");
         }
 
-        return accountClient.patchAccount(id, name, birthdate);
+        return gatewayClient.patchAccount(id, update);
     }
 
 

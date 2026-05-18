@@ -1,4 +1,4 @@
-package ru.ugaforever.bank.frontui.client;
+package ru.ugaforever.bank.cash.client;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,21 +19,6 @@ public class AccountClient {
     public AccountResponseDto getAccount(Long id) {
         return accountWebClient.get()
                 .uri("/account/{id}", id)
-                .retrieve()
-                .bodyToMono(AccountResponseDto.class)
-                .block();
-    }
-
-    public AccountResponseDto patchAccount(Long id, String name, LocalDate birthdate) {
-
-        AccountUpdateDto request = AccountUpdateDto.builder()
-                .name(name)
-                .birthdate(birthdate)
-                .build();
-
-        return accountWebClient.patch()
-                .uri("/account/{id}", id)
-                .bodyValue(request)
                 .retrieve()
                 .bodyToMono(AccountResponseDto.class)
                 .block();

@@ -1,3 +1,4 @@
+/*
 package ru.ugaforever.bank.frontui.service;
 
 import lombok.RequiredArgsConstructor;
@@ -28,3 +29,4 @@ public class CashService {
         return cashClient.deposit(account, value);
     }
 }
+*/
