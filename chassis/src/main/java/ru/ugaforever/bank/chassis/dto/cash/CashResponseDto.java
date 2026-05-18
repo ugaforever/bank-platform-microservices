@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 @Getter
 @AllArgsConstructor
@@ -12,5 +13,7 @@ import java.math.BigDecimal;
 public class CashResponseDto {
     private Long id;
     private Long accountId;
-    private BigDecimal balance;
+    private CashAction action;
+    private BigDecimal amount;
+    private Instant actionAt;
 }

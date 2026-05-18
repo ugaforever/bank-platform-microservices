@@ -7,8 +7,8 @@ spring:
 
   cloud:
     consul:
-      host: localhost
-      port: 8500
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
       discovery:
         instance-id: ${spring.application.name}:${random.value}
         prefer-ip-address: true
@@ -34,7 +34,7 @@ spring:
         #            - name: TokenRelay
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/cashes}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5434/accounts}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:postgres}
 
@@ -47,7 +47,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:9002/realms/bank-realm
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9002/realms/bank-realm}
 
 management:
   endpoints:

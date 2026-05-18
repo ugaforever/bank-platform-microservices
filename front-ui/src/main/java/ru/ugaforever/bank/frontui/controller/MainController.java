@@ -9,9 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.cash.CashResponseDto;
-import ru.ugaforever.bank.frontui.client.AccountClient;
-import ru.ugaforever.bank.frontui.client.CashClient;
-import ru.ugaforever.bank.frontui.controller.dto.CashAction;
+import ru.ugaforever.bank.chassis.dto.cash.CashAction;
 import ru.ugaforever.bank.frontui.controller.stub.AccountStub;
 import ru.ugaforever.bank.frontui.service.AccountService;
 import ru.ugaforever.bank.frontui.service.CashService;
@@ -128,7 +126,7 @@ public class MainController {
             case PUT -> cashService.deposit(account, value);
         };
 
-        model.addAttribute("balance", cash.getBalance());
+        model.addAttribute("balance", cash.getAmount());
 
         /*if (action == CashAction.GET && sum < value) {
             fillModel(model, List.of("Недостаточно средств на счету"), null);

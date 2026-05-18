@@ -14,7 +14,6 @@ public class CashService {
 
     private final CashClient cashClient;
 
-
     public CashResponseDto withdraw(AccountResponseDto account, int value) {
         log.info("Снятие виртуальных денег: id={}, value={},", account.getId(), value);
 

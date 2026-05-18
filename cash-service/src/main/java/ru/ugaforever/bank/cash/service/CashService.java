@@ -6,11 +6,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.ugaforever.bank.chassis.dto.cash.CashResponseDto;
-import ru.ugaforever.bank.chassis.dto.cash.DepositRequestDto;
-import ru.ugaforever.bank.chassis.dto.cash.WithdrawRequestDto;
 import ru.ugaforever.bank.cash.mapper.CashMapper;
 import ru.ugaforever.bank.cash.model.Cash;
 import ru.ugaforever.bank.cash.repository.CashRepository;
+import ru.ugaforever.bank.chassis.dto.cash.DepositRequestDto;
+import ru.ugaforever.bank.chassis.dto.cash.WithdrawRequestDto;
 import ru.ugaforever.bank.chassis.exception.AccountNotFoundException;
 import ru.ugaforever.bank.chassis.exception.InsufficientFundsException;
 import ru.ugaforever.bank.chassis.exception.ValidationException;
@@ -30,7 +30,8 @@ public class CashService {
     public CashResponseDto deposit(DepositRequestDto request) {
         log.info("Пополнение баланса: accountId={}, amount={}", request.getAccountId(), request.getAmount());
 
-        if (request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+
+        /*if (request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             log.warn("Некорректная сумма пополнения: {}", request.getAmount());
             throw new ValidationException("Сумма пополнения должна быть больше 0");
         }
@@ -44,16 +45,19 @@ public class CashService {
         BigDecimal newBalance = cash.getBalance().add(request.getAmount());
         cash.setBalance(newBalance);
 
-        Cash saved = repository.save(cash);
-        log.info("Баланс пополнен: accountId={}, новый баланс={}", saved.getId(), saved.getBalance());
+        Cash saved = repository.save(cash);*/
+
+        //log.info("Баланс пополнен: accountId={}, новый баланс={}", saved.getId(), saved.getBalance());
 
         // TODO notificationService.sendNotification(...);
 
-        return mapper.toDto(saved);
+        //return mapper.toDto(saved);
+
+        return CashResponseDto.builder().build();
     }
 
     public CashResponseDto withdraw(WithdrawRequestDto request) {
-        log.info("Снятие денег: accountId={}, amount={}", request.getAccountId(), request.getAmount());
+        /*log.info("Снятие денег: accountId={}, amount={}", request.getAccountId(), request.getAmount());
 
         if (request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             log.warn("Некорректная сумма снятия: {}", request.getAmount());
@@ -81,10 +85,12 @@ public class CashService {
 
         // TODO notificationService.sendNotification(...);
 
-        return mapper.toDto(saved);
+        return mapper.toDto(saved);*/
+
+        return CashResponseDto.builder().build();
     }
 
-    public BigDecimal getBalance(Long accountId) {
+    /*public BigDecimal getBalance(Long accountId) {
         log.debug("Проверка баланса: accountId={}", accountId);
 
         Cash cash = repository.findById(accountId)
@@ -94,6 +100,6 @@ public class CashService {
                 });
 
         return cash.getBalance();
-    }
+    }*/
 }
 

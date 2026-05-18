@@ -10,13 +10,14 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DepositRequestDto {
     @NotNull(message = "ID аккаунта обязателен")
     private Long accountId;
 
+    @NotNull(message = "Сумма обязательна")
     @Positive(message = "Сумма должна быть больше 0")
     private BigDecimal amount;
 }
