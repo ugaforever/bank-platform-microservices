@@ -1,3 +1,4 @@
+/*
 package ru.ugaforever.bank.transfer.config;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +12,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class AccountClientConfig {
 
-    /**
+    */
+/**
      * Настраиваем OAuth2AuthorizedClientManager —
      * компонент, который умеет:
      * - создавать сервисный access token по Client Credentials Flow,
@@ -20,7 +22,8 @@ public class AccountClientConfig {
      * <p>
      * Здесь мы указываем, что transfer-service использует Client Credentials Flow,
      * поэтому включаем только clientCredentials().
-     */
+     *//*
+
     @Bean
     public OAuth2AuthorizedClientManager authorizedClientManager(
             ClientRegistrationRepository clientRegistrationRepository,
@@ -44,14 +47,16 @@ public class AccountClientConfig {
         return manager;
     }
 
-    /**
+    */
+/**
      * WebClient для запросов transfer-service → account-service.
      * <p>
      * Важный момент:
      * - этот WebClient автоматически добавляет Authorization: Bearer <service-token>
      * благодаря ServletOAuth2AuthorizedClientExchangeFilterFunction;
      * - вызывающий код не должен думать о токенах вручную.
-     */
+     *//*
+
     @Bean
     public WebClient accountWebClient(
             OAuth2AuthorizedClientManager authorizedClientManager,
@@ -75,3 +80,4 @@ public class AccountClientConfig {
     }
 }
 
+*/

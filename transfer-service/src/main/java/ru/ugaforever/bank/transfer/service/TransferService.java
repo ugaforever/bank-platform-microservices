@@ -8,6 +8,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.ugaforever.bank.transfer.client.AccountClient;
+import ru.ugaforever.bank.transfer.client.NotificationClient;
 import ru.ugaforever.bank.transfer.dto.TransferRequestDto;
 import ru.ugaforever.bank.transfer.mapper.TransferMapper;
 import ru.ugaforever.bank.transfer.repository.TransferRepository;
@@ -23,6 +24,7 @@ public class TransferService {
     private final TransferMapper mapper;
 
     private final AccountClient accountsClient;
+    private final NotificationClient notificationClient;
 
 
     public String preview() {
@@ -30,7 +32,7 @@ public class TransferService {
         return "Предпросмотр перевода: всё выглядит корректно.";
     }
 
-    public String submit(TransferRequestDto request, JwtAuthenticationToken authentication) {
+    /*public String submit(TransferRequestDto request, JwtAuthenticationToken authentication) {
         String username = authentication.getToken().getClaimAsString("preferred_username");
 
         log.info("Запрос перевода: user={}, from={}, to={}, amount={}",
@@ -50,5 +52,5 @@ public class TransferService {
         String result = accountsClient.transfer(request);
         log.info("Перевод выполнен успешно: {}", result);
         return result;
-    }
+    }*/
 }

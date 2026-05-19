@@ -25,7 +25,7 @@ public class TransferController {
         return transferService.preview();
     }
 
-    @PostMapping
+    /*@PostMapping
     //@PreAuthorize("hasRole('USER') && hasAuthority('transfer.write')")
     public String submit(
             @RequestBody TransferRequestDto request,
@@ -33,5 +33,5 @@ public class TransferController {
     ) {
         log.info("Submit called by {} with authorities {}", authentication.getName(), authentication.getAuthorities());
         return transferService.submit(request, authentication);
-    }
+    }*/
 }

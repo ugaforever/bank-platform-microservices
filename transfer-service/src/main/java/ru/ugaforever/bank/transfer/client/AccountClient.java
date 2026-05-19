@@ -1,41 +1,25 @@
 package ru.ugaforever.bank.transfer.client;
 
-import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-import ru.ugaforever.bank.transfer.dto.TransferRequestDto;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
+import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
+import ru.ugaforever.bank.transfer.config.FeignConfig;
 
-@Component
-public class AccountClient {
+@FeignClient(
+        name = "account-service",
+        url = "${account.service.url:http://notification-service:9005}",
+        configuration = FeignConfig.class
+)
+public interface AccountClient {
 
-    private final WebClient accountWebClient;
+    @GetMapping("/account/{id}")
+    AccountResponseDto getAccount(@PathVariable("id") Long id);
 
-    public AccountClient(WebClient accountWebClient) {
-        this.accountWebClient = accountWebClient;
-    }
-
-    public String transfer(TransferRequestDto request) {
-        return accountWebClient
-                .post()
-                .uri("/account/transfer")
-                .bodyValue(request)
-                .retrieve()
-                .bodyToMono(String.class)
-                .onErrorResume(throwable -> Mono.just("Ошибка при обращении к account-service: " + throwable.getMessage()))
-                .block();
-    }
-
-    public boolean isOwner(Long accountId, String username) {
-
-        return true;
-
-        /*return Boolean.TRUE.equals(accountWebClient
-                .get()
-                .uri("/account/{accountId}/owner", accountId)
-                .retrieve()
-                .bodyToMono(AccountOwnerResponse.class)
-                .map(resp -> username.equals(resp.getOwnerUsername()))
-                .onErrorReturn(false)
-                .block());*/
-    }
+    @PatchMapping("/account/{id}")
+    AccountResponseDto patchAccount(@PathVariable("id") Long id,
+                                    @RequestBody AccountUpdateDto updateDto);
 }

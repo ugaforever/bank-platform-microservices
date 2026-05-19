@@ -1,18 +1,14 @@
 server:
   port: ${CASH_SERVER_PORT:9003}
 
-#bank:
-#  account-service:
-#    base-url: http://localhost:9005
-
 spring:
   application:
     name: transfer-service
 
   cloud:
     consul:
-      host: localhost
-      port: 8500
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
       discovery:
         instance-id: ${spring.application.name}:${random.value}
         prefer-ip-address: true
@@ -51,17 +47,21 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:9002/realms/bank-realm
-      client:
-        registration:
-          transfer-service:
-            provider: keycloak
-            client-id: transfer-service
-            client-secret: D68a7ktWHTKeZIwQRwTI0FrpJLZzq3AK
-            authorization-grant-type: client_credentials
-        provider:
-          keycloak:
-            issuer-uri: http://localhost:9002/realms/bank-realm
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9002/realms/bank-realm}
+#      client:
+#        registration:
+#          transfer-service:
+#            provider: keycloak
+#            client-id: transfer-service
+#            client-secret: D68a7ktWHTKeZIwQRwTI0FrpJLZzq3AK
+#            authorization-grant-type: client_credentials
+#        provider:
+#          keycloak:
+#            issuer-uri: http://localhost:9002/realms/bank-realm
+
+feign:
+  httpclient:
+    enabled: true
 
 management:
   endpoints:
