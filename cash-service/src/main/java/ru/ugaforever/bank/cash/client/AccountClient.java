@@ -1,26 +1,22 @@
 package ru.ugaforever.bank.cash.client;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.*;
+import ru.ugaforever.bank.cash.config.FeignConfig;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
 
-import java.time.LocalDate;
+@FeignClient(
+        name = "account-service",
+        url = "${account.service.url:http://notification-service:9005}",
+        configuration = FeignConfig.class
+)
+public interface AccountClient {
 
-@Component
-@RequiredArgsConstructor
-public class AccountClient {
+    @GetMapping("/account/{id}")
+    AccountResponseDto getAccount(@PathVariable("id") Long id);
 
-    @Qualifier("accountWebClient")
-    private final WebClient accountWebClient;
-
-    public AccountResponseDto getAccount(Long id) {
-        return accountWebClient.get()
-                .uri("/account/{id}", id)
-                .retrieve()
-                .bodyToMono(AccountResponseDto.class)
-                .block();
-    }
+    @PatchMapping("/account/{id}")
+    AccountResponseDto patchAccount(@PathVariable("id") Long id,
+                                    @RequestBody AccountUpdateDto updateDto);
 }
