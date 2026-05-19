@@ -35,11 +35,6 @@ public class AccountStub {
                 .get();
     }
 
-    public void setNameAndBirthdate(String name, LocalDate birthdate) {
-        this.name = name;
-        this.birthdate = birthdate;
-    }
-
     /*public void editCash(Model model, int value, CashAction action) {
         if (action == CashAction.GET && sum < value) {
             fillModel(model, List.of("Недостаточно средств на счету"), null);

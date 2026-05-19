@@ -43,15 +43,6 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class MainController {
 
-    private final AccountService accountService;
-    //private final CashService cashService;
-
-
-
-    // TODO: Удалить заглушку, так как используется только для ознакомительных целей
-    @Autowired
-    private AccountStub accountStub;
-
     /**
      * GET / — редирект на GET /account
      */
@@ -60,114 +51,9 @@ public class MainController {
         return "redirect:/account";
     }
 
-    /**
-     * GET /account — получение данных текущего пользователя
-     */
-    @GetMapping("/account")
-    public String getAccount(Model model/*, @AuthenticationPrincipal OidcUser principal*/) {
-        //String login = principal.getPreferredUsername();
-
-        AccountResponseDto account = accountService.getAccount(1L);
-
-        model.addAttribute("login", account.getLogin());
-        model.addAttribute("name", account.getName());
-        model.addAttribute("birthdate", account.getBirthdate());
-        model.addAttribute("balance", account.getBalance());
-
-        return "main";
-    }
-
-    /**
-     * POST /account - изменение данных
-     * 1. name - Фамилия Имя
-     * 2. birthdate - дата рождения в формате YYYY-DD-MM
-     */
-    @PostMapping("/account")
-    public String editAccount(
-            Model model,
-            @RequestParam("name") String name,
-            @RequestParam("birthdate") LocalDate birthdate
-    ) {
-        // TODO: 1L заменить на login (nекущего пользователя можно получить из контекста Security)
-
-        AccountUpdateDto update = AccountUpdateDto.builder()
-                .name(name)
-                .birthdate(birthdate)
-                .build();
-
-        AccountResponseDto account = accountService.patchAccount(1L, update);
-
-        model.addAttribute("login", account.getLogin());
-        model.addAttribute("name", account.getName());
-        model.addAttribute("birthdate", account.getBirthdate());
-        model.addAttribute("balance", account.getBalance());
-
-        return "main";
-    }
-
-
-    /**
-     * POST /cash.
-     * Что нужно сделать:
-     * 1. Сходить в сервис cash через Gateway API для снятия/пополнения счета текущего аккаунта по REST
-     * 2. Заполнить модель main.html полученными из ответа данными
-     * 3. Текущего пользователя можно получить из контекста Security
-     *
-     * Параметры:
-     * 1. value - сумма списания
-     * 2. action - GET (снять), PUT (пополнить)
-     */
-    /*@PostMapping("/cash")
-    public String editCash(
-            Model model,
-            @RequestParam("value") int value,
-            @RequestParam("action") CashAction action
-            ) {
-        // TODO: Заменить на то, что описано в комментарии к методу
-        //accountStub.editCash(model, value, action);
-
-        // TODO: 1L заменить на login (nекущего пользователя можно получить из контекста Security)
-        AccountResponseDto account = accountService.getAccount(1L);
-
-        CashResponseDto cash = switch (action) {
-            case GET -> cashService.withdraw(account, value);
-            case PUT -> cashService.deposit(account, value);
-        };
-
-        model.addAttribute("balance", cash.getAmount());
-
-        *//*if (action == CashAction.GET && sum < value) {
-            fillModel(model, List.of("Недостаточно средств на счету"), null);
-        } else {
-            sum = action == CashAction.GET ? sum - value : sum + value;
-            fillModel(model, null, action == CashAction.GET ? "Снято %d руб".formatted(value) : "Положено %d руб".formatted(value));
-        }*//*
-
-        return "main";
-    }*/
-
-    /**
-     * POST /transfer.
-     * Что нужно сделать:
-     * 1. Сходить в сервис accounts через Gateway API для перевода со счета текущего аккаунта на счет другого аккаунта по REST
-     * 2. Заполнить модель main.html полученными из ответа данными
-     * 3. Текущего пользователя можно получить из контекста Security
-     *
-     * Параметры:
-     * 1. value - сумма списания
-     * 2. login - логин пользователя получателя
-     */
-    @PostMapping("/transfer")
-    public String transfer(
-            Model model,
-            @RequestParam("value") int value,
-            @RequestParam("login") String login
-    ) {
-        // TODO: Заменить на то, что описано в комментарии к методу
-        accountStub.transfer(model, value, login);
-
-        return "main";
-    }
+    // TODO: Удалить заглушку, так как используется только для ознакомительных целей
+    @Autowired
+    private AccountStub accountStub;
 
     /*private void fillModel(Model model, @Nullable List<String> errors, @Nullable String info) {
         model.addAttribute("name", name);

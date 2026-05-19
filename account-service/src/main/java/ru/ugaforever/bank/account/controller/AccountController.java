@@ -23,7 +23,6 @@ public class AccountController {
         return accountService.createAccount(dto);
     }
 
-    //curl -X GET http://localhost:9005/account/1
     @GetMapping("/{id}")
     //@PreAuthorize ??
     public AccountResponseDto get(@PathVariable Long id) {
