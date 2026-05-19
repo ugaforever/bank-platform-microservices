@@ -16,8 +16,6 @@ public class AccountService {
 
     private final GatewayClient gatewayClient;
 
-    //private final AccountClient accountClient;
-
     public AccountResponseDto getAccount(Long id){
         log.info("Получение аккаунта: id={}", id);
 
