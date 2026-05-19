@@ -30,27 +30,27 @@ public class AccountService {
         return mapper.toDto(saved);
     }
 
-    public AccountResponseDto getAccount(Long id) {
+    public AccountResponseDto getAccount(String login) {
 
-        log.debug("Запрошен аккаунт: {}", id);
+        log.debug("Запрошен аккаунт: login={}", login);
 
-        return repository.findById(id)
+        return repository.findByLogin(login)
                 .map(mapper::toDto)
                 .orElseThrow(() -> {
-                    log.warn("Аккаунт не найден: {}", id);
-                    return new AccountNotFoundException(id);
+                    log.warn("Аккаунт не найден: {}", login);
+                    return new AccountNotFoundException(login);
                 });
     }
 
-    public AccountResponseDto updateAccount(Long id, AccountUpdateDto updateDto) {
-        log.info("Обновление аккаунта: id={}, fields={}", id, updateDto);
+    public AccountResponseDto updateAccount(String login, AccountUpdateDto updateDto) {
+        log.info("Обновление аккаунта: login={}, fields={}", login, updateDto);
 
         if (!updateDto.hasUpdates()) {
             throw new ValidationException("Не указаны поля для обновления");
         }
 
-        Account account = repository.findById(id)
-                .orElseThrow(() -> new AccountNotFoundException(id));
+        Account account = repository.findByLogin(login)
+                .orElseThrow(() -> new AccountNotFoundException(login));
 
         if (updateDto.getName() != null) {
             account.setName(updateDto.getName());

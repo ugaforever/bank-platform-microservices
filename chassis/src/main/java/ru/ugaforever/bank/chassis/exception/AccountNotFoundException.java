@@ -1,7 +1,7 @@
 package ru.ugaforever.bank.chassis.exception;
 
 public class AccountNotFoundException extends ResourceNotFoundException {
-    public AccountNotFoundException(Long id) {
-        super("Account", id.toString());
+    public AccountNotFoundException(String login) {
+        super("Account", login);
     }
 }

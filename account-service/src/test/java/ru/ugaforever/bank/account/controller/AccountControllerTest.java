@@ -71,11 +71,11 @@ public class AccountControllerTest {
     }
 
     @Test
-    @DisplayName("GET /account/{id} — должен вернуть пользователя")
-    void shouldGetAccountById() throws Exception {
-        when(service.getAccount(ACCOUNT_ID)).thenReturn(validResponse);
+    @DisplayName("GET /account/{login} — должен вернуть пользователя")
+    void shouldGetAccountByLogin() throws Exception {
+        when(service.getAccount(LOGIN)).thenReturn(validResponse);
 
-        mockMvc.perform(get(BASE_URL + "/" + ACCOUNT_ID))
+        mockMvc.perform(get(BASE_URL + "/" + LOGIN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(ACCOUNT_ID))
                 .andExpect(jsonPath("$.login").value(LOGIN))
@@ -85,19 +85,19 @@ public class AccountControllerTest {
     }
 
     @Test
-    @DisplayName("GET /account/{id} — должен вернуть 404 если не найден")
+    @DisplayName("GET /account/{login} — должен вернуть 404 если не найден")
     void shouldReturn404WhenAccountNotFound() throws Exception {
-        long missingId = 999L;
-        when(service.getAccount(missingId))
-                .thenThrow(new IllegalArgumentException("Account with ID " + missingId + " not found"));
+        String missingLogin = "missingLogin";
+        when(service.getAccount(missingLogin))
+                .thenThrow(new IllegalArgumentException("Account with ID " + missingLogin + " not found"));
 
-        mockMvc.perform(get(BASE_URL + "/" + missingId))
+        mockMvc.perform(get(BASE_URL + "/" + missingLogin))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("Account with ID 999 not found"));
+                .andExpect(jsonPath("$.message").value("Account with ID " + missingLogin + " not found"));
     }
 
     @Test
-    @DisplayName("PATCH /account/{id} — должен обновить несколько полей и вернуть 200")
+    @DisplayName("PATCH /account/{login} — должен обновить несколько полей и вернуть 200")
     void shouldUpdateMultipleFields() throws Exception {
         // given
         AccountUpdateDto updateDto = AccountUpdateDto.builder()
@@ -113,10 +113,10 @@ public class AccountControllerTest {
                 .balance(BALANCE)
                 .build();
 
-        when(service.updateAccount(eq(ACCOUNT_ID), any(AccountUpdateDto.class))).thenReturn(responseDto);
+        when(service.updateAccount(eq(LOGIN), any(AccountUpdateDto.class))).thenReturn(responseDto);
 
         // when & then
-        mockMvc.perform(patch(BASE_URL + "/" + ACCOUNT_ID)
+        mockMvc.perform(patch(BASE_URL + "/" + LOGIN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toJson(updateDto)))
                 .andExpect(status().isOk())

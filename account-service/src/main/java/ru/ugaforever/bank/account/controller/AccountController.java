@@ -23,19 +23,19 @@ public class AccountController {
         return accountService.createAccount(dto);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{login}")
     //@PreAuthorize ??
-    public AccountResponseDto get(@PathVariable Long id) {
-        return accountService.getAccount(id);
+    public AccountResponseDto get(@PathVariable String login) {
+        return accountService.getAccount(login);
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/{login}")
     //@PreAuthorize ??
     public AccountResponseDto patchAccount(
-            @PathVariable Long id,
+            @PathVariable String login,
             @Valid @RequestBody AccountUpdateDto updateDto
     ) {
 
-        return accountService.updateAccount(id, updateDto);
+        return accountService.updateAccount(login, updateDto);
     }
 }

@@ -44,8 +44,8 @@ public class AccountServiceTest {
     private AccountService service;
 
     @Test
-    @DisplayName("getAccount(id) — должен вернуть пользователя, если он найден")
-    void shouldReturnAccountById() {
+    @DisplayName("getAccount(login) — должен вернуть пользователя, если он найден")
+    void shouldReturnAccountByLogin() {
         Account account = Account.builder()
                 .id(ACCOUNT_ID)
                 .login(LOGIN)
@@ -62,10 +62,10 @@ public class AccountServiceTest {
                 .balance(BALANCE)
                 .build();
 
-        when(repository.findById(ACCOUNT_ID)).thenReturn(Optional.of(account));
+        when(repository.findByLogin(LOGIN)).thenReturn(Optional.of(account));
         when(mapper.toDto(account)).thenReturn(dto);
 
-        AccountResponseDto result = service.getAccount(ACCOUNT_ID);
+        AccountResponseDto result = service.getAccount(LOGIN);
 
         assertThat(result.getId()).isEqualTo(ACCOUNT_ID);
         assertThat(result.getLogin()).isEqualTo(LOGIN);
@@ -75,7 +75,7 @@ public class AccountServiceTest {
     }
 
     @Test
-    @DisplayName("updateAccount(id, updateDto) — должен обновить и имя, и дату рождения одновременно")
+    @DisplayName("updateAccount(login, updateDto) — должен обновить и имя, и дату рождения одновременно")
     void shouldUpdateAccountNameAndBirthdateById() {
 
         AccountUpdateDto updateDto = AccountUpdateDto.builder()
@@ -107,12 +107,12 @@ public class AccountServiceTest {
                 .balance(BALANCE)
                 .build();
 
-        when(repository.findById(ACCOUNT_ID)).thenReturn(Optional.of(existingAccount));
+        when(repository.findByLogin(LOGIN)).thenReturn(Optional.of(existingAccount));
         when(repository.save(any(Account.class))).thenReturn(updatedAccount);
         when(mapper.toDto(updatedAccount)).thenReturn(responseDto);
 
         // when
-        AccountResponseDto result = service.updateAccount(ACCOUNT_ID, updateDto);
+        AccountResponseDto result = service.updateAccount(LOGIN, updateDto);
 
         // then
         assertThat(result.getId()).isEqualTo(ACCOUNT_ID);
@@ -121,13 +121,13 @@ public class AccountServiceTest {
         assertThat(result.getBirthdate()).isEqualTo(UPDATE_BIRTHDATE);
         assertThat(result.getBalance()).isEqualTo(BALANCE);
 
-        verify(repository).findById(ACCOUNT_ID);
+        verify(repository).findByLogin(LOGIN);
         verify(repository).save(any(Account.class));
         verify(mapper).toDto(updatedAccount);
     }
 
     @Test
-    @DisplayName("updateAccount(id, updateDto) — должен выбросить исключение, если не указаны поля для обновления")
+    @DisplayName("updateAccount(login, updateDto) — должен выбросить исключение, если не указаны поля для обновления")
     void shouldThrowExceptionWhenNoFieldsToUpdate() {
         // given
         AccountUpdateDto updateDto = AccountUpdateDto.builder()
@@ -136,7 +136,7 @@ public class AccountServiceTest {
                 .build();
 
         // when & then
-        assertThatThrownBy(() -> service.updateAccount(ACCOUNT_ID, updateDto))
+        assertThatThrownBy(() -> service.updateAccount(LOGIN, updateDto))
                 .isInstanceOf(ValidationException.class)
                 .hasMessageContaining("Не указаны поля для обновления");
 
@@ -148,7 +148,7 @@ public class AccountServiceTest {
     @DisplayName("updateAccount(id, updateDto) — должен выбросить исключение, если updateDto равен null")
     void shouldThrowExceptionWhenUpdateDtoIsNull() {
         // when & then
-        assertThatThrownBy(() -> service.updateAccount(ACCOUNT_ID, null))
+        assertThatThrownBy(() -> service.updateAccount(LOGIN, null))
                 .isInstanceOf(NullPointerException.class);
     }
 
