@@ -7,8 +7,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.ugaforever.bank.chassis.client.AccountClient;
 import ru.ugaforever.bank.chassis.client.NotificationClient;
+import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
+import ru.ugaforever.bank.chassis.dto.cash.DepositRequestDto;
+import ru.ugaforever.bank.chassis.dto.cash.WithdrawRequestDto;
+import ru.ugaforever.bank.chassis.dto.transfer.TransferRequestDto;
+import ru.ugaforever.bank.chassis.dto.transfer.TransferResponseDto;
+import ru.ugaforever.bank.chassis.exception.BusinessRuleException;
+import ru.ugaforever.bank.chassis.exception.ValidationException;
 import ru.ugaforever.bank.transfer.mapper.TransferMapper;
+import ru.ugaforever.bank.transfer.model.Transfer;
 import ru.ugaforever.bank.transfer.repository.TransferRepository;
+
+import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -17,37 +27,55 @@ public class TransferService {
 
     private static final Logger log = LoggerFactory.getLogger(TransferService.class);
 
+    private final AccountClient accountClient;
     private final TransferRepository repository;
     private final TransferMapper mapper;
-
-    private final AccountClient accountsClient;
-    private final NotificationClient notificationClient;
-
 
     public String preview() {
         log.debug("Запрошен предпросмотр перевода");
         return "Предпросмотр перевода: всё выглядит корректно.";
     }
 
-    /*public String submit(TransferRequestDto request, JwtAuthenticationToken authentication) {
-        String username = authentication.getToken().getClaimAsString("preferred_username");
+    public TransferResponseDto submit(TransferRequestDto request/*, JwtAuthenticationToken authentication*/) {
+        log.info("Transfer cash: from={}, from={}, amount={}", request.getFromLogin(), request.getToLogin(), request.getAmount());
 
-        log.info("Запрос перевода: user={}, from={}, to={}, amount={}",
-                username, request.getFromAccountId(), request.getToAccountId(), request.getAmount());
+        /*String username = authentication.getToken().getClaimAsString("preferred_username");
+        if (request.getFromLogin() != username){
+            throw new ValidationException("Пользователь " + username + " не является владельцем счёта " + request.getFromLogin());
+        }*/
 
-        boolean owner = accountsClient.isOwner(request.getFromAccountId(), username);
-        log.debug("Проверка владельца счёта: user={}, from={}, isOwner={}",
-                username, request.getFromAccountId(), owner);
-
-        if (!owner) {
-            log.warn("Отказ в переводе: пользователь {} не владелец счёта {}", username, request.getFromAccountId());
-            throw new AccessDeniedException(
-                    "Пользователь " + username + " не является владельцем счёта " + request.getFromAccountId()
-            );
+        if (request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ValidationException("Сумма должна быть больше 0");
         }
 
-        String result = accountsClient.transfer(request);
-        log.info("Перевод выполнен успешно: {}", result);
-        return result;
-    }*/
+        AccountResponseDto accountFrom = accountClient.getAccount(request.getFromLogin());
+        if (accountFrom.getBalance().compareTo(request.getAmount()) < 0) {
+            throw new BusinessRuleException("Недостаточно средств");
+        }
+
+        WithdrawRequestDto withdrawDto = WithdrawRequestDto.builder()
+                .login(request.getFromLogin())
+                .amount(request.getAmount())
+                .build();
+
+        accountClient.withdraw(request.getFromLogin(), withdrawDto);
+
+        DepositRequestDto depositDto = DepositRequestDto.builder()
+                .login(request.getToLogin())
+                .amount(request.getAmount())
+                .build();
+
+        accountClient.deposit(request.getToLogin(), depositDto);
+
+        Transfer transfer = Transfer.builder()
+                .fromLogin(request.getFromLogin())
+                .toLogin(request.getToLogin())
+                .amount(request.getAmount())
+                .build();
+
+        repository.save(transfer);
+
+        log.info("Transfer completed: from={}, from={}, amount={}", request.getFromLogin(), request.getToLogin(), request.getAmount());
+        return mapper.toDto(transfer);
+    }
 }

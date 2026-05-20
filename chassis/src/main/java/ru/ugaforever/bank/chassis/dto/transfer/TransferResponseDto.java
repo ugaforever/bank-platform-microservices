@@ -1,18 +1,19 @@
-package ru.ugaforever.bank.transfer.dto;
+package ru.ugaforever.bank.chassis.dto.transfer;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.Instant;
 
 @Getter
 @AllArgsConstructor
 @Builder
 public class TransferResponseDto {
     private Long id;
-    private Long fromAccountId;
-    private Long toAccountId;
+    private String fromLogin;
+    private String toLogin;
     private BigDecimal amount;
+    private Instant actionAt;
 }
