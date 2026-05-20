@@ -1,5 +1,5 @@
 server:
-  port: 9001
+  port: ${GATEWAY_PORT:9001}
 
 spring:
   application:
@@ -25,8 +25,8 @@ spring:
 
   cloud:
     consul:
-      host: localhost
-      port: 8500
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
       discovery:
         instance-id: ${spring.application.name}:${random.value}
         prefer-ip-address: true
