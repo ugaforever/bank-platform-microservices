@@ -22,16 +22,14 @@ public class CashController {
     //curl -v -X POST http://localhost:9004/cash/deposit -H "Content-Type: application/json" -d '{"accountId": 1, "amount": 500.00}'
     @PostMapping("/deposit")
     //@PreAuthorize ??
-    public ResponseEntity<CashResponseDto> deposit(@Valid @RequestBody DepositRequestDto request) {
-        CashResponseDto response = cashService.deposit(request);
-        return ResponseEntity.ok(response);
+    public CashResponseDto deposit(@Valid @RequestBody DepositRequestDto request) {
+        return cashService.deposit(request);
     }
 
     //curl -v -X POST http://localhost:9004/cash/withdraw -H "Content-Type: application/json" -d '{"accountId": 1, "amount": 100.00}'
     @PostMapping("/withdraw")
     //@PreAuthorize ??
-    public ResponseEntity<CashResponseDto> withdraw(@Valid @RequestBody WithdrawRequestDto request) {
-        CashResponseDto response = cashService.withdraw(request);
-        return ResponseEntity.ok(response);
+    public CashResponseDto withdraw(@Valid @RequestBody WithdrawRequestDto request) {
+        return cashService.withdraw(request);
     }
 }

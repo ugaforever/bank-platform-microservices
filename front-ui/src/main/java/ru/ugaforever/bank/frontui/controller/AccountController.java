@@ -30,7 +30,7 @@ public class AccountController {
     ) {
         //String login = principal.getPreferredUsername();
 
-        AccountResponseDto account = accountService.getAccount(1L);
+        AccountResponseDto account = accountService.getAccount("ivanov");
 
         model.addAttribute("login", account.getLogin());
         model.addAttribute("name", account.getName());
@@ -58,7 +58,7 @@ public class AccountController {
                 .birthdate(birthdate)
                 .build();
 
-        AccountResponseDto account = accountService.patchAccount(1L, update);
+        AccountResponseDto account = accountService.patchAccount("ivanov", update);
 
         model.addAttribute("login", account.getLogin());
         model.addAttribute("name", account.getName());

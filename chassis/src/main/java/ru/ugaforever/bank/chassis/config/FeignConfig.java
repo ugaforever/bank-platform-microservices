@@ -1,4 +1,4 @@
-package ru.ugaforever.bank.account.config;
+package ru.ugaforever.bank.chassis.config;
 
 import feign.Client;
 import feign.httpclient.ApacheHttpClient;

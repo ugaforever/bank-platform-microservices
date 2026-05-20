@@ -1,13 +1,14 @@
-package ru.ugaforever.bank.frontui.client;
+package ru.ugaforever.bank.chassis.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
+import ru.ugaforever.bank.chassis.config.FeignConfig;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
 import ru.ugaforever.bank.chassis.dto.cash.CashResponseDto;
 import ru.ugaforever.bank.chassis.dto.cash.DepositRequestDto;
 import ru.ugaforever.bank.chassis.dto.cash.WithdrawRequestDto;
-import ru.ugaforever.bank.frontui.config.FeignConfig;
+
 
 @FeignClient(
         name = "gateway",
@@ -22,10 +23,10 @@ public interface GatewayClient {
     @PostMapping("/cash/withdraw")
     CashResponseDto withdraw(@RequestBody WithdrawRequestDto request);
 
-    @GetMapping("/account/{id}")
-    AccountResponseDto getAccount(@PathVariable("id") Long id);
+    @GetMapping("/account/{login}")
+    AccountResponseDto getAccount(@PathVariable("login") String login);
 
-    @PatchMapping("/account/{id}")
-    AccountResponseDto patchAccount(@PathVariable("id") Long id,
+    @PatchMapping("/account/{login}")
+    AccountResponseDto patchAccount(@PathVariable("login") String login,
                                     @RequestBody AccountUpdateDto updateDto);
 }

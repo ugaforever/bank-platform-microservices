@@ -1,7 +1,8 @@
-package ru.ugaforever.bank.transfer.client;
+package ru.ugaforever.bank.chassis.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
-import ru.ugaforever.bank.transfer.config.FeignConfig;
+import ru.ugaforever.bank.chassis.config.FeignConfig;
+
 
 @FeignClient(
         name = "notification-service",

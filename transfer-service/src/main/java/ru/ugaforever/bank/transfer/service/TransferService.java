@@ -3,13 +3,10 @@ package ru.ugaforever.bank.transfer.service;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.ugaforever.bank.transfer.client.AccountClient;
-import ru.ugaforever.bank.transfer.client.NotificationClient;
-import ru.ugaforever.bank.transfer.dto.TransferRequestDto;
+import ru.ugaforever.bank.chassis.client.AccountClient;
+import ru.ugaforever.bank.chassis.client.NotificationClient;
 import ru.ugaforever.bank.transfer.mapper.TransferMapper;
 import ru.ugaforever.bank.transfer.repository.TransferRepository;
 

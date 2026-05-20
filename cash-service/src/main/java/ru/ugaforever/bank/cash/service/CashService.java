@@ -28,7 +28,7 @@ public class CashService {
     private final CashMapper mapper;
 
     public CashResponseDto deposit(DepositRequestDto request) {
-        log.info("Пополнение баланса: accountId={}, amount={}", request.getAccountId(), request.getAmount());
+        log.info("Deposit cash: login={}, value={}", request.getLogin(), request.getAmount());
 
 
         /*if (request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {

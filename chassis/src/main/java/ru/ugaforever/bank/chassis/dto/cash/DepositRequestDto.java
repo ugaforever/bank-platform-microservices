@@ -14,8 +14,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DepositRequestDto {
-    @NotNull(message = "ID аккаунта обязателен")
-    private Long accountId;
+    @NotNull(message = "Логин обязателен")
+    private String login;
 
     @NotNull(message = "Сумма обязательна")
     @Positive(message = "Сумма должна быть больше 0")

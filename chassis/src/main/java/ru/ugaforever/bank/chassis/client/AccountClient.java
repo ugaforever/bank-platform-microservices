@@ -1,8 +1,8 @@
-package ru.ugaforever.bank.cash.client;
+package ru.ugaforever.bank.chassis.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
-import ru.ugaforever.bank.cash.config.FeignConfig;
+import ru.ugaforever.bank.chassis.config.FeignConfig;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
 
@@ -13,10 +13,10 @@ import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
 )
 public interface AccountClient {
 
-    @GetMapping("/account/{id}")
-    AccountResponseDto getAccount(@PathVariable("id") Long id);
+    @GetMapping("/account/{login}")
+    AccountResponseDto getAccount(@PathVariable("login") String login);
 
-    @PatchMapping("/account/{id}")
-    AccountResponseDto patchAccount(@PathVariable("id") Long id,
+    @PatchMapping("/account/{login}")
+    AccountResponseDto patchAccount(@PathVariable("login") String login,
                                     @RequestBody AccountUpdateDto updateDto);
 }

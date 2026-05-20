@@ -7,7 +7,7 @@ import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.cash.CashResponseDto;
 import ru.ugaforever.bank.chassis.dto.cash.DepositRequestDto;
 import ru.ugaforever.bank.chassis.dto.cash.WithdrawRequestDto;
-import ru.ugaforever.bank.frontui.client.GatewayClient;
+import ru.ugaforever.bank.chassis.client.GatewayClient;
 
 import java.math.BigDecimal;
 
@@ -20,14 +20,11 @@ public class CashService {
     private final AccountService accountService;
 
     public CashResponseDto withdraw(String login, int value) {
-        log.info("Снятие виртуальных денег: login={}, value={},", login, value);
+        log.info("Withdraw cash: login={}, value={},", login, value);
 
-        //бизнес-логика
-
-        // TODO: account-service переделать на поиск по login вместо id
-        AccountResponseDto account = accountService.getAccount(1L);
+        AccountResponseDto account = accountService.getAccount("ivanov");
         WithdrawRequestDto dto = WithdrawRequestDto.builder()
-                .accountId(account.getId())
+                .login(account.getLogin())
                 .amount(BigDecimal.valueOf(value))
                 .build();
 
@@ -35,12 +32,11 @@ public class CashService {
     }
 
     public CashResponseDto deposit(String login, int value) {
-        log.info("Внесение виртуальных денег: login={}, value={},", login, value);
+        log.info("Deposit cash: login={}, value={},", login, value);
 
-        // TODO: account-service переделать на поиск по login вместо id
-        AccountResponseDto account = accountService.getAccount(1L);
+        AccountResponseDto account = accountService.getAccount("ivanov");
         DepositRequestDto dto = DepositRequestDto.builder()
-                .accountId(account.getId())
+                .login(account.getLogin())
                 .amount(BigDecimal.valueOf(value))
                 .build();
 

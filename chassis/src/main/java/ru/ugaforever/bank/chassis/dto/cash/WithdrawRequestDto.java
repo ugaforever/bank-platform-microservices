@@ -15,8 +15,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class WithdrawRequestDto {
 
-    @NotNull(message = "ID аккаунта обязателен")
-    private Long accountId;
+    @NotNull(message = "Логин обязателен")
+    private String login;
 
     @NotNull(message = "Сумма обязательна")
     @Positive(message = "Сумма должна быть больше 0")

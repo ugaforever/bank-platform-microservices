@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
 import ru.ugaforever.bank.chassis.exception.ValidationException;
-import ru.ugaforever.bank.frontui.client.GatewayClient;
+import ru.ugaforever.bank.chassis.client.GatewayClient;
 
 import java.time.LocalDate;
 
@@ -17,14 +17,14 @@ public class AccountService {
 
     private final GatewayClient gatewayClient;
 
-    public AccountResponseDto getAccount(Long id){
-        log.info("Получение аккаунта: id={}", id);
+    public AccountResponseDto getAccount(String login){
+        log.info("Получение аккаунта: login={}", login);
 
-        return gatewayClient.getAccount(id);
+        return gatewayClient.getAccount(login);
     }
 
-    public AccountResponseDto patchAccount(Long id, AccountUpdateDto update) {
-        log.info("Обновление аккаунта: id={}, name={}, birthdate={}", id, update.getName(), update.getBirthdate());
+    public AccountResponseDto patchAccount(String login, AccountUpdateDto update) {
+        log.info("Обновление аккаунта: login={}, name={}, birthdate={}", login, update.getName(), update.getBirthdate());
 
         // TODO: проверки через аннотации в DTO
         if (update.getName() == null || update.getName().isBlank()) {
@@ -35,6 +35,6 @@ public class AccountService {
             throw new ValidationException("Дата рождения не может быть в будущем");
         }
 
-        return gatewayClient.patchAccount(id, update);
+        return gatewayClient.patchAccount(login, update);
     }
 }
