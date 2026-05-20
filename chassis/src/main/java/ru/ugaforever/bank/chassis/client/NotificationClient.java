@@ -6,7 +6,7 @@ import ru.ugaforever.bank.chassis.config.FeignConfig;
 
 @FeignClient(
         name = "notification-service",
-        url = "${notification.service.url:http://notification-service:9006}",
+        url = "${notification.service.url:http://localhost:9006}",
         configuration = FeignConfig.class
 )
 public interface NotificationClient {

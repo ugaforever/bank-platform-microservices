@@ -1,5 +1,7 @@
 package ru.ugaforever.bank.account.service;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +14,10 @@ import ru.ugaforever.bank.chassis.exception.AccountNotFoundException;
 import ru.ugaforever.bank.account.mapper.AccountMapper;
 import ru.ugaforever.bank.account.model.Account;
 import ru.ugaforever.bank.account.repository.AccountRepository;
+import ru.ugaforever.bank.chassis.exception.BusinessRuleException;
 import ru.ugaforever.bank.chassis.exception.ValidationException;
+
+import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -66,4 +71,40 @@ public class AccountService {
         return mapper.toDto(saved);
     }
 
+    public AccountResponseDto deposit(
+            String login,
+            @NotNull(message = "Сумма обязательна") @Positive(message = "Сумма должна быть больше 0") BigDecimal amount) {
+
+        Account account = repository.findByLogin(login)
+                .orElseThrow(() -> new AccountNotFoundException(login));
+
+        BigDecimal newBalance = account.getBalance().add(amount);
+        account.setBalance(newBalance);
+
+        Account saved = repository.save(account);
+        log.info("Deposited {} to account {}, new balance: {}", amount, login, newBalance);
+
+        return mapper.toDto(saved);
+    }
+
+    public AccountResponseDto withdraw(
+            String login,
+            @NotNull(message = "Сумма обязательна") @Positive(message = "Сумма должна быть больше 0") BigDecimal amount) {
+
+        Account account = repository.findByLogin(login)
+                .orElseThrow(() -> new AccountNotFoundException(login));
+
+        BigDecimal currentBalance = account.getBalance();
+        if (currentBalance.compareTo(amount) < 0) {
+            throw new BusinessRuleException("Недостаточно средств. Баланс: " + currentBalance);
+        }
+
+        BigDecimal newBalance = currentBalance.subtract(amount);
+        account.setBalance(newBalance);
+
+        Account saved = repository.save(account);
+        log.info("Withdrawn {} from account {}, new balance: {}", amount, login, newBalance);
+
+        return mapper.toDto(saved);
+    }
 }

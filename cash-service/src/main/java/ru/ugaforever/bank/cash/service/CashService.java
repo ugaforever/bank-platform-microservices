@@ -5,17 +5,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.ugaforever.bank.cash.model.Cash;
+import ru.ugaforever.bank.chassis.client.AccountClient;
+import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
+import ru.ugaforever.bank.chassis.dto.cash.CashAction;
 import ru.ugaforever.bank.chassis.dto.cash.CashResponseDto;
 import ru.ugaforever.bank.cash.mapper.CashMapper;
-import ru.ugaforever.bank.cash.model.Cash;
 import ru.ugaforever.bank.cash.repository.CashRepository;
 import ru.ugaforever.bank.chassis.dto.cash.DepositRequestDto;
 import ru.ugaforever.bank.chassis.dto.cash.WithdrawRequestDto;
-import ru.ugaforever.bank.chassis.exception.AccountNotFoundException;
-import ru.ugaforever.bank.chassis.exception.InsufficientFundsException;
+import ru.ugaforever.bank.chassis.exception.BusinessRuleException;
 import ru.ugaforever.bank.chassis.exception.ValidationException;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -24,82 +27,54 @@ public class CashService {
 
     private static final Logger log = LoggerFactory.getLogger(CashService.class);
 
+    private final AccountClient accountClient;
     private final CashRepository repository;
     private final CashMapper mapper;
 
     public CashResponseDto deposit(DepositRequestDto request) {
         log.info("Deposit cash: login={}, value={}", request.getLogin(), request.getAmount());
 
+        AccountResponseDto account = accountClient.deposit(request.getLogin(), request);
 
-        /*if (request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            log.warn("Некорректная сумма пополнения: {}", request.getAmount());
-            throw new ValidationException("Сумма пополнения должна быть больше 0");
-        }
+        Cash cash = Cash.builder()
+                .accountId(account.getId())
+                .action(CashAction.PUT)
+                .amount(request.getAmount())
+                .actionAt(Instant.now())
+                .build();
+        repository.save(cash);
 
-        Cash cash = repository.findById(request.getAccountId())
-                .orElseThrow(() -> {
-                    log.warn("Аккаунт не найден: {}", request.getAccountId());
-                    return new AccountNotFoundException(request.getAccountId());
-                });
+        log.info("Deposit completed: login={}, value={}", request.getLogin(), request.getAmount());
 
-        BigDecimal newBalance = cash.getBalance().add(request.getAmount());
-        cash.setBalance(newBalance);
-
-        Cash saved = repository.save(cash);*/
-
-        //log.info("Баланс пополнен: accountId={}, новый баланс={}", saved.getId(), saved.getBalance());
-
-        // TODO notificationService.sendNotification(...);
-
-        //return mapper.toDto(saved);
-
-        return CashResponseDto.builder().build();
+        return mapper.toDto(cash);
     }
 
     public CashResponseDto withdraw(WithdrawRequestDto request) {
-        /*log.info("Снятие денег: accountId={}, amount={}", request.getAccountId(), request.getAmount());
+        log.info("Withdraw cash: login={}, amount={}", request.getLogin(), request.getAmount());
 
         if (request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            log.warn("Некорректная сумма снятия: {}", request.getAmount());
-            throw new ValidationException("Сумма снятия должна быть больше 0");
+            throw new ValidationException("Сумма должна быть больше 0");
         }
 
-        Cash cash = repository.findById(request.getAccountId())
-                .orElseThrow(() -> {
-                    log.warn("Аккаунт не найден: {}", request.getAccountId());
-                    return new AccountNotFoundException(request.getAccountId());
-                });
-
-        if (cash.getBalance().compareTo(request.getAmount()) < 0) {
-            log.warn("Недостаточно средств: accountId={}, balance={}, requested={}",
-                    cash.getAccountId(), cash.getBalance(), request.getAmount());
-
-            throw new InsufficientFundsException(cash.getAccountId(), cash.getBalance(), request.getAmount());
+        AccountResponseDto account = accountClient.getAccount(request.getLogin());
+        if (account.getBalance().compareTo(request.getAmount()) < 0) {
+            throw new BusinessRuleException("Недостаточно средств");
         }
 
-        BigDecimal newBalance = cash.getBalance().subtract(request.getAmount());
-        cash.setBalance(newBalance);
+        accountClient.withdraw(request.getLogin(), request);
 
-        Cash saved = repository.save(cash);
-        log.info("Снятие выполнено: accountId={}, новый баланс={}", saved.getId(), saved.getBalance());
+        Cash cash = Cash.builder()
+                .accountId(account.getId())
+                .action(CashAction.GET)
+                .amount(request.getAmount())
+                .actionAt(Instant.now())
+                .build();
 
-        // TODO notificationService.sendNotification(...);
+        repository.save(cash);
 
-        return mapper.toDto(saved);*/
+        log.info("Withdraw completed: login={}, amount={}", request.getLogin(), request.getAmount());
 
-        return CashResponseDto.builder().build();
+        return mapper.toDto(cash);
     }
-
-    /*public BigDecimal getBalance(Long accountId) {
-        log.debug("Проверка баланса: accountId={}", accountId);
-
-        Cash cash = repository.findById(accountId)
-                .orElseThrow(() -> {
-                    log.warn("Аккаунт не найден: {}", accountId);
-                    return new AccountNotFoundException(accountId);
-                });
-
-        return cash.getBalance();
-    }*/
 }
 

@@ -8,6 +8,8 @@ import ru.ugaforever.bank.account.service.AccountService;
 import ru.ugaforever.bank.chassis.dto.account.AccountRequestDto;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
+import ru.ugaforever.bank.chassis.dto.cash.DepositRequestDto;
+import ru.ugaforever.bank.chassis.dto.cash.WithdrawRequestDto;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,9 +35,26 @@ public class AccountController {
     //@PreAuthorize ??
     public AccountResponseDto patchAccount(
             @PathVariable String login,
-            @Valid @RequestBody AccountUpdateDto updateDto
-    ) {
+            @Valid @RequestBody AccountUpdateDto updateDto) {
 
         return accountService.updateAccount(login, updateDto);
+    }
+
+    @PostMapping("/{login}/deposit")
+    //@PreAuthorize ??
+    public AccountResponseDto deposit(
+            @PathVariable String login,
+            @RequestBody DepositRequestDto request) {
+
+        return accountService.deposit(login, request.getAmount());
+    }
+
+    @PostMapping("/{login}/withdraw")
+    //@PreAuthorize ??
+    public AccountResponseDto withdraw(
+            @PathVariable String login,
+            @RequestBody WithdrawRequestDto request) {
+
+        return accountService.withdraw(login, request.getAmount());
     }
 }
