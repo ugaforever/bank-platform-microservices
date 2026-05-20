@@ -12,7 +12,7 @@ import java.time.Instant;
 @Builder
 public class CashResponseDto {
     private Long id;
-    private Long accountId;
+    private String login;
     private CashAction action;
     private BigDecimal amount;
     private Instant actionAt;

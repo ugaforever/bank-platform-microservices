@@ -18,7 +18,7 @@ public class Cash {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long accountId;
+    private String login;
     private CashAction action;
     private BigDecimal amount;
 

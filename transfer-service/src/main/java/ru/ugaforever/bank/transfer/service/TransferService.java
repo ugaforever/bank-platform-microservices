@@ -28,6 +28,7 @@ public class TransferService {
     private static final Logger log = LoggerFactory.getLogger(TransferService.class);
 
     private final AccountClient accountClient;
+    private final NotificationClient notificationClient;
     private final TransferRepository repository;
     private final TransferMapper mapper;
 
@@ -74,6 +75,8 @@ public class TransferService {
                 .build();
 
         repository.save(transfer);
+
+        //notificationClient.sendNotification();
 
         log.info("Transfer completed: from={}, from={}, amount={}", request.getFromLogin(), request.getToLogin(), request.getAmount());
         return mapper.toDto(transfer);

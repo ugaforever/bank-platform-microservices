@@ -1,6 +1,10 @@
 server:
   port: ${SERVER_PORT:9005}
 
+notification:
+  service:
+    url: ${NOTIFICATION_SERVICE_URL:http://localhost:9006}
+
 spring:
   application:
     name: account-service

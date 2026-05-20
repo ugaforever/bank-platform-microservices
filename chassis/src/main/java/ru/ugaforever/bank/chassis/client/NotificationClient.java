@@ -1,8 +1,10 @@
 package ru.ugaforever.bank.chassis.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import ru.ugaforever.bank.chassis.config.FeignConfig;
-
+import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
 
 @FeignClient(
         name = "notification-service",
@@ -11,6 +13,6 @@ import ru.ugaforever.bank.chassis.config.FeignConfig;
 )
 public interface NotificationClient {
 
-    //@PostMapping("/notification/send")
-    //void sendNotification(@RequestBody NotificationRequest request);
+    @PostMapping("/notification")
+    void sendNotification(@RequestBody NotificationRequestDto request);
 }

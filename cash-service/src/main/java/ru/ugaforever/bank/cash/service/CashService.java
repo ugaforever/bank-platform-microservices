@@ -1,12 +1,14 @@
 package ru.ugaforever.bank.cash.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.ugaforever.bank.cash.model.Cash;
 import ru.ugaforever.bank.chassis.client.AccountClient;
+import ru.ugaforever.bank.chassis.client.NotificationClient;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.cash.CashAction;
 import ru.ugaforever.bank.chassis.dto.cash.CashResponseDto;
@@ -14,6 +16,8 @@ import ru.ugaforever.bank.cash.mapper.CashMapper;
 import ru.ugaforever.bank.cash.repository.CashRepository;
 import ru.ugaforever.bank.chassis.dto.cash.DepositRequestDto;
 import ru.ugaforever.bank.chassis.dto.cash.WithdrawRequestDto;
+import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
+import ru.ugaforever.bank.chassis.dto.notification.NotificationSource;
 import ru.ugaforever.bank.chassis.exception.BusinessRuleException;
 import ru.ugaforever.bank.chassis.exception.ValidationException;
 
@@ -28,6 +32,7 @@ public class CashService {
     private static final Logger log = LoggerFactory.getLogger(CashService.class);
 
     private final AccountClient accountClient;
+    private final NotificationClient notificationClient;
     private final CashRepository repository;
     private final CashMapper mapper;
 
@@ -35,16 +40,30 @@ public class CashService {
         log.info("Deposit cash: login={}, value={}", request.getLogin(), request.getAmount());
 
         AccountResponseDto account = accountClient.deposit(request.getLogin(), request);
+        log.debug("Balance updated: login={}, newBalance={}",
+                account.getLogin(), account.getBalance().add(request.getAmount()));
 
         Cash cash = Cash.builder()
-                .accountId(account.getId())
+                .login(account.getLogin())
                 .action(CashAction.PUT)
                 .amount(request.getAmount())
                 .actionAt(Instant.now())
                 .build();
         repository.save(cash);
+        log.debug("Cash operation saved: id={}", cash.getId());
 
-        log.info("Deposit completed: login={}, value={}", request.getLogin(), request.getAmount());
+        NotificationRequestDto notificationRequestDto = NotificationRequestDto.builder()
+                .source(NotificationSource.CASH_SERVICE)
+                .message(String.format("login=%s, type=DEPOSIT, amount=%.2f, newBalance=%.2f",
+                        request.getLogin(),
+                        request.getAmount(),
+                        account.getBalance().add(request.getAmount())))
+                .build();
+        notificationClient.sendNotification(notificationRequestDto);
+        log.info("Notification sent: login={}, type=DEPOSIT", account.getLogin());
+
+        log.info("Deposit completed: login={}, amount={}, newBalance={}",
+                request.getLogin(), request.getAmount(), account.getBalance().add(request.getAmount()));
 
         return mapper.toDto(cash);
     }
@@ -57,22 +76,37 @@ public class CashService {
         }
 
         AccountResponseDto account = accountClient.getAccount(request.getLogin());
+        log.debug("Account found: login={}, currentBalance={}", account.getLogin(), account.getBalance());
+
         if (account.getBalance().compareTo(request.getAmount()) < 0) {
             throw new BusinessRuleException("Недостаточно средств");
         }
 
         accountClient.withdraw(request.getLogin(), request);
+        log.debug("Balance updated: login={}, newBalance={}",
+                account.getLogin(), account.getBalance().subtract(request.getAmount()));
 
         Cash cash = Cash.builder()
-                .accountId(account.getId())
+                .login(account.getLogin())
                 .action(CashAction.GET)
                 .amount(request.getAmount())
                 .actionAt(Instant.now())
                 .build();
-
         repository.save(cash);
+        log.debug("Cash operation saved: id={}", cash.getId());
 
-        log.info("Withdraw completed: login={}, amount={}", request.getLogin(), request.getAmount());
+        NotificationRequestDto notificationRequestDto = NotificationRequestDto.builder()
+                .source(NotificationSource.CASH_SERVICE)
+                .message(String.format("login=%s, type=WITHDRAWAL, amount=%.2f, newBalance=%.2f",
+                        request.getLogin(),
+                        request.getAmount(),
+                        account.getBalance().subtract(request.getAmount())))
+                .build();
+        notificationClient.sendNotification(notificationRequestDto);
+        log.info("Notification sent: login={}, type=WITHDRAWAL", account.getLogin());
+
+        log.info("Withdraw completed: login={}, amount={}, newBalance={}",
+                request.getLogin(), request.getAmount(), account.getBalance().subtract(request.getAmount()));
 
         return mapper.toDto(cash);
     }

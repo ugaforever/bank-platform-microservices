@@ -11,7 +11,7 @@ import ru.ugaforever.bank.chassis.config.FeignConfig;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients(
-        clients = {AccountClient.class/*, NotificationClient.class*/},
+        clients = {AccountClient.class, NotificationClient.class},
         defaultConfiguration = FeignConfig.class
 )
 public class CashApplication {

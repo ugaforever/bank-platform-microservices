@@ -121,6 +121,7 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
+      NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL}
     ports:
       - "${ACCOUNT_SERVICE_PORT}:${ACCOUNT_SERVICE_PORT}"
     depends_on:
@@ -130,6 +131,28 @@ services:
         condition: service_started
 #     bank-keycloak:
 #        condition: service_healthy
+
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: bank-notification-service
+    environment:
+      SERVER_PORT: ${NOTIFICATION_SERVICE_PORT}
+      CONSUL_HOST: ${CONSUL_HOST}
+      CONSUL_PORT: ${CONSUL_HTTP_PORT}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL_NOTIFICATION}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
+    ports:
+      - "${NOTIFICATION_SERVICE_PORT}:${NOTIFICATION_SERVICE_PORT}"
+    depends_on:
+      bank-account-db:
+        condition: service_healthy
+      bank-consul:
+        condition: service_started
+
 
 volumes:
   account-db-data:
