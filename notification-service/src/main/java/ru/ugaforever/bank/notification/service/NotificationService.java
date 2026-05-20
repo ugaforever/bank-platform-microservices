@@ -31,7 +31,6 @@ public class NotificationService {
         Notification notification = Notification.builder()
                 .source(request.getSource())
                 .message(request.getMessage())
-                .actionAt(Instant.now())
                 .build();
         repository.save(notification);
 

@@ -47,7 +47,6 @@ public class CashService {
                 .login(account.getLogin())
                 .action(CashAction.PUT)
                 .amount(request.getAmount())
-                .actionAt(Instant.now())
                 .build();
         repository.save(cash);
         log.debug("Cash operation saved: id={}", cash.getId());

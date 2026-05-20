@@ -10,6 +10,8 @@ import ru.ugaforever.bank.chassis.client.NotificationClient;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.cash.DepositRequestDto;
 import ru.ugaforever.bank.chassis.dto.cash.WithdrawRequestDto;
+import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
+import ru.ugaforever.bank.chassis.dto.notification.NotificationSource;
 import ru.ugaforever.bank.chassis.dto.transfer.TransferRequestDto;
 import ru.ugaforever.bank.chassis.dto.transfer.TransferResponseDto;
 import ru.ugaforever.bank.chassis.exception.BusinessRuleException;
@@ -50,6 +52,8 @@ public class TransferService {
         }
 
         AccountResponseDto accountFrom = accountClient.getAccount(request.getFromLogin());
+        log.debug("Account found: login={}, currentBalance={}", accountFrom.getLogin(), accountFrom.getBalance());
+
         if (accountFrom.getBalance().compareTo(request.getAmount()) < 0) {
             throw new BusinessRuleException("Недостаточно средств");
         }
@@ -58,14 +62,12 @@ public class TransferService {
                 .login(request.getFromLogin())
                 .amount(request.getAmount())
                 .build();
-
         accountClient.withdraw(request.getFromLogin(), withdrawDto);
 
         DepositRequestDto depositDto = DepositRequestDto.builder()
                 .login(request.getToLogin())
                 .amount(request.getAmount())
                 .build();
-
         accountClient.deposit(request.getToLogin(), depositDto);
 
         Transfer transfer = Transfer.builder()
@@ -75,10 +77,19 @@ public class TransferService {
                 .build();
 
         repository.save(transfer);
+        log.debug("Transfer operation saved: id={}", transfer.getId());
 
-        //notificationClient.sendNotification();
+        NotificationRequestDto notificationRequestDto = NotificationRequestDto.builder()
+                .source(NotificationSource.TRANSFER_SERVICE)
+                .message(String.format("from=%s, to=%s, type=TRANSFER, amount=%.2f",
+                        transfer.getFromLogin(),
+                        transfer.getToLogin(),
+                        transfer.getAmount()))
+                .build();
+        notificationClient.sendNotification(notificationRequestDto);
+        log.info("Notification sent: id={}", transfer.getId());
 
-        log.info("Transfer completed: from={}, from={}, amount={}", request.getFromLogin(), request.getToLogin(), request.getAmount());
+        log.info("Transfer completed: from={}, to={}, amount={}", request.getFromLogin(), request.getToLogin(), request.getAmount());
         return mapper.toDto(transfer);
     }
 }
