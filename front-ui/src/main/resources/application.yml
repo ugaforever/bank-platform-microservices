@@ -1,5 +1,8 @@
 server:
-  port: 9000
+  port: ${FRONTEND_PORT:9000}
+
+gateway:
+  url: ${GATEWAY_URL:http://localhost:9001}
 
 spring:
   application:
@@ -11,8 +14,7 @@ spring:
       - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
       - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
 
-gateway:
-  url: http://localhost:9001
+
 
 #transfer:
 #  service:

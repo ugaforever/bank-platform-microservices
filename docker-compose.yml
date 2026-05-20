@@ -113,6 +113,23 @@ services:
 # ================================
 # Services
 # ================================
+  front:
+    build:
+      context: ./front-ui
+      dockerfile: Dockerfile
+    container_name: bank-front
+    environment:
+      SERVER_PORT: ${FRONTEND_PORT}
+      CONSUL_HOST: ${CONSUL_HOST}
+      CONSUL_PORT: ${CONSUL_HTTP_PORT}
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
+      GATEWAY_URL: ${GATEWAY_URL}
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    depends_on:
+      bank-consul:
+        condition: service_healthy
+
   gateway:
     build:
       context: ./gateway
