@@ -20,7 +20,6 @@ public class AccountController {
 
     @PostMapping
     //@PreAuthorize ??
-    @ResponseStatus(HttpStatus.CREATED)
     public AccountResponseDto create(@RequestBody @Valid AccountRequestDto dto) {
         return accountService.createAccount(dto);
     }
