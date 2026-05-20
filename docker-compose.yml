@@ -132,6 +132,29 @@ services:
 #     bank-keycloak:
 #        condition: service_healthy
 
+  cash-service:
+    build:
+      context: ./cash-service
+      dockerfile: Dockerfile
+    container_name: bank-cash-service
+    environment:
+      SERVER_PORT: ${CASH_SERVICE_PORT}
+      CONSUL_HOST: ${CONSUL_HOST}
+      CONSUL_PORT: ${CONSUL_HTTP_PORT}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL_CASH}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
+      NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL}
+      ACCOUNT_SERVICE_URL: ${ACCOUNT_SERVICE_URL}
+    ports:
+      - "${CASH_SERVICE_PORT}:${CASH_SERVICE_PORT}"
+    depends_on:
+      bank-cash-db:
+        condition: service_healthy
+      bank-consul:
+        condition: service_started
+
   notification-service:
     build:
       context: ./notification-service
@@ -148,11 +171,10 @@ services:
     ports:
       - "${NOTIFICATION_SERVICE_PORT}:${NOTIFICATION_SERVICE_PORT}"
     depends_on:
-      bank-account-db:
+      bank-notification-db:
         condition: service_healthy
       bank-consul:
         condition: service_started
-
 
 volumes:
   account-db-data:
