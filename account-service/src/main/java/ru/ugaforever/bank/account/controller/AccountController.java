@@ -2,7 +2,6 @@ package ru.ugaforever.bank.account.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.ugaforever.bank.account.service.AccountService;
 import ru.ugaforever.bank.chassis.dto.account.AccountRequestDto;

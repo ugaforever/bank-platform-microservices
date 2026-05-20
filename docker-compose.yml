@@ -155,6 +155,29 @@ services:
       bank-consul:
         condition: service_started
 
+  transfer-service:
+    build:
+      context: ./transfer-service
+      dockerfile: Dockerfile
+    container_name: bank-transfer-service
+    environment:
+      SERVER_PORT: ${TRANSFER_SERVICE_PORT}
+      CONSUL_HOST: ${CONSUL_HOST}
+      CONSUL_PORT: ${CONSUL_HTTP_PORT}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL_TRANSFER}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
+      NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL}
+      ACCOUNT_SERVICE_URL: ${ACCOUNT_SERVICE_URL}
+    ports:
+      - "${TRANSFER_SERVICE_PORT}:${TRANSFER_SERVICE_PORT}"
+    depends_on:
+      bank-transfer-db:
+        condition: service_healthy
+      bank-consul:
+        condition: service_started
+
   notification-service:
     build:
       context: ./notification-service
