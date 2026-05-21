@@ -21,6 +21,8 @@ import ru.ugaforever.bank.chassis.exception.BusinessRuleException;
 import ru.ugaforever.bank.chassis.exception.ValidationException;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -56,6 +58,15 @@ public class AccountService {
                     log.warn("Аккаунт не найден: {}", login);
                     return new AccountNotFoundException(login);
                 });
+    }
+
+    public List<AccountResponseDto> getAll() {
+        log.debug("Get all accounts");
+
+        return repository.findAll()
+                .stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
     }
 
     public AccountResponseDto updateAccount(String login, AccountUpdateDto updateDto) {

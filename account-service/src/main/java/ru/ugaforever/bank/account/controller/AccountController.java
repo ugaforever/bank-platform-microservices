@@ -10,12 +10,20 @@ import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
 import ru.ugaforever.bank.chassis.dto.cash.DepositRequestDto;
 import ru.ugaforever.bank.chassis.dto.cash.WithdrawRequestDto;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/account")
 public class AccountController {
 
     private final AccountService accountService;
+
+    @GetMapping
+    //@PreAuthorize ??
+    public List<AccountResponseDto> getAll() {
+        return accountService.getAll();
+    }
 
     @PostMapping
     //@PreAuthorize ??

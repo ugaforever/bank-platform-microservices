@@ -11,14 +11,13 @@ import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
 import ru.ugaforever.bank.frontui.service.AccountService;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
 public class AccountController {
 
     private final AccountService accountService;
-
-
 
     /**
      * GET /account — получение данных текущего пользователя
@@ -32,10 +31,14 @@ public class AccountController {
 
         AccountResponseDto account = accountService.getAccount("ivanov");
 
+
+        List<AccountResponseDto> accounts = accountService.getAllAccounts();
+        model.addAttribute("accounts", accounts);
+
         model.addAttribute("login", account.getLogin());
         model.addAttribute("name", account.getName());
         model.addAttribute("birthdate", account.getBirthdate());
-        model.addAttribute("balance", account.getBalance());
+        model.addAttribute("sum", account.getBalance());
 
         return "main";
     }

@@ -9,6 +9,7 @@ import ru.ugaforever.bank.chassis.exception.ValidationException;
 import ru.ugaforever.bank.chassis.client.GatewayClient;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -36,5 +37,11 @@ public class AccountService {
         }
 
         return gatewayClient.patchAccount(login, update);
+    }
+
+    public List<AccountResponseDto> getAllAccounts() {
+        log.info("Получение списка аккаунтов");
+
+        return gatewayClient.getAllAccount();
     }
 }
