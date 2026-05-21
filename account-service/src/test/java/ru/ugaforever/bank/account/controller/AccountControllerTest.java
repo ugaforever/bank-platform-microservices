@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.O
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.ugaforever.bank.account.service.AccountService;
@@ -36,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 OAuth2ResourceServerAutoConfiguration.class,
                 OAuth2ClientAutoConfiguration.class }
 )
+@ActiveProfiles("test")
 public class AccountControllerTest {
 
     private static final String BASE_URL = "/account";

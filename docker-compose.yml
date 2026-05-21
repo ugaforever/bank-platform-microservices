@@ -32,6 +32,8 @@ services:
       - "${CONSUL_HTTP_PORT}:8500"
       - "${CONSUL_DNS_PORT}:8600/udp"
     command: 'agent -server -bootstrap-expect=1 -ui -bind=0.0.0.0 -client=0.0.0.0'
+    volumes:
+      - consul-data:/consul/data
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8500/v1/status/leader" ]
       interval: 5s
@@ -136,9 +138,9 @@ services:
       dockerfile: Dockerfile
     container_name: bank-gateway
     environment:
-      SERVER_PORT: ${GATEWAY_PORT}
       CONSUL_HOST: ${CONSUL_HOST}
       CONSUL_PORT: ${CONSUL_HTTP_PORT}
+      SERVER_PORT: ${GATEWAY_PORT}
       KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
     ports:
       - "${GATEWAY_PORT}:${GATEWAY_PORT}"
@@ -152,9 +154,9 @@ services:
       dockerfile: Dockerfile
     container_name: bank-account-service
     environment:
-      SERVER_PORT: ${ACCOUNT_SERVICE_PORT}
       CONSUL_HOST: ${CONSUL_HOST}
       CONSUL_PORT: ${CONSUL_HTTP_PORT}
+      SERVER_PORT: ${ACCOUNT_SERVICE_PORT}
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL_ACCOUNT}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
@@ -167,8 +169,6 @@ services:
         condition: service_healthy
       bank-consul:
         condition: service_healthy
-#     bank-keycloak:
-#        condition: service_healthy
 
   cash-service:
     build:
@@ -176,9 +176,10 @@ services:
       dockerfile: Dockerfile
     container_name: bank-cash-service
     environment:
-      SERVER_PORT: ${CASH_SERVICE_PORT}
+
       CONSUL_HOST: ${CONSUL_HOST}
       CONSUL_PORT: ${CONSUL_HTTP_PORT}
+      SERVER_PORT: ${CASH_SERVICE_PORT}
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL_CASH}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
@@ -199,9 +200,9 @@ services:
       dockerfile: Dockerfile
     container_name: bank-transfer-service
     environment:
-      SERVER_PORT: ${TRANSFER_SERVICE_PORT}
       CONSUL_HOST: ${CONSUL_HOST}
       CONSUL_PORT: ${CONSUL_HTTP_PORT}
+      SERVER_PORT: ${TRANSFER_SERVICE_PORT}
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL_TRANSFER}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
@@ -222,9 +223,9 @@ services:
       dockerfile: Dockerfile
     container_name: bank-notification-service
     environment:
-      SERVER_PORT: ${NOTIFICATION_SERVICE_PORT}
       CONSUL_HOST: ${CONSUL_HOST}
       CONSUL_PORT: ${CONSUL_HTTP_PORT}
+      SERVER_PORT: ${NOTIFICATION_SERVICE_PORT}
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL_NOTIFICATION}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
@@ -242,58 +243,4 @@ volumes:
   cash-db-data:
   transfer-db-data:
   notification-db-data:
-
-
-
-
-#  account-service:
-#    build:
-#      context: ./account-service
-#      dockerfile: Dockerfile
-#    ports:
-#      - "${ACCOUNT_SERVER_PORT}:${ACCOUNT_SERVER_PORT}"
-#    environment:
-#      SPRING_DATASOURCE_URL: jdbc:postgresql://${ACCOUNT_DB_HOST}:5432/${ACCOUNT_DB_NAME}
-#      SPRING_DATASOURCE_USERNAME: ${ACCOUNT_DB_USERNAME}
-#      SPRING_DATASOURCE_PASSWORD: ${ACCOUNT_DB_PASSWORD}
-#      SERVER_PORT: ${ACCOUNT_SERVER_PORT}
-#    depends_on:
-#      - account-db
-#
-#  account-db:
-#    image: postgres:16
-#    container_name: account-db
-#    environment:
-#      POSTGRES_DB: ${ACCOUNT_DB_NAME}
-#      POSTGRES_USER: ${ACCOUNT_DB_USERNAME}
-#      POSTGRES_PASSWORD: ${ACCOUNT_DB_PASSWORD}
-#    ports:
-#      - "5433:5432"
-#
-#  order-service:
-#    build:
-#      context: ./order-application
-#      dockerfile: Dockerfile
-#    ports:
-#      - "${ORDER_SERVICE_PORT}:${ORDER_SERVICE_PORT}"
-#    environment:
-#      SPRING_DATASOURCE_URL: jdbc:postgresql://${ORDER_DB_HOST}:5432/${ORDER_DB_NAME}
-#      SPRING_DATASOURCE_USERNAME: ${ORDER_DB_USERNAME}
-#      SPRING_DATASOURCE_PASSWORD: ${ORDER_DB_PASSWORD}
-#      SERVER_PORT: ${ORDER_SERVICE_PORT}
-#
-#      # Конфигурация user-client
-#      USER_CLIENT_BASE_URL: ${USER_CLIENT_BASE_URL}
-#    depends_on:
-#      - order-db
-#
-#  order-db:
-#    image: postgres:16
-#    container_name: order-db
-#    environment:
-#      POSTGRES_DB: ${ORDER_DB_NAME}
-#      POSTGRES_USER: ${ORDER_DB_USERNAME}
-#      POSTGRES_PASSWORD: ${ORDER_DB_PASSWORD}
-#    ports:
-#      - "5434:5432"
-
+  consul-data:

@@ -5,6 +5,9 @@ spring:
   application:
     name: gateway
 
+#  config:
+#    import: "optional:consul:${CONSUL_HOST:localhost}:${CONSUL_PORT:8500}"
+
   main:
     web-application-type: reactive
 
@@ -27,7 +30,14 @@ spring:
     consul:
       host: ${CONSUL_HOST:localhost}
       port: ${CONSUL_PORT:8500}
+#      config:
+#        format: PROPERTIES
+#        prefix: config
+#        defaultContext: application
+#        name: ${spring.application.name}
+#        data-key: data
       discovery:
+        enabled: true
         instance-id: ${spring.application.name}:${random.value}
         prefer-ip-address: true
         service-name: ${spring.application.name}
@@ -70,4 +80,6 @@ management:
 
 logging:
   level:
+    org.springframework.cloud.consul: DEBUG
+    org.springframework.boot.context.config: DEBUG
     org.springframework.cloud.gateway: DEBUG
