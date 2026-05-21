@@ -1,11 +1,13 @@
 package ru.ugaforever.bank.chassis.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -15,28 +17,28 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ErrorResponse {
-    private String timestamp;
+    private Instant timestamp;
     private int status;
     private String error;
-    private String errorCode;
     private String message;
-    private String path;
     private Map<String, String> details;
+    // TODO: сделать 2 разновидности GlobalExceptionHandlerMVC, GlobalExceptionHandlerWebflux
+    //private String path;
+    //private String requestId;
 
-    public static ErrorResponse of(HttpStatus status, String errorCode, String message, String path) {
+    public static ErrorResponse of(HttpStatus status, String error, String message) {
         return ErrorResponse.builder()
-                .timestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
                 .status(status.value())
-                .error(status.getReasonPhrase())
-                .errorCode(errorCode)
+                .error(error)
                 .message(message)
-                .path(path)
+                .timestamp(Instant.now())
                 .build();
     }
 
-    public static ErrorResponse of(HttpStatus status, String errorCode, String message, String path, Map<String, String> details) {
-        ErrorResponse response = of(status, errorCode, message, path);
+    public static ErrorResponse of(HttpStatus status, String error, String message, Map<String, String> details) {
+        ErrorResponse response = of(status, error, message);
         response.setDetails(details);
         return response;
     }
