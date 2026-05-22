@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.ugaforever.bank.chassis.config.FeignConfig;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
+import ru.ugaforever.bank.chassis.dto.notification.NotificationResponseDto;
 
 @FeignClient(
         name = "notification-service",
@@ -14,5 +15,5 @@ import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
 public interface NotificationClient {
 
     @PostMapping("/notification")
-    void sendNotification(@RequestBody NotificationRequestDto request);
+    NotificationResponseDto sendNotification(@RequestBody NotificationRequestDto request);
 }

@@ -15,12 +15,9 @@ import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.cash.CashAction;
 import ru.ugaforever.bank.chassis.dto.cash.CashResponseDto;
 import ru.ugaforever.bank.chassis.dto.cash.DepositRequestDto;
-import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
-import ru.ugaforever.bank.chassis.dto.notification.NotificationSource;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -82,7 +79,6 @@ public class CashServiceTest {
         when(accountClient.deposit(eq(LOGIN), any(DepositRequestDto.class))).thenReturn(accountResponse);
         when(repository.save(any(Cash.class))).thenReturn(cash);
         when(mapper.toDto(any(Cash.class))).thenReturn(expectedResponse);
-        doNothing().when(notificationClient).sendNotification(any(NotificationRequestDto.class));
 
         // Act
         CashResponseDto result = service.deposit(request);

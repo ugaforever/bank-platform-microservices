@@ -1,6 +1,5 @@
 package ru.ugaforever.bank.chassis.client;
 
-import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 import ru.ugaforever.bank.chassis.config.FeignConfig;

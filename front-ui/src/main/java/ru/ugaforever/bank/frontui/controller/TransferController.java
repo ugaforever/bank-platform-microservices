@@ -5,10 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.transfer.TransferRequestDto;
-import ru.ugaforever.bank.chassis.dto.transfer.TransferResponseDto;
-import ru.ugaforever.bank.frontui.service.AccountService;
 import ru.ugaforever.bank.frontui.service.TransferService;
 
 import java.math.BigDecimal;

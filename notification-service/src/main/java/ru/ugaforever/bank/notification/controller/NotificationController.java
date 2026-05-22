@@ -15,7 +15,7 @@ public class NotificationController {
 
     @PostMapping
     //@PreAuthorize ??
-    public NotificationResponseDto deposit(
+    public NotificationResponseDto notification(
             @RequestBody NotificationRequestDto request) {
 
         return notificationService.notification(request);

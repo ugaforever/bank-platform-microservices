@@ -42,6 +42,16 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-consul-discovery</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-contract-verifier</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-contract-spec</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!--<dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-consul-config</artifactId>
@@ -112,6 +122,67 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <!-- Spring Cloud Contract Plugin -->
+            <plugin>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-contract-maven-plugin</artifactId>
+                <version>${spring-cloud-contract-maven-plugin.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <baseClassForTests>ru.ugaforever.bank.notification.contract.NotificationContractTest</baseClassForTests>
+                    <testFramework>JUNIT5</testFramework>
+                    <stubsOutputDirectory>${project.build.directory}/stubs</stubsOutputDirectory>
+                    <generateStubs>true</generateStubs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>generate-contract-tests</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>generateTests</goal>
+                            <goal>convert</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>generate-stubs</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>generateStubs</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Maven Jar Plugin для создания stubs JAR -->
+            <!--plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>stub-jar</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <classifier>stubs</classifier>
+                            <includes>
+                                <include>**/stubs/**</include>
+                                <include>**/contracts/**</include>
+                                <include>**/mappings/**</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>-->
+
+            <!-- Maven Deploy Plugin для публикации -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>${maven-deploy-plugin.version}</version>
             </plugin>
         </plugins>
     </build>
