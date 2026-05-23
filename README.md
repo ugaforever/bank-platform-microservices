@@ -20,6 +20,7 @@
 | notification db      | bank-notification-db      | 9006 |
 
 
-
+## Что выполнено
+Смотри pull-реквесты.
 
 
