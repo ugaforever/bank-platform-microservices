@@ -15,15 +15,17 @@ import ru.ugaforever.bank.notification.service.NotificationService;
 
 import java.time.Instant;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("contract-test")
-public abstract class NotificationContractTest {
+public abstract class NotificationContractBaseTest {
 
-    private static final String MESSAGE = "Your operation was successful";
     private static final String DATETIME = "2026-01-01T01:02:03.456Z";
+
 
     @Autowired
     protected MockMvc mockMvc;
@@ -35,19 +37,15 @@ public abstract class NotificationContractTest {
     void setup() {
         RestAssuredMockMvc.mockMvc(mockMvc);
 
-        NotificationRequestDto request = NotificationRequestDto.builder()
-                .source(NotificationSource.ACCOUNT_SERVICE)
-                .message(MESSAGE)
-                .build();
-
-        NotificationResponseDto response = NotificationResponseDto.builder()
-                .id(1L)
-                .source(NotificationSource.ACCOUNT_SERVICE)
-                .message(MESSAGE)
-                .actionAt(Instant.parse(DATETIME))
-                .build();
-
-        when(notificationService.notification(request))
-                .thenReturn(response);
+        when(notificationService.notification(any(NotificationRequestDto.class)))
+                .thenAnswer(invocation -> {
+                    NotificationRequestDto request = invocation.getArgument(0);
+                    return NotificationResponseDto.builder()
+                            .id(1L)
+                            .source(request.getSource())
+                            .message(request.getMessage())
+                            .actionAt(Instant.parse(DATETIME))
+                            .build();
+                });
     }
 }

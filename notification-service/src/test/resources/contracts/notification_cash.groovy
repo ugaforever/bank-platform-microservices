@@ -3,8 +3,8 @@ package ru.ugaforever.bank.notification.contract;
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    description 'Post notification'
-    name 'post_notification'
+    description 'Send cash notification'
+    name 'notification_cash'
 
     request {
         method POST()
@@ -17,7 +17,7 @@ Contract.make {
             )*/
         }
         body(
-                source: 'ACCOUNT_SERVICE',
+                source: 'CASH_SERVICE',
                 message: 'Your operation was successful'
         )
     }
@@ -29,7 +29,7 @@ Contract.make {
         }
         body(
                 id: 1,
-                source: 'ACCOUNT_SERVICE',
+                source: 'CASH_SERVICE',
                 message: 'Your operation was successful',
                 actionAt: '2026-01-01T01:02:03.456Z'
         )

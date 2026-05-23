@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 )
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 @ActiveProfiles("contract-test")
-public class NotificationClientContractTest {
+public class NotificationAccountContractTest {
 
     private static final String MESSAGE = "Your operation was successful";
     private static final String DATETIME = "2026-01-01T01:02:03.456Z";

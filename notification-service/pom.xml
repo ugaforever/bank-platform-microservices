@@ -130,7 +130,7 @@
                 <version>${spring-cloud-contract-maven-plugin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <baseClassForTests>ru.ugaforever.bank.notification.contract.NotificationContractTest</baseClassForTests>
+                    <baseClassForTests>ru.ugaforever.bank.notification.contract.NotificationContractBaseTest</baseClassForTests>
                     <testFramework>JUNIT5</testFramework>
                     <stubsOutputDirectory>${project.build.directory}/stubs</stubsOutputDirectory>
                     <generateStubs>true</generateStubs>
