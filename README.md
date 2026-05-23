@@ -19,7 +19,10 @@
 | account db           | bank-account-db           | 9005 |
 | notification db      | bank-notification-db      | 9006 |
 
-
+## Запуск сервисов
+```bash
+docker compose up
+```
 ## Что выполнено
 Смотри pull-реквесты.
 
