@@ -2,7 +2,7 @@ package ru.ugaforever.bank.chassis.exception;
 
 import org.springframework.http.HttpStatus;
 
-// 404 Not Found - Ресурс не найден
+// 404 Not Found
 public class ResourceNotFoundException extends BankApplicationException {
     private final String resourceType;
     private final String resourceId;

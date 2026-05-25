@@ -35,8 +35,8 @@ public class TransferService {
     private final TransferMapper mapper;
 
     public String preview() {
-        log.debug("Запрошен предпросмотр перевода");
-        return "Предпросмотр перевода: всё выглядит корректно.";
+        log.debug("Preview transfer request");
+        return "Preview transfer request: ok.";
     }
 
     public TransferResponseDto submit(TransferRequestDto request/*, JwtAuthenticationToken authentication*/) {
@@ -48,14 +48,14 @@ public class TransferService {
         }*/
 
         if (request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new ValidationException("Сумма должна быть больше 0");
+            throw new ValidationException("The amount must be greater than 0");
         }
 
         AccountResponseDto accountFrom = accountClient.getAccount(request.getFromLogin());
         log.debug("Account found: login={}, currentBalance={}", accountFrom.getLogin(), accountFrom.getBalance());
 
         if (accountFrom.getBalance().compareTo(request.getAmount()) < 0) {
-            throw new BusinessRuleException("Недостаточно средств");
+            throw new BusinessRuleException("Insufficient funds");
         }
 
         WithdrawRequestDto withdrawDto = WithdrawRequestDto.builder()

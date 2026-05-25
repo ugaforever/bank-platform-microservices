@@ -19,13 +19,13 @@ public class AccountService {
     private final GatewayClient gatewayClient;
 
     public AccountResponseDto getAccount(String login){
-        log.info("Получение аккаунта: login={}", login);
+        log.info("Get account: login={}", login);
 
         return gatewayClient.getAccount(login);
     }
 
     public AccountResponseDto patchAccount(String login, AccountUpdateDto update) {
-        log.info("Обновление аккаунта: login={}, name={}, birthdate={}", login, update.getName(), update.getBirthdate());
+        log.info("Patch account: login={}, name={}, birthdate={}", login, update.getName(), update.getBirthdate());
 
         // TODO: проверки через аннотации в DTO
         if (update.getName() == null || update.getName().isBlank()) {
@@ -40,7 +40,7 @@ public class AccountService {
     }
 
     public List<AccountResponseDto> getAllAccounts() {
-        log.info("Получение списка аккаунтов");
+        log.info("Get all accounts");
 
         return gatewayClient.getAllAccount();
     }

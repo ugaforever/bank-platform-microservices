@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 
 import java.util.Map;
 
-// 400 Bad Request - Ошибка валидации
+// 400 Bad Request
 public class ValidationException extends BankApplicationException {
     private final Map<String, String> errors;
 

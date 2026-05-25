@@ -55,7 +55,7 @@ public class AccountService {
         return repository.findByLogin(login)
                 .map(mapper::toDto)
                 .orElseThrow(() -> {
-                    log.warn("Аккаунт не найден: {}", login);
+                    log.warn("Account not found: {}", login);
                     return new AccountNotFoundException(login);
                 });
     }
@@ -73,7 +73,7 @@ public class AccountService {
         log.info("Update account: login={}, fields={}", login, updateDto);
 
         if (!updateDto.hasUpdates()) {
-            throw new ValidationException("Не указаны поля для обновления");
+            throw new ValidationException("The fields for updating are not specified");
         }
 
         Account account = repository.findByLogin(login)
@@ -128,7 +128,7 @@ public class AccountService {
 
         BigDecimal currentBalance = account.getBalance();
         if (currentBalance.compareTo(amount) < 0) {
-            throw new BusinessRuleException("Недостаточно средств. Баланс: " + currentBalance);
+            throw new BusinessRuleException("Insufficient funds. Balance: " + currentBalance);
         }
 
         BigDecimal newBalance = currentBalance.subtract(amount);

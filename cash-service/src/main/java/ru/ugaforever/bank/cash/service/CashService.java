@@ -70,14 +70,14 @@ public class CashService {
         log.info("Withdraw cash: login={}, amount={}", request.getLogin(), request.getAmount());
 
         if (request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new ValidationException("Сумма должна быть больше 0");
+            throw new ValidationException("The amount must be greater than 0");
         }
 
         AccountResponseDto account = accountClient.getAccount(request.getLogin());
         log.debug("Account found: login={}, currentBalance={}", account.getLogin(), account.getBalance());
 
         if (account.getBalance().compareTo(request.getAmount()) < 0) {
-            throw new BusinessRuleException("Недостаточно средств");
+            throw new BusinessRuleException("Insufficient funds");
         }
 
         accountClient.withdraw(request.getLogin(), request);

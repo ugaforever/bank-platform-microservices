@@ -141,7 +141,7 @@ public class AccountServiceTest {
         // when & then
         assertThatThrownBy(() -> service.updateAccount(LOGIN, updateDto))
                 .isInstanceOf(ValidationException.class)
-                .hasMessageContaining("Не указаны поля для обновления");
+                .hasMessageContaining("The fields for updating are not specified");
 
         verify(repository, never()).findById(any());
         verify(repository, never()).save(any(Account.class));

@@ -9,19 +9,18 @@ spring:
   application:
     name: account-service
 
-#  config:
-#    import: "optional:consul:${CONSUL_HOST:localhost}:${CONSUL_PORT:8500}"
+  config:
+    import: "optional:consul:${CONSUL_HOST:localhost}:${CONSUL_PORT:8500}"
 
   cloud:
     consul:
       host: ${CONSUL_HOST:localhost}
       port: ${CONSUL_PORT:8500}
-#      config:
-#        format: PROPERTIES
-#        prefix: config
-#        defaultContext: application
-#        name: ${spring.application.name}
-#        data-key: data
+      config:
+        format: PROPERTIES
+        prefix: config
+        name: ${spring.application.name}
+        data-key: data
       discovery:
         enabled: true
         instance-id: ${spring.application.name}:${random.value}
@@ -39,10 +38,10 @@ spring:
         #          filters:
         #            - name: TokenRelay
 
-  datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5435/accounts}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+#  datasource:
+#    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5435/accounts}
+#    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+#    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
 
   jpa:
     hibernate:
