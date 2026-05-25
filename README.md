@@ -14,10 +14,10 @@
 | account service      | bank-account-service      | 9005 |
 | notification service | bank-notification-service | 9006 |
 | consul               | bank-consul               | 8500 |
-| transfer db          | bank-transfer-db          | 9003 |
-| cash db              | bank-cash-db              | 9004 |
-| account db           | bank-account-db           | 9005 |
-| notification db      | bank-notification-db      | 9006 |
+| transfer db          | bank-transfer-db          | 5433 |
+| cash db              | bank-cash-db              | 5434 |
+| account db           | bank-account-db           | 5435 |
+| notification db      | bank-notification-db      | 5436 |
 
 ## Запуск сервисов
 ```bash

@@ -117,8 +117,8 @@ services:
 # ================================
   front:
     build:
-      context: ./front-ui
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: front-ui/Dockerfile
     container_name: bank-front
     environment:
       SERVER_PORT: ${FRONTEND_PORT}
@@ -134,8 +134,8 @@ services:
 
   gateway:
     build:
-      context: ./gateway
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: gateway/Dockerfile
     container_name: bank-gateway
     environment:
       CONSUL_HOST: ${CONSUL_HOST}
@@ -150,8 +150,8 @@ services:
 
   account-service:
     build:
-      context: ./account-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: account-service/Dockerfile
     container_name: bank-account-service
     environment:
       CONSUL_HOST: ${CONSUL_HOST}
@@ -172,11 +172,10 @@ services:
 
   cash-service:
     build:
-      context: ./cash-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: cash-service/Dockerfile
     container_name: bank-cash-service
     environment:
-
       CONSUL_HOST: ${CONSUL_HOST}
       CONSUL_PORT: ${CONSUL_HTTP_PORT}
       SERVER_PORT: ${CASH_SERVICE_PORT}
@@ -196,8 +195,8 @@ services:
 
   transfer-service:
     build:
-      context: ./transfer-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: transfer-service/Dockerfile
     container_name: bank-transfer-service
     environment:
       CONSUL_HOST: ${CONSUL_HOST}
@@ -219,8 +218,8 @@ services:
 
   notification-service:
     build:
-      context: ./notification-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: notification-service/Dockerfile
     container_name: bank-notification-service
     environment:
       CONSUL_HOST: ${CONSUL_HOST}

@@ -2,6 +2,9 @@ package ru.ugaforever.bank.cash.mapper;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import ru.ugaforever.bank.cash.model.Cash;
 import ru.ugaforever.bank.chassis.dto.cash.CashAction;
 import ru.ugaforever.bank.chassis.dto.cash.CashResponseDto;
@@ -11,13 +14,16 @@ import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SpringBootTest
+@ActiveProfiles("test")
 public class CashMapperTest {
 
     private static final Long CASH_ID = 1L;
     private static final String LOGIN = "ivanov";
     private static final BigDecimal AMOUNT = BigDecimal.valueOf(100);
 
-    private final CashMapper mapper = new CashMapperImpl();
+    @Autowired
+    private CashMapper mapper;
 
     @Test
     @DisplayName("Должен маппить Cash в CashResponseDto")
