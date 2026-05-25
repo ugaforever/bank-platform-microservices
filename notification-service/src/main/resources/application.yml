@@ -5,19 +5,19 @@ spring:
   application:
     name: notification-service
 
-#  config:
-#    import: "optional:consul:${CONSUL_HOST:localhost}:${CONSUL_PORT:8500}"
+  config:
+    import: "optional:consul:${CONSUL_HOST:localhost}:${CONSUL_PORT:8500}"
 
   cloud:
     consul:
       host: ${CONSUL_HOST:localhost}
       port: ${CONSUL_PORT:8500}
-#      config:
-#        format: PROPERTIES
-#        prefix: config
-#        defaultContext: application
-#        name: ${spring.application.name}
-#        data-key: data
+      config:
+        #spring.datasource.* изменение в Consul не может обновить в приложении из-за особенности бина datasource
+        format: PROPERTIES
+        prefix: config
+        name: ${spring.application.name}
+        data-key: data
       discovery:
         enabled: true
         instance-id: ${spring.application.name}:${random.value}
@@ -26,10 +26,6 @@ spring:
         health-check-path: /actuator/health
         health-check-interval: 10s
 
-  datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5436/notifications}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
   jpa:
     hibernate:
       ddl-auto: update

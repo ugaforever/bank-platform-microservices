@@ -27,13 +27,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class NotificationAccountContractTest {
 
     private static final String MESSAGE = "Your operation was successful";
-    private static final String DATETIME = "2026-01-01T01:02:03.456Z";
 
     @Autowired
     private NotificationClient notificationClient;
 
     @Test
-    @Disabled("Временно отключен из-за проблем с портом")
+    @Disabled("Временно отключен из-за проблем с портом. не удается переопределить порт 9006 на любой другой, пробовал разные варианты. когда порт свободен тест отрабатывает.")
     void shouldSendNotification() {
 
         NotificationRequestDto request = NotificationRequestDto.builder()

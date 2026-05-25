@@ -17,6 +17,7 @@ spring:
       host: ${CONSUL_HOST:localhost}
       port: ${CONSUL_PORT:8500}
       config:
+        #spring.datasource.* изменение в Consul не может обновить в приложении из-за особенности бина datasource
         format: PROPERTIES
         prefix: config
         name: ${spring.application.name}
@@ -37,11 +38,6 @@ spring:
         #          TODO: uncomment
         #          filters:
         #            - name: TokenRelay
-
-#  datasource:
-#    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5435/accounts}
-#    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-#    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
 
   jpa:
     hibernate:
