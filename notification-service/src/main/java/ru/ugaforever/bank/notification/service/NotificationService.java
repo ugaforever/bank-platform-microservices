@@ -5,16 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.ugaforever.bank.chassis.client.AccountClient;
-import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
-import ru.ugaforever.bank.chassis.dto.cash.CashAction;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationResponseDto;
 import ru.ugaforever.bank.notification.mapper.NotificationMapper;
 import ru.ugaforever.bank.notification.model.Notification;
 import ru.ugaforever.bank.notification.repository.NotificationRepository;
-
-import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor

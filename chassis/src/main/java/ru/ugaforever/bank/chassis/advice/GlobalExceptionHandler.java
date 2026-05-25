@@ -1,6 +1,5 @@
 package ru.ugaforever.bank.chassis.advice;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -16,7 +15,6 @@ import ru.ugaforever.bank.chassis.exception.BusinessRuleException;
 import ru.ugaforever.bank.chassis.exception.ConflictException;
 import ru.ugaforever.bank.chassis.exception.ResourceNotFoundException;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 

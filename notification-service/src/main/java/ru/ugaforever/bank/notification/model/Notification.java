@@ -7,9 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationSource;
 
-import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
