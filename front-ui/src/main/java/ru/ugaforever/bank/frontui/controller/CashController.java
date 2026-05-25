@@ -22,7 +22,7 @@ public class CashController {
      * POST /cash - пополнение \ снятие денег.
      *
      * 1. value - сумма
-     * 2. action - GET (снять), PUT (пополнить)
+     * 2. action - WITHDRAW (снять), DEPOSIT (пополнить)
      */
     @PostMapping
     public String editCash(
@@ -36,8 +36,8 @@ public class CashController {
         log.info("Cash operation: login={}, action={}, value={}", login, action, value);
 
         CashResponseDto cash = switch (action) {
-            case GET -> cashService.withdraw(login, value);
-            case PUT -> cashService.deposit(login, value);
+            case WITHDRAW -> cashService.withdraw(login, value);
+            case DEPOSIT -> cashService.deposit(login, value);
         };
 
         //model.addAttribute("balance", cash.getAmount());

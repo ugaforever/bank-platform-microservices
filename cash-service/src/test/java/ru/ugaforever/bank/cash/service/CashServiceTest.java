@@ -64,14 +64,14 @@ public class CashServiceTest {
         Cash cash = Cash.builder()
                 .id(CASH_ID)
                 .login(LOGIN)
-                .action(CashAction.PUT)
+                .action(CashAction.DEPOSIT)
                 .amount(AMOUNT)
                 .build();
 
         CashResponseDto expectedResponse = CashResponseDto.builder()
                 .id(CASH_ID)
                 .login(LOGIN)
-                .action(CashAction.PUT)
+                .action(CashAction.DEPOSIT)
                 .amount(AMOUNT)
                 .actionAt(Instant.now())
                 .build();

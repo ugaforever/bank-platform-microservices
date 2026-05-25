@@ -44,7 +44,7 @@ public class CashService {
 
         Cash cash = Cash.builder()
                 .login(account.getLogin())
-                .action(CashAction.PUT)
+                .action(CashAction.DEPOSIT)
                 .amount(request.getAmount())
                 .build();
         repository.save(cash);
@@ -86,7 +86,7 @@ public class CashService {
 
         Cash cash = Cash.builder()
                 .login(account.getLogin())
-                .action(CashAction.GET)
+                .action(CashAction.WITHDRAW)
                 .amount(request.getAmount())
                 .actionAt(Instant.now())
                 .build();

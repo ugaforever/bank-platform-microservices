@@ -31,7 +31,7 @@ public class CashMapperTest {
         Cash cash = Cash.builder()
                 .id(CASH_ID)
                 .login(LOGIN)
-                .action(CashAction.GET)
+                .action(CashAction.WITHDRAW)
                 .amount(AMOUNT)
                 .actionAt(Instant.now())
                 .build();
@@ -40,7 +40,7 @@ public class CashMapperTest {
 
         assertThat(dto.getId()).isEqualTo(CASH_ID);
         assertThat(dto.getLogin()).isEqualTo(LOGIN);
-        assertThat(dto.getAction()).isEqualTo(CashAction.GET);
+        assertThat(dto.getAction()).isEqualTo(CashAction.WITHDRAW);
         assertThat(dto.getAmount()).isEqualTo(AMOUNT);
         assertThat(dto.getActionAt()).isNotNull();
         assertThat(dto.getActionAt()).isInstanceOf(Instant.class);
