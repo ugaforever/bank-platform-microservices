@@ -25,6 +25,8 @@ public class Cash {
     @Column(nullable = false, updatable = false)
     private Instant actionAt;
 
+    private String idempotencyKey;
+
     @PrePersist
     protected void onCreate() {
         actionAt = Instant.now();

@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.ugaforever.bank.cash.interceptor.IdempotencyInterceptor;
 import ru.ugaforever.bank.cash.model.Cash;
 import ru.ugaforever.bank.chassis.client.AccountClient;
 import ru.ugaforever.bank.chassis.client.NotificationClient;
@@ -23,6 +24,7 @@ import ru.ugaforever.bank.chassis.exception.ValidationException;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +42,28 @@ public class CashService {
     public CashResponseDto deposit(DepositRequestDto request) {
         log.info("Deposit cash: login={}, value={}", request.getLogin(), request.getAmount());
 
+        String idempotencyKey = IdempotencyInterceptor.getCurrentIdempotencyKey();
+
+        if (idempotencyKey != null && !idempotencyKey.isBlank()) {
+
+            Optional<Cash> existing = repository.findByIdempotencyKey(idempotencyKey);
+
+            if (existing.isPresent()) {
+                Cash cached = existing.get();
+                log.info("Duplicate deposit request detected for key: {}", idempotencyKey);
+
+                return CashResponseDto.builder()
+                        .id(cached.getId())
+                        .login(cached.getLogin())
+                        .action(cached.getAction())
+                        .amount(cached.getAmount())
+                        .actionAt(cached.getActionAt())
+                        .success(false)
+                        .errorMessage("Duplicate deposit request")
+                        .build();
+            }
+        }
+
         AccountResponseDto account = accountClient.deposit(request.getLogin(), request);
         log.debug("Balance updated: login={}, newBalance={}",
                 account.getLogin(), account.getBalance().add(request.getAmount()));
@@ -49,6 +73,8 @@ public class CashService {
                 .action(CashAction.DEPOSIT)
                 .amount(request.getAmount())
                 .build();
+
+        // от простого к сложному: если idempotencyKey уже сохранен, значит deposit успешный (неуспешны не сохраняется)
         repository.save(cash);
         log.debug("Cash operation saved: id={}", cash.getId());
 
@@ -71,6 +97,27 @@ public class CashService {
     @CircuitBreaker(name = "cashServiceWithdraw", fallbackMethod = "withdrawFallback")
     public CashResponseDto withdraw(WithdrawRequestDto request) {
         log.info("Withdraw cash: login={}, amount={}", request.getLogin(), request.getAmount());
+
+        String idempotencyKey = IdempotencyInterceptor.getCurrentIdempotencyKey();
+        if (idempotencyKey != null && !idempotencyKey.isBlank()) {
+
+            Optional<Cash> existing = repository.findByIdempotencyKey(idempotencyKey);
+
+            if (existing.isPresent()) {
+                Cash cached = existing.get();
+                log.info("Duplicate withdraw request detected for key: {}", idempotencyKey);
+
+                return CashResponseDto.builder()
+                        .id(cached.getId())
+                        .login(cached.getLogin())
+                        .action(cached.getAction())
+                        .amount(cached.getAmount())
+                        .actionAt(cached.getActionAt())
+                        .success(false)
+                        .errorMessage("Withdraw deposit request")
+                        .build();
+            }
+        }
 
         if (request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new ValidationException("The amount must be greater than 0");
