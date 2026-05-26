@@ -13,6 +13,8 @@ public interface TransferMapper {
     @Mapping(target = "actionAt", ignore = true)
     Transfer toEntity(TransferRequestDto dto);
 
+    @Mapping(target = "success", ignore = true)
+    @Mapping(target = "errorMessage", ignore = true)
     TransferResponseDto toDto(Transfer transfer);
 }
 

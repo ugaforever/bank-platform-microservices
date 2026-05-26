@@ -1,5 +1,6 @@
 package ru.ugaforever.bank.transfer.service;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import ru.ugaforever.bank.transfer.model.Transfer;
 import ru.ugaforever.bank.transfer.repository.TransferRepository;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +41,7 @@ public class TransferService {
         return "Preview transfer request: ok.";
     }
 
+    @CircuitBreaker(name = "transferServiceSubmit", fallbackMethod = "submitFallback")
     public TransferResponseDto submit(TransferRequestDto request/*, JwtAuthenticationToken authentication*/) {
         log.info("Transfer cash: from={}, from={}, amount={}", request.getFromLogin(), request.getToLogin(), request.getAmount());
 
@@ -91,5 +94,19 @@ public class TransferService {
 
         log.info("Transfer completed: from={}, to={}, amount={}", request.getFromLogin(), request.getToLogin(), request.getAmount());
         return mapper.toDto(transfer);
+    }
+
+    private TransferResponseDto submitFallback(TransferRequestDto request, Exception e) {
+        log.warn("Transfer circuit breaker opened");
+
+        return TransferResponseDto.builder()
+                .id(null)
+                .fromLogin(request.getFromLogin())
+                .toLogin(request.getToLogin())
+                .amount(request.getAmount())
+                .actionAt(Instant.now())
+                .success(false)
+                .errorMessage("Transfer circuit breaker opened")
+                .build();
     }
 }

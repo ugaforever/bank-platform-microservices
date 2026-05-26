@@ -16,4 +16,8 @@ public class TransferResponseDto {
     private String toLogin;
     private BigDecimal amount;
     private Instant actionAt;
+
+    @Builder.Default
+    private boolean success = true;
+    private String errorMessage;
 }

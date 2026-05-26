@@ -17,6 +17,7 @@ public class CashResponseDto {
     private BigDecimal amount;
     private Instant actionAt;
 
-    private boolean success;
+    @Builder.Default
+    private boolean success = true;
     private String errorMessage;
 }
