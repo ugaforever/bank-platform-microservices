@@ -16,4 +16,7 @@ public class CashResponseDto {
     private CashAction action;
     private BigDecimal amount;
     private Instant actionAt;
+
+    private boolean success;
+    private String errorMessage;
 }

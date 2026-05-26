@@ -1,5 +1,6 @@
 package ru.ugaforever.bank.cash.service;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,7 @@ public class CashService {
     private final CashRepository repository;
     private final CashMapper mapper;
 
+    @CircuitBreaker(name = "cashServiceDeposit", fallbackMethod = "depositFallback")
     public CashResponseDto deposit(DepositRequestDto request) {
         log.info("Deposit cash: login={}, value={}", request.getLogin(), request.getAmount());
 
@@ -66,6 +68,7 @@ public class CashService {
         return mapper.toDto(cash);
     }
 
+    @CircuitBreaker(name = "cashServiceWithdraw", fallbackMethod = "withdrawFallback")
     public CashResponseDto withdraw(WithdrawRequestDto request) {
         log.info("Withdraw cash: login={}, amount={}", request.getLogin(), request.getAmount());
 
@@ -107,6 +110,34 @@ public class CashService {
                 request.getLogin(), request.getAmount(), account.getBalance().subtract(request.getAmount()));
 
         return mapper.toDto(cash);
+    }
+
+    private CashResponseDto depositFallback(DepositRequestDto request, Exception e) {
+        log.warn("Deposit circuit breaker opened");
+
+        return CashResponseDto.builder()
+                .id(null)
+                .login(request.getLogin())
+                .action(CashAction.DEPOSIT)
+                .amount(request.getAmount())
+                .actionAt(Instant.now())
+                .success(false)
+                .errorMessage("Deposit circuit breaker opened")
+                .build();
+    }
+
+    private CashResponseDto withdrawFallback(WithdrawRequestDto request, Exception e) {
+        log.warn("Withdraw circuit breaker opened");
+
+        return CashResponseDto.builder()
+                .id(null)
+                .login(request.getLogin())
+                .action(CashAction.WITHDRAW)
+                .amount(request.getAmount())
+                .actionAt(Instant.now())
+                .success(false)
+                .errorMessage("Withdraw circuit breaker opened")
+                .build();
     }
 }
 

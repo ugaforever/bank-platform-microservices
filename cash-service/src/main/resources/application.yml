@@ -73,12 +73,35 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, info
+        include: health,info,metrics,circuitbreakers
+      base-path: /actuator
   endpoint:
     health:
       show-details: always
+      show-components: always
+    metrics:
+      enabled: true
+    circuitbreakers:
+      enabled: true
 
 logging:
   level:
     org.springframework.cloud.consul: DEBUG
     org.springframework.boot.context.config: DEBUG
+
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      registerHealthIndicator: true
+      slidingWindowType: COUNT_BASED
+      slidingWindowSize: 10
+      minimumNumberOfCalls: 10
+      failureRateThreshold: 50
+      waitDurationInOpenState: 30000
+      permittedNumberOfCallsInHalfOpenState: 5
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+  instances:
+    cashServiceDeposit:
+      registerHealthIndicator: true
+    cashServiceWithdraw:
+      registerHealthIndicator: true

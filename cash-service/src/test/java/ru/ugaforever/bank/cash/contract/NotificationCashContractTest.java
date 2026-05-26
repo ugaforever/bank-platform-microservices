@@ -26,7 +26,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class NotificationCashContractTest {
 
     private static final String MESSAGE = "Your operation was successful";
-    private static final String DATETIME = "2026-01-01T01:02:03.456Z";
 
     @Autowired
     private NotificationClient notificationClient;
