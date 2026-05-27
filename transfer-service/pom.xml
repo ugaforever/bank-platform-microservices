@@ -121,6 +121,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>ru.ugaforever.bank.chassis</groupId>
             <artifactId>chassis</artifactId>
             <version>1.0-SNAPSHOT</version>
