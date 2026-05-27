@@ -75,6 +75,18 @@ spring:
 #          keycloak:
 #            issuer-uri: http://localhost:9002/realms/bank-realm
 
+  kafka:
+    bootstrap-servers: bank-kafka:9092
+    consumer:
+      group-id: transfer-saga-orchestrator
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      max-poll-records: 10
+    listener:
+      ack-mode: manual
+      shutdown-timeout: 30000
+
 feign:
   httpclient:
     enabled: true
@@ -93,7 +105,6 @@ management:
       enabled: true
     circuitbreakers:
       enabled: true
-
 
 resilience4j.circuitbreaker:
   configs:

@@ -17,6 +17,9 @@ public class TransferResponseDto {
     private BigDecimal amount;
     private Instant actionAt;
 
+    private TransferStatus status;
+    private Integer sagaStep;
+
     @Builder.Default
     private boolean success = true;
     private String errorMessage;

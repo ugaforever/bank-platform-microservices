@@ -9,16 +9,15 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.ugaforever.bank.chassis.client.AccountClient;
 import ru.ugaforever.bank.chassis.client.NotificationClient;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
-import ru.ugaforever.bank.chassis.dto.cash.DepositRequestDto;
-import ru.ugaforever.bank.chassis.dto.cash.WithdrawRequestDto;
-import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
-import ru.ugaforever.bank.chassis.dto.notification.NotificationSource;
 import ru.ugaforever.bank.chassis.dto.transfer.TransferRequestDto;
 import ru.ugaforever.bank.chassis.dto.transfer.TransferResponseDto;
+import ru.ugaforever.bank.chassis.dto.transfer.TransferStatus;
 import ru.ugaforever.bank.chassis.exception.BusinessRuleException;
 import ru.ugaforever.bank.chassis.exception.ValidationException;
 import ru.ugaforever.bank.transfer.mapper.TransferMapper;
 import ru.ugaforever.bank.transfer.model.Transfer;
+import ru.ugaforever.bank.transfer.model.TransferOutbox;
+import ru.ugaforever.bank.transfer.repository.OutboxRepository;
 import ru.ugaforever.bank.transfer.repository.TransferRepository;
 
 import java.math.BigDecimal;
@@ -33,7 +32,8 @@ public class TransferService {
 
     private final AccountClient accountClient;
     private final NotificationClient notificationClient;
-    private final TransferRepository repository;
+    private final TransferRepository transferRepository;
+    private final OutboxRepository outboxRepository;
     private final TransferMapper mapper;
 
     public String preview() {
@@ -61,38 +61,34 @@ public class TransferService {
             throw new BusinessRuleException("Insufficient funds");
         }
 
-        WithdrawRequestDto withdrawDto = WithdrawRequestDto.builder()
-                .login(request.getFromLogin())
-                .amount(request.getAmount())
-                .build();
-        accountClient.withdraw(request.getFromLogin(), withdrawDto);
-
-        DepositRequestDto depositDto = DepositRequestDto.builder()
-                .login(request.getToLogin())
-                .amount(request.getAmount())
-                .build();
-        accountClient.deposit(request.getToLogin(), depositDto);
-
-        Transfer transfer = Transfer.builder()
-                .fromLogin(request.getFromLogin())
-                .toLogin(request.getToLogin())
-                .amount(request.getAmount())
-                .build();
-
-        repository.save(transfer);
+        //saga step = 0
+        Transfer transfer = transferRepository.save(
+                Transfer.builder()
+                        .fromLogin(request.getFromLogin())
+                        .toLogin(request.getToLogin())
+                        .amount(request.getAmount())
+                        .status(TransferStatus.PENDING)
+                        .sagaStep(0)
+                        .build()
+        );
         log.debug("Transfer operation saved: id={}", transfer.getId());
 
-        NotificationRequestDto notificationRequestDto = NotificationRequestDto.builder()
-                .source(NotificationSource.TRANSFER_SERVICE)
-                .message(String.format("from=%s, to=%s, type=TRANSFER, amount=%.2f",
-                        transfer.getFromLogin(),
-                        transfer.getToLogin(),
-                        transfer.getAmount()))
+        //outbox
+        String payload = String.format(
+                "{\"transferId\":%d,\"fromLogin\":\"%s\",\"toLogin\":\"%s\",\"amount\":%s}",
+                transfer.getId(),
+                request.getFromLogin(),
+                request.getToLogin(),
+                request.getAmount()
+        );
+        TransferOutbox outbox = TransferOutbox.builder()
+                .transferId(transfer.getId())
+                .eventType("WITHDRAW")
+                .payload(payload)
                 .build();
-        notificationClient.sendNotification(notificationRequestDto);
-        log.info("Notification sent: id={}", transfer.getId());
+        outboxRepository.save(outbox);
+        log.info("Outbox event saved: transferId={}, eventType=WITHDRAW", transfer.getId());
 
-        log.info("Transfer completed: from={}, to={}, amount={}", request.getFromLogin(), request.getToLogin(), request.getAmount());
         return mapper.toDto(transfer);
     }
 

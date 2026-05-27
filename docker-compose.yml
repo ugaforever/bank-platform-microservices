@@ -22,7 +22,7 @@ services:
       start_period: 30s
 
 # ================================
-# Consul (Service Discovery)
+# Consul (Service Discovery and Distributed Config Server)
 # ================================
   bank-consul:
     image: hashicorp/consul:latest
@@ -39,6 +39,66 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+
+# ================================
+# Kafka
+# ================================
+  bank-kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: bank-kafka
+    environment:
+      KAFKA_ENABLE_KRAFT: 'true'
+      KAFKA_KRAFT_CLUSTER_ID: '76a0a197-802d-420b-93a9-0ed9e471bec5'
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@bank-kafka:9093'
+      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://bank-kafka:9092'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_LOG_DIRS: '/var/lib/kafka/data'
+      ALLOW_PLAINTEXT_LISTENER: 'yes'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    ports:
+      - "${KAFKA_PORT}:9092"
+
+# ================================
+# Debezium
+# ================================
+  bank-debezium:
+    image: debezium/connect:2.5
+    container_name: bank-debezium
+    depends_on:
+      - bank-kafka
+      - bank-transfer-db
+    ports:
+      - "${DEBEZIUM_PORT}:8083"
+    environment:
+      BOOTSTRAP_SERVERS: bank-kafka:9092
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: connect_configs
+      OFFSET_STORAGE_TOPIC: connect_offsets
+      STATUS_STORAGE_TOPIC: connect_statuses
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8083/connectors" ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  debezium-setup:
+    image: alpine/curl:latest
+    container_name: debezium-setup
+    depends_on:
+      bank-debezium:
+        condition: service_healthy
+    volumes:
+      - ./debezium/transfer-outbox-connector.sh:/transfer-outbox-connector.sh:ro
+      - ./debezium/transfer-outbox-connector.json:/transfer-outbox-connector.json:ro
+    command: sh /transfer-outbox-connector.sh
+    restart: "no"
 
 # ================================
 # PostgreSQL Databases
@@ -86,6 +146,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "${TRANSFER_DB_PORT}:5432"
+    command: postgres -c wal_level=logical
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
       interval: 10s
@@ -243,3 +304,4 @@ volumes:
   transfer-db-data:
   notification-db-data:
   consul-data:
+  kafka_data:

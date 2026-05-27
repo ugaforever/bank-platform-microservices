@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.ugaforever.bank.chassis.dto.transfer.TransferStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -24,6 +25,12 @@ public class Transfer {
     private String toLogin;
     private BigDecimal amount;
 
+    @Enumerated(EnumType.STRING)
+    private TransferStatus status;
+
+    @Column(name = "saga_step")
+    private Integer sagaStep;
+
     @Column(nullable = false, updatable = false)
     private Instant actionAt;
 
@@ -32,3 +39,5 @@ public class Transfer {
         actionAt = Instant.now();
     }
 }
+
+
