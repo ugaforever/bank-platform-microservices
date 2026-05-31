@@ -2,6 +2,7 @@ package ru.ugaforever.bank.account.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.ugaforever.bank.account.service.AccountService;
 import ru.ugaforever.bank.chassis.dto.account.AccountRequestDto;
@@ -20,25 +21,25 @@ public class AccountController {
     private final AccountService accountService;
 
     @GetMapping
-    //@PreAuthorize ??
+    @PreAuthorize("hasRole('USER')")
     public List<AccountResponseDto> getAll() {
         return accountService.getAll();
     }
 
     @PostMapping
-    //@PreAuthorize ??
+    @PreAuthorize("hasRole('ADMIN')")
     public AccountResponseDto create(@RequestBody @Valid AccountRequestDto dto) {
         return accountService.createAccount(dto);
     }
 
     @GetMapping("/{login}")
-    //@PreAuthorize ??
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public AccountResponseDto get(@PathVariable String login) {
         return accountService.getAccount(login);
     }
 
     @PatchMapping("/{login}")
-    //@PreAuthorize ??
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public AccountResponseDto patchAccount(
             @PathVariable String login,
             @Valid @RequestBody AccountUpdateDto updateDto) {
@@ -47,7 +48,7 @@ public class AccountController {
     }
 
     @PostMapping("/{login}/deposit")
-    //@PreAuthorize ??
+    @PreAuthorize("hasRole('USER')")
     public AccountResponseDto deposit(
             @PathVariable String login,
             @RequestBody DepositRequestDto request) {
@@ -56,7 +57,7 @@ public class AccountController {
     }
 
     @PostMapping("/{login}/withdraw")
-    //@PreAuthorize ??
+    @PreAuthorize("hasRole('USER')")
     public AccountResponseDto withdraw(
             @PathVariable String login,
             @RequestBody WithdrawRequestDto request) {

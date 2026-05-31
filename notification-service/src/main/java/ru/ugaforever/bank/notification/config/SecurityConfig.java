@@ -22,9 +22,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
-
-                    auth.requestMatchers("/**").permitAll();
-                    //auth.requestMatchers("/actuator/**").permitAll();
+                    auth.requestMatchers("/actuator/**").permitAll();
                     auth.anyRequest().authenticated();
                 });
 
@@ -68,11 +66,9 @@ public class SecurityConfig {
                 .map(role -> (GrantedAuthority) new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toList());
 
-        // Дополнительно маппим бизнес-право на отдельный authority
-        if (roles.contains("ACCOUNTS_WRITE")) {
-            authorities.add(new SimpleGrantedAuthority("accounts.write"));
+        if (roles.contains("NOTIFICATION_WRITE")) {
+            authorities.add(new SimpleGrantedAuthority("notification.write"));
         }
-
         return authorities;
     }
 }

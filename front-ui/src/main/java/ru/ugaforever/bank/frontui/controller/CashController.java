@@ -2,6 +2,7 @@ package ru.ugaforever.bank.frontui.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +26,7 @@ public class CashController {
      * 2. action - WITHDRAW (снять), DEPOSIT (пополнить)
      */
     @PostMapping
+    @PreAuthorize("hasRole('USER') && hasAuthority('cash.write')")
     public String editCash(
             Model model,
             @RequestParam("value") int value,

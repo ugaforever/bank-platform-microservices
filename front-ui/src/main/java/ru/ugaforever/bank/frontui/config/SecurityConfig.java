@@ -1,4 +1,3 @@
-/*
 package ru.ugaforever.bank.frontui.config;
 
 import org.springframework.context.annotation.Bean;
@@ -13,6 +12,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/css/**").permitAll()
                         .anyRequest().authenticated()
@@ -20,10 +20,12 @@ public class SecurityConfig {
                 .oauth2Login(Customizer.withDefaults())
                 .logout(logout -> logout
                         .logoutSuccessUrl("/")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID")
                         .permitAll()
                 );
 
         return http.build();
     }
 }
-*/

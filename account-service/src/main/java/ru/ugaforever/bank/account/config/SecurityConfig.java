@@ -22,9 +22,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
-
-                    auth.requestMatchers("/**").permitAll();
-                    //auth.requestMatchers("/actuator/**").permitAll();
+                    auth.requestMatchers("/actuator/**").permitAll();
                     auth.anyRequest().authenticated();
                 });
 
@@ -65,12 +63,11 @@ public class SecurityConfig {
 
         // Добавляем "ROLE_<имя роли>" для @PreAuthorize("hasRole('...')")
         List<GrantedAuthority> authorities = roles.stream()
-                .map(role -> (GrantedAuthority) new SimpleGrantedAuthority("ROLE_" + role))
+                .map(role -> (GrantedAuthority) new SimpleGrantedAuthority("ROLE_" + role))  // Для hasRole (с префиксом ROLE_)
                 .collect(Collectors.toList());
 
-        // Дополнительно маппим бизнес-право на отдельный authority
-        if (roles.contains("ACCOUNTS_WRITE")) {
-            authorities.add(new SimpleGrantedAuthority("accounts.write"));
+        if (roles.contains("ACCOUNT_WRITE")) {
+            authorities.add(new SimpleGrantedAuthority("account.write"));
         }
 
         return authorities;

@@ -12,7 +12,7 @@ import ru.ugaforever.bank.chassis.config.FeignConfig;
 @SpringBootApplication
 @EnableFeignClients(
         clients = {GatewayClient.class},
-        defaultConfiguration = FeignConfig.class  // ✅ Подключаем
+        defaultConfiguration = FeignConfig.class
 )
 @Import(GlobalExceptionHandler.class)
 public class FrontUIApplication {

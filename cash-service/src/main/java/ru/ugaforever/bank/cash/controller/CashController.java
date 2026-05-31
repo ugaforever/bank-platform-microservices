@@ -2,6 +2,7 @@ package ru.ugaforever.bank.cash.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.ugaforever.bank.chassis.dto.cash.CashResponseDto;
 
@@ -18,14 +19,14 @@ public class CashController {
 
     //curl -v -X POST http://localhost:9004/cash/deposit -H "Content-Type: application/json" -d '{"accountId": 1, "amount": 500.00}'
     @PostMapping("/deposit")
-    //@PreAuthorize ??
+    @PreAuthorize("hasRole('USER') && hasAuthority('cash.write')")
     public CashResponseDto deposit(@Valid @RequestBody DepositRequestDto request) {
         return cashService.deposit(request);
     }
 
     //curl -v -X POST http://localhost:9004/cash/withdraw -H "Content-Type: application/json" -d '{"accountId": 1, "amount": 100.00}'
     @PostMapping("/withdraw")
-    //@PreAuthorize ??
+    @PreAuthorize("hasRole('USER') && hasAuthority('cash.write')")
     public CashResponseDto withdraw(@Valid @RequestBody WithdrawRequestDto request) {
         return cashService.withdraw(request);
     }

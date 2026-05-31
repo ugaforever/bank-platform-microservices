@@ -35,9 +35,8 @@ spring:
           uri: lb://notification-service
           predicates:
             - Path=/notification/**
-        #          TODO: uncomment
-        #          filters:
-        #            - name: TokenRelay
+          filters:
+            - name: TokenRelay
 
   jpa:
     hibernate:
@@ -52,6 +51,16 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9002/realms/bank-realm}
+      client:
+        registration:
+          account-service:
+            provider: keycloak
+            client-id: account-service
+            client-secret: Pq2E38wIGf2sjEuM9QswDcXt5zoshMCy
+            authorization-grant-type: client_credentials
+        provider:
+          keycloak:
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9002/realms/bank-realm}
 
 feign:
   httpclient:

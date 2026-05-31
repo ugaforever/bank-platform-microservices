@@ -1,6 +1,7 @@
 package ru.ugaforever.bank.frontui.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +29,7 @@ public class TransferController {
      * 2. login - логин пользователя получателя
      */
     @PostMapping("/transfer")
+    @PreAuthorize("hasRole('USER') && hasAuthority('transfer.write')")
     public String transfer(
             Model model,
             @RequestParam("value") int value,
@@ -45,5 +47,4 @@ public class TransferController {
 
         return "redirect:/";
     }
-
 }

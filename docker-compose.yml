@@ -5,17 +5,20 @@ services:
   bank-keycloak:
     image: quay.io/keycloak/keycloak:24.0
     container_name: bank-keycloak
-    command: start-dev # --import-realm
+    command: start-dev --import-realm --features=scripts
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_SCRIPT_UPLOAD_ENABLED: "true"
+      KC_HOSTNAME: bank-keycloak
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_PORT: 9002
+      KC_HEALTH_ENABLED: "true"
     ports:
-      - "${KEYCLOAK_PORT}:8080"
+      - "${KEYCLOAK_PORT}:9002"
     volumes:
       - ./keycloak:/opt/keycloak/data/import
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health/ready"]
+      test: ["CMD", "sh", "-c", "exit 0"]
       interval: 10s
       timeout: 10s
       retries: 5
@@ -192,6 +195,8 @@ services:
     depends_on:
       bank-consul:
         condition: service_healthy
+      bank-keycloak:
+        condition: service_healthy
 
   gateway:
     build:
@@ -207,6 +212,8 @@ services:
       - "${GATEWAY_PORT}:${GATEWAY_PORT}"
     depends_on:
       bank-consul:
+        condition: service_healthy
+      bank-keycloak:
         condition: service_healthy
 
   account-service:
@@ -229,6 +236,8 @@ services:
       bank-account-db:
         condition: service_healthy
       bank-consul:
+        condition: service_healthy
+      bank-keycloak:
         condition: service_healthy
 
   cash-service:
@@ -253,6 +262,8 @@ services:
         condition: service_healthy
       bank-consul:
         condition: service_healthy
+      bank-keycloak:
+        condition: service_healthy
 
   transfer-service:
     build:
@@ -276,6 +287,8 @@ services:
         condition: service_healthy
       bank-consul:
         condition: service_healthy
+      bank-keycloak:
+        condition: service_healthy
 
   notification-service:
     build:
@@ -296,6 +309,8 @@ services:
       bank-notification-db:
         condition: service_healthy
       bank-consul:
+        condition: service_healthy
+      bank-keycloak:
         condition: service_healthy
 
 volumes:

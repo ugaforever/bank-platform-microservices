@@ -5,37 +5,18 @@ spring:
   application:
     name: gateway
 
-#  config:
-#    import: "optional:consul:${CONSUL_HOST:localhost}:${CONSUL_PORT:8500}"
-
   main:
     web-application-type: reactive
 
-  # TODO remove
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration
-      - org.springframework.boot.actuate.autoconfigure.security.reactive.ReactiveManagementWebSecurityAutoConfiguration
-
-
-#  security:
-#    oauth2:
-#      resourceserver:
-#        jwt:
-#          # Адрес issuer (Keycloak realm). Gateway по нему получает ключи
-#          # и параметры токена, чтобы валидировать JWT от UI
-#          issuer-uri: http://localhost:9002/realms/bank-realm
-
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9002/realms/bank-realm}
   cloud:
     consul:
       host: ${CONSUL_HOST:localhost}
       port: ${CONSUL_PORT:8500}
-#      config:
-#        format: PROPERTIES
-#        prefix: config
-#        defaultContext: application
-#        name: ${spring.application.name}
-#        data-key: data
       discovery:
         enabled: true
         instance-id: ${spring.application.name}:${random.value}
@@ -49,34 +30,34 @@ spring:
           uri: lb://account-service
           predicates:
             - Path=/account/**
-#          TODO: uncomment
-#          filters:
-#            - name: TokenRelay
+          filters:
+            - name: TokenRelay
 
         - id: cash-service-route
           uri: lb://cash-service
           predicates:
             - Path=/cash/**
-#          TODO: uncomment
-#          filters:
-#            - name: TokenRelay
+          filters:
+            - name: TokenRelay
 
         - id: transfer-service-route
           uri: lb://transfer-service
           predicates:
             - Path=/transfer/**
-#          TODO: uncomment
-#          filters:
-#            - name: TokenRelay
+          filters:
+            - name: TokenRelay
 
 management:
   endpoints:
     web:
       exposure:
-        include: health, info
+        include: health, info, gateway
+        base-path: "/actuator"
   endpoint:
     health:
       show-details: always
+    gateway:
+      enabled: true
 
 logging:
   level:

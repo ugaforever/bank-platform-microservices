@@ -1,4 +1,3 @@
-/*
 package ru.ugaforever.bank.gateway.security;
 
 import org.slf4j.Logger;
@@ -11,7 +10,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-*/
 /**
  * Gateway-фильтр, реализующий Token Relay:
  * забирает JWT из SecurityContext (если есть) или из входящего заголовка Authorization
@@ -21,7 +19,7 @@ import reactor.core.publisher.Mono;
  * <p>
  * filters:
  * - name: JwtTokenRelay
- *//*
+ */
 
 public class JwtTokenRelayGatewayFilterFactory extends AbstractGatewayFilterFactory<Object> {
 
@@ -42,12 +40,12 @@ public class JwtTokenRelayGatewayFilterFactory extends AbstractGatewayFilterFact
                         .flatMap(token -> chain.filter(addToken(exchange, token)));
     }
 
-    */
+
 /**
      * Пытаемся достать токен:
      * 1) сначала из SecurityContext (если Gateway выступает как Resource Server),
      * 2) если там пусто — из входящего заголовка Authorization.
-     *//*
+     */
 
     private Mono<String> extractToken(ServerWebExchange exchange) {
         Mono<String> fromContext = ReactiveSecurityContextHolder.getContext()
@@ -63,10 +61,10 @@ public class JwtTokenRelayGatewayFilterFactory extends AbstractGatewayFilterFact
         return fromContext.switchIfEmpty(fromHeader);
     }
 
-    */
+
 /**
      * Добавляем в исходящий запрос заголовок Authorization: Bearer <token>.
-     *//*
+     */
 
     private ServerWebExchange addToken(ServerWebExchange exchange, String token) {
         var mutated = exchange.mutate()
@@ -82,4 +80,4 @@ public class JwtTokenRelayGatewayFilterFactory extends AbstractGatewayFilterFact
     }
 }
 
-*/
+

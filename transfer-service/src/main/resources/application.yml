@@ -64,16 +64,16 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9002/realms/bank-realm}
-#      client:
-#        registration:
-#          transfer-service:
-#            provider: keycloak
-#            client-id: transfer-service
-#            client-secret: D68a7ktWHTKeZIwQRwTI0FrpJLZzq3AK
-#            authorization-grant-type: client_credentials
-#        provider:
-#          keycloak:
-#            issuer-uri: http://localhost:9002/realms/bank-realm
+      client:
+        registration:
+          transfer-service:
+            provider: keycloak
+            client-id: transfer-service
+            client-secret: nTMro7Y9pgOV1ruFFLYoKCXNw0qqmVTn
+            authorization-grant-type: client_credentials
+        provider:
+          keycloak:
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9002/realms/bank-realm}
 
   kafka:
     bootstrap-servers: bank-kafka:9092

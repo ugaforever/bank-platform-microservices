@@ -70,6 +70,16 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9002/realms/bank-realm}
+      client:
+        registration:
+          cash-service:
+            provider: keycloak
+            client-id: cash-service
+            client-secret: ujStACXHq82XezhKafOnQ1i4m4fwXMjn
+            authorization-grant-type: client_credentials
+        provider:
+          keycloak:
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9002/realms/bank-realm}
 
 feign:
   httpclient:

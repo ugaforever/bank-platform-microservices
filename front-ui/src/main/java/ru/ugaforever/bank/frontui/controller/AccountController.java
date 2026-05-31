@@ -1,6 +1,7 @@
 package ru.ugaforever.bank.frontui.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +24,7 @@ public class AccountController {
      * GET /account — получение данных текущего пользователя
      */
     @GetMapping("/account")
+    @PreAuthorize("hasRole('USER')")
     public String getAccount(
             Model model
             //@AuthenticationPrincipal OidcUser principal
@@ -49,6 +51,7 @@ public class AccountController {
      * 2. birthdate - дата рождения в формате YYYY-DD-MM
      */
     @PostMapping("/account")
+    @PreAuthorize("hasRole('USER') && hasAuthority('account.write')")
     public String editAccount(
             Model model,
             @RequestParam("name") String name,
@@ -70,6 +73,4 @@ public class AccountController {
 
         return "main";
     }
-
-
 }

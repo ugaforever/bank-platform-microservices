@@ -2,6 +2,7 @@ package ru.ugaforever.bank.transfer.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import ru.ugaforever.bank.chassis.dto.transfer.TransferRequestDto;
@@ -15,15 +16,8 @@ public class TransferController {
 
     private final TransferService transferService;
 
-    //curl -v -X GET http://localhost:9003/transfer/preview
-    @GetMapping("/preview")
-    //@PreAuthorize("hasRole('USER')")
-    public String preview() {
-        return transferService.preview();
-    }
-
     @PostMapping
-    //@PreAuthorize("hasRole('USER') && hasAuthority('transfer.write')")
+    @PreAuthorize("hasRole('USER') && hasAuthority('transfer.write')")
     public TransferResponseDto submit(
             @Valid @RequestBody TransferRequestDto request
             //JwtAuthenticationToken authentication

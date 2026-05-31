@@ -26,8 +26,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
-                    //auth.requestMatchers("/actuator/**").permitAll();
-                    auth.requestMatchers("/**").permitAll(); // TODO
+                    auth.requestMatchers("/actuator/**").permitAll();
                     auth.anyRequest().authenticated();
                 });
 
@@ -87,7 +86,6 @@ public class SecurityConfig {
                 .map(role -> (GrantedAuthority) new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toList());
 
-        // Добавляем кастомное право для бизнес-логики
         if (roles.contains("TRANSFER_WRITE")) {
             authorities.add(new SimpleGrantedAuthority("transfer.write"));
         }

@@ -36,11 +36,6 @@ public class TransferService {
     private final OutboxRepository outboxRepository;
     private final TransferMapper mapper;
 
-    public String preview() {
-        log.debug("Preview transfer request");
-        return "Preview transfer request: ok.";
-    }
-
     @CircuitBreaker(name = "transferServiceSubmit", fallbackMethod = "submitFallback")
     public TransferResponseDto submit(TransferRequestDto request/*, JwtAuthenticationToken authentication*/) {
         log.info("Transfer cash: from={}, from={}, amount={}", request.getFromLogin(), request.getToLogin(), request.getAmount());
@@ -102,7 +97,7 @@ public class TransferService {
                 .amount(request.getAmount())
                 .actionAt(Instant.now())
                 .success(false)
-                .errorMessage("Transfer circuit breaker opened")
+                .errorMessage(e.getMessage())
                 .build();
     }
 }
