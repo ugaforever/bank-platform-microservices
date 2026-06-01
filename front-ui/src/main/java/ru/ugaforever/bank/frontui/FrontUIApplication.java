@@ -2,7 +2,6 @@ package ru.ugaforever.bank.frontui;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Import;
 import ru.ugaforever.bank.chassis.advice.GlobalExceptionHandler;

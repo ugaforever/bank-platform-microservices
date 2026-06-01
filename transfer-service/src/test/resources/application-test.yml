@@ -8,6 +8,14 @@ spring:
         enabled: false
       discovery:
         enabled: false
+        discovery:
+          enabled: false
+    loadbalancer:
+      enabled: false
+  autoconfigure:
+    exclude:
+      - org.springframework.cloud.openfeign.FeignAutoConfiguration
+      - org.springframework.cloud.consul.ConsulAutoConfiguration
 
   datasource:
     url: jdbc:h2:mem:testdb
@@ -19,3 +27,11 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: false
+
+account:
+  service:
+    url: http://localhost:9005
+
+notification:
+  service:
+    url: http://localhost:9006

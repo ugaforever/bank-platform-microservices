@@ -3,7 +3,7 @@ server:
 
 notification:
   service:
-    url: ${NOTIFICATION_SERVICE_URL:http://localhost:9006}
+    url: ${NOTIFICATION_SERVICE_URL:lb://notification-service}
 
 spring:
   application:
@@ -29,14 +29,6 @@ spring:
         service-name: ${spring.application.name}
         health-check-path: /actuator/health
         health-check-interval: 10s
-    gateway:
-      routes:
-        - id: notification-service-route
-          uri: lb://notification-service
-          predicates:
-            - Path=/notification/**
-          filters:
-            - name: TokenRelay
 
   jpa:
     hibernate:
@@ -53,10 +45,10 @@ spring:
           issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9002/realms/bank-realm}
       client:
         registration:
-          account-service:
+          notification-service:
             provider: keycloak
-            client-id: account-service
-            client-secret: Pq2E38wIGf2sjEuM9QswDcXt5zoshMCy
+            client-id: notification-service
+            client-secret: V7SsZKjFfLc6Ww6bkJSvrnjz3wvBfOgN
             authorization-grant-type: client_credentials
         provider:
           keycloak:

@@ -15,7 +15,7 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @PostMapping
-    @PreAuthorize("hasRole('SERVICE')")
+    @PreAuthorize("isAuthenticated()")
     public NotificationResponseDto notification(
             @RequestBody NotificationRequestDto request) {
 

@@ -22,7 +22,7 @@ public class CashService {
     public CashResponseDto withdraw(String login, int value) {
         log.info("Withdraw cash: login={}, value={},", login, value);
 
-        AccountResponseDto account = accountService.getAccount("ivanov");
+        AccountResponseDto account = accountService.getAccount(login);
         WithdrawRequestDto dto = WithdrawRequestDto.builder()
                 .login(account.getLogin())
                 .amount(BigDecimal.valueOf(value))
@@ -34,7 +34,7 @@ public class CashService {
     public CashResponseDto deposit(String login, int value) {
         log.info("Deposit cash: login={}, value={},", login, value);
 
-        AccountResponseDto account = accountService.getAccount("ivanov");
+        AccountResponseDto account = accountService.getAccount(login);
         DepositRequestDto dto = DepositRequestDto.builder()
                 .login(account.getLogin())
                 .amount(BigDecimal.valueOf(value))

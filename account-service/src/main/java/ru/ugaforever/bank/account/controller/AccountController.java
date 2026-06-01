@@ -21,25 +21,25 @@ public class AccountController {
     private final AccountService accountService;
 
     @GetMapping
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("isAuthenticated()")
     public List<AccountResponseDto> getAll() {
         return accountService.getAll();
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public AccountResponseDto create(@RequestBody @Valid AccountRequestDto dto) {
         return accountService.createAccount(dto);
     }
 
     @GetMapping("/{login}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public AccountResponseDto get(@PathVariable String login) {
         return accountService.getAccount(login);
     }
 
     @PatchMapping("/{login}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public AccountResponseDto patchAccount(
             @PathVariable String login,
             @Valid @RequestBody AccountUpdateDto updateDto) {
@@ -48,7 +48,7 @@ public class AccountController {
     }
 
     @PostMapping("/{login}/deposit")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("isAuthenticated()")
     public AccountResponseDto deposit(
             @PathVariable String login,
             @RequestBody DepositRequestDto request) {
@@ -57,7 +57,7 @@ public class AccountController {
     }
 
     @PostMapping("/{login}/withdraw")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("isAuthenticated()")
     public AccountResponseDto withdraw(
             @PathVariable String login,
             @RequestBody WithdrawRequestDto request) {

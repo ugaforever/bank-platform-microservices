@@ -1,10 +1,9 @@
 package ru.ugaforever.bank.account.mapper;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.mapstruct.factory.Mappers;
 import ru.ugaforever.bank.account.model.Account;
 import ru.ugaforever.bank.chassis.dto.account.AccountRequestDto;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
@@ -14,8 +13,6 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-@ActiveProfiles("test")
 public class AccountMapperTest {
 
     private static final Long ACCOUNT_ID = 1L;
@@ -24,8 +21,12 @@ public class AccountMapperTest {
     private static final LocalDate BIRTHDATE = LocalDate.of(2001, 1, 1);
     private static final BigDecimal BALANCE = BigDecimal.valueOf(100);
 
-    @Autowired
     private AccountMapper mapper;
+
+    @BeforeEach
+    void setUp() {
+        mapper = Mappers.getMapper(AccountMapper.class);
+    }
 
     @Test
     @DisplayName("Должен маппить AccountRequestDto в Account без id")

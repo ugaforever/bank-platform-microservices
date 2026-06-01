@@ -2,8 +2,8 @@ package ru.ugaforever.bank.frontui.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,30 +29,26 @@ public class AccountController {
     @PreAuthorize("hasRole('USER')")
     public String getAccount(
             Model model,
-            Authentication authentication
-            //@AuthenticationPrincipal OidcUser principal
+            @AuthenticationPrincipal OAuth2User oAuth2User
     ) {
-        //String login = principal.getPreferredUsername();
+        if (oAuth2User == null) {
+            model.addAttribute("authenticated", false);
+            return "main";
+        }
 
-        boolean isAuthenticated = authentication != null && authentication.isAuthenticated()
-                && !(authentication instanceof AnonymousAuthenticationToken);
-        String username = isAuthenticated ? authentication.getName() : null;
+        String login = (String) oAuth2User.getAttributes().get("preferred_username");
 
-        model.addAttribute("authenticated", isAuthenticated);
-        model.addAttribute("username", username);
+        AccountResponseDto account = accountService.getAccount(login);
 
+        List<AccountResponseDto> accounts = accountService.getAllAccounts(account);
 
-
-        AccountResponseDto account = accountService.getAccount("ivanov");
-
-
-        List<AccountResponseDto> accounts = accountService.getAllAccounts();
         model.addAttribute("accounts", accounts);
-
         model.addAttribute("login", account.getLogin());
         model.addAttribute("name", account.getName());
         model.addAttribute("birthdate", account.getBirthdate());
         model.addAttribute("sum", account.getBalance());
+        model.addAttribute("username", login);
+        model.addAttribute("authenticated", true);
 
         return "main";
     }
@@ -67,16 +63,22 @@ public class AccountController {
     public String editAccount(
             Model model,
             @RequestParam("name") String name,
-            @RequestParam("birthdate") LocalDate birthdate
+            @RequestParam("birthdate") LocalDate birthdate,
+            @AuthenticationPrincipal OAuth2User oAuth2User
     ) {
-        // TODO: 1L заменить на login (nекущего пользователя можно получить из контекста Security)
+        if (oAuth2User == null) {
+            model.addAttribute("authenticated", false);
+            return "main";
+        }
+
+        String login = (String) oAuth2User.getAttributes().get("preferred_username");
 
         AccountUpdateDto update = AccountUpdateDto.builder()
                 .name(name)
                 .birthdate(birthdate)
                 .build();
 
-        AccountResponseDto account = accountService.patchAccount("ivanov", update);
+        AccountResponseDto account = accountService.patchAccount(login, update);
 
         model.addAttribute("login", account.getLogin());
         model.addAttribute("name", account.getName());

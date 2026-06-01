@@ -2,7 +2,6 @@ package ru.ugaforever.bank.chassis.config;
 
 import feign.Client;
 import feign.RequestInterceptor;
-import feign.RequestTemplate;
 import feign.httpclient.ApacheHttpClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -25,43 +24,122 @@ public class FeignConfig {
 
     @Bean
     public RequestInterceptor bearerTokenRequestInterceptor(
-            OAuth2AuthorizedClientService authorizedClientService,
             OAuth2AuthorizedClientManager authorizedClientManager) {
 
         return requestTemplate -> {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+            log.debug("=== Feign Interceptor for URL: {} ===", requestTemplate.url());
+
+            String token = null;
+
+            // 1. Пробуем получить пользовательский токен
             if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
-                String registrationId = oauthToken.getAuthorizedClientRegistrationId();
-                String principalName = oauthToken.getName();
-
-                OAuth2AuthorizedClient authorizedClient = null;
-                try {
-                    authorizedClient = authorizedClientService.loadAuthorizedClient(registrationId, principalName);
-
-                    OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
-                            .withClientRegistrationId(registrationId)
-                            .principal(authentication)
-                            .build();
-
-                    OAuth2AuthorizedClient refreshedClient = authorizedClientManager.authorize(authorizeRequest);
-                    if (refreshedClient != null && refreshedClient.getAccessToken() != null) {
-                        authorizedClient = refreshedClient;
-                    }
-
-                } catch (Exception e) {
-                    log.warn("Failed to get authorized client: {}", e.getMessage());
-                }
-
-                if (authorizedClient != null && authorizedClient.getAccessToken() != null) {
-                    String token = authorizedClient.getAccessToken().getTokenValue();
-                    log.debug("Adding Bearer token (expires at: {})", authorizedClient.getAccessToken().getExpiresAt());
-                    requestTemplate.header("Authorization", "Bearer " + token);
-                } else {
-                    log.warn("No valid token found for {}:{}", registrationId, principalName);
+                token = getUserToken(oauthToken, authorizedClientManager);
+                if (token != null) {
+                    log.debug("Using USER token for request: {}", requestTemplate.url());
                 }
             }
+
+            // 2. Если нет пользовательского токена, определяем целевой сервис из URL
+            if (token == null) {
+                String targetService = extractTargetService(requestTemplate.url());
+                if (targetService != null) {
+                    token = getServiceToken(targetService, authorizedClientManager);
+                    if (token != null) {
+                        log.debug("Using SERVICE token for '{}' request: {}", targetService, requestTemplate.url());
+                    }
+                }
+            }
+
+            if (token != null) {
+                requestTemplate.header("Authorization", "Bearer " + token);
+            } else {
+                log.warn("No token available for request: {}", requestTemplate.url());
+            }
         };
+    }
+
+    private String getUserToken(OAuth2AuthenticationToken oauthToken,
+                                OAuth2AuthorizedClientManager authorizedClientManager) {
+        try {
+            String registrationId = oauthToken.getAuthorizedClientRegistrationId();
+
+            OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
+                    .withClientRegistrationId(registrationId)
+                    .principal(oauthToken)
+                    .build();
+
+            OAuth2AuthorizedClient authorizedClient = authorizedClientManager.authorize(authorizeRequest);
+
+            if (authorizedClient != null && authorizedClient.getAccessToken() != null) {
+                log.debug("User token obtained for registration: {}", registrationId);
+                return authorizedClient.getAccessToken().getTokenValue();
+            }
+        } catch (Exception e) {
+            log.warn("Failed to get user token: {}", e.getMessage());
+        }
+        return null;
+    }
+
+    private String getServiceToken(String serviceName,
+                                   OAuth2AuthorizedClientManager authorizedClientManager) {
+        try {
+            OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
+                    .withClientRegistrationId(serviceName)
+                    .principal(serviceName)
+                    .build();
+
+            OAuth2AuthorizedClient authorizedClient = authorizedClientManager.authorize(authorizeRequest);
+
+            if (authorizedClient != null && authorizedClient.getAccessToken() != null) {
+                log.debug("Service token obtained for: {}, expires at: {}",
+                        serviceName, authorizedClient.getAccessToken().getExpiresAt());
+                return authorizedClient.getAccessToken().getTokenValue();
+            }
+        } catch (Exception e) {
+            log.warn("Failed to get service token for {}: {}", serviceName, e.getMessage());
+        }
+        return null;
+    }
+
+    private String extractTargetService(String url) {
+        if (url == null || url.isEmpty()) return null;
+
+        try {
+            // Определяем целевой сервис из URL
+            String path = url;
+
+            // Если URL полный, извлекаем хост
+            if (url.startsWith("http")) {
+                java.net.URI uri = java.net.URI.create(url);
+                String host = uri.getHost();
+                if (host != null && host.contains("-service")) {
+                    return host;
+                }
+                path = uri.getPath();
+            }
+
+            // Определяем по пути
+            if (path != null) {
+                if (path.startsWith("/account")) {
+                    return "account-service";
+                }
+                if (path.startsWith("/cash")) {
+                    return "cash-service";
+                }
+                if (path.startsWith("/transfer")) {
+                    return "transfer-service";
+                }
+                if (path.startsWith("/notification")) {
+                    return "notification-service";
+                }
+            }
+        } catch (Exception e) {
+            log.debug("Failed to extract service from URL: {}", url);
+        }
+
+        return null;
     }
 
     @Bean
@@ -76,7 +154,8 @@ public class FeignConfig {
         authorizedClientManager.setAuthorizedClientProvider(
                 new DelegatingOAuth2AuthorizedClientProvider(
                         new RefreshTokenOAuth2AuthorizedClientProvider(),
-                        new AuthorizationCodeOAuth2AuthorizedClientProvider()
+                        new AuthorizationCodeOAuth2AuthorizedClientProvider(),
+                        new ClientCredentialsOAuth2AuthorizedClientProvider()  // Важно для сервисных токенов!
                 )
         );
 

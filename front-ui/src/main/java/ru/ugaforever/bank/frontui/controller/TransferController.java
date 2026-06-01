@@ -2,6 +2,8 @@ package ru.ugaforever.bank.frontui.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,13 +35,19 @@ public class TransferController {
     public String transfer(
             Model model,
             @RequestParam("value") int value,
-            @RequestParam("login") String login
+            @RequestParam("login") String toLogin,
+            @AuthenticationPrincipal OAuth2User oAuth2User
     ) {
-        //String login = principal.getPreferredUsername();
+        if (oAuth2User == null) {
+            model.addAttribute("authenticated", false);
+            return "redirect:/";
+        }
+
+        String fromLogin = (String) oAuth2User.getAttributes().get("preferred_username");
 
         TransferRequestDto requestDto = TransferRequestDto.builder()
-                .fromLogin("ivanov")
-                .toLogin(login)
+                .fromLogin(fromLogin)
+                .toLogin(toLogin)
                 .amount(BigDecimal.valueOf(value))
                 .build();
 

@@ -10,10 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.ugaforever.bank.chassis.dto.ErrorResponse;
-import ru.ugaforever.bank.chassis.exception.AccountNotFoundException;
-import ru.ugaforever.bank.chassis.exception.BusinessRuleException;
-import ru.ugaforever.bank.chassis.exception.ConflictException;
-import ru.ugaforever.bank.chassis.exception.ResourceNotFoundException;
+import ru.ugaforever.bank.chassis.exception.*;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,6 +18,17 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(UnauthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleValidation(UnauthorizedException exception) {
+        log.warn("Argument validation: {}", exception.getMessage());
+
+        return ErrorResponse.of(
+                HttpStatus.UNAUTHORIZED,
+                "UNAUTHORIZED",
+                exception.getMessage());
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

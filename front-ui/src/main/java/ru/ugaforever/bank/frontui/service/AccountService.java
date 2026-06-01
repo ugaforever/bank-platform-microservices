@@ -10,6 +10,7 @@ import ru.ugaforever.bank.chassis.client.GatewayClient;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,9 +40,11 @@ public class AccountService {
         return gatewayClient.patchAccount(login, update);
     }
 
-    public List<AccountResponseDto> getAllAccounts() {
+    public List<AccountResponseDto> getAllAccounts(AccountResponseDto owner) {
         log.info("Get all accounts");
 
-        return gatewayClient.getAllAccount();
+        return gatewayClient.getAllAccount().stream()
+                .filter(account -> !account.getLogin().equals(owner.getLogin()))
+                .collect(Collectors.toList());
     }
 }

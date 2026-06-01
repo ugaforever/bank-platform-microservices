@@ -37,16 +37,15 @@ public class TransferService {
     private final TransferMapper mapper;
 
     @CircuitBreaker(name = "transferServiceSubmit", fallbackMethod = "submitFallback")
-    public TransferResponseDto submit(TransferRequestDto request/*, JwtAuthenticationToken authentication*/) {
-        log.info("Transfer cash: from={}, from={}, amount={}", request.getFromLogin(), request.getToLogin(), request.getAmount());
-
-        /*String username = authentication.getToken().getClaimAsString("preferred_username");
-        if (request.getFromLogin() != username){
-            throw new ValidationException("Пользователь " + username + " не является владельцем счёта " + request.getFromLogin());
-        }*/
+    public TransferResponseDto submit(TransferRequestDto request) {
+        log.info("Transfer cash: from={}, to={}, amount={}", request.getFromLogin(), request.getToLogin(), request.getAmount());
 
         if (request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new ValidationException("The amount must be greater than 0");
+        }
+
+        if (request.getFromLogin().equals(request.getToLogin())){
+            throw new BusinessRuleException("Cannot transfer to the same account");
         }
 
         AccountResponseDto accountFrom = accountClient.getAccount(request.getFromLogin());

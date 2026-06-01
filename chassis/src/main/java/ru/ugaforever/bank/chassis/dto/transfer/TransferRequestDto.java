@@ -1,5 +1,6 @@
 package ru.ugaforever.bank.chassis.dto.transfer;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
@@ -10,12 +11,12 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TransferRequestDto {
+public class    TransferRequestDto {
 
-    @NotNull(message = "Логин отправителя обязателен")
+    @NotBlank(message = "Логин отправителя обязателен")
     private String fromLogin;
 
-    @NotNull(message = "Логин полусателя обязателен")
+    @NotBlank(message = "Логин полусателя обязателен")
     private String toLogin;
 
     @NotNull(message = "Сумма обязательна")

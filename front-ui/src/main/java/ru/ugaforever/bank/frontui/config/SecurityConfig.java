@@ -10,8 +10,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.config.Customizer;
 
-import java.net.URI;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
