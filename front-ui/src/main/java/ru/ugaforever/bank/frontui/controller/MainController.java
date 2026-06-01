@@ -1,7 +1,11 @@
 package ru.ugaforever.bank.frontui.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 /**
@@ -31,7 +35,16 @@ public class MainController {
      * GET / — редирект на GET /account
      */
     @GetMapping
-    public String index() {
+    @PreAuthorize("isAuthenticated()")
+    public String index(Model model, Authentication authentication) {
+
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken);
+        String username = isAuthenticated ? authentication.getName() : null;
+
+        model.addAttribute("authenticated", isAuthenticated);
+        model.addAttribute("username", username);
+
         return "redirect:/account";
     }
 }

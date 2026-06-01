@@ -9,6 +9,25 @@
 </head>
 
 <body class="bg-light">
+<div th:if="${authenticated}" class="ms-auto">
+                <span class="badge bg-info">
+                    👋 Привет, <strong th:text="${username}"></strong>!
+                </span>
+</div>
+<div th:if="${authenticated}">
+    <form th:action="@{/logout}" method="post">
+        <button type="submit" class="btn btn-danger">Sign Out</button>
+    </form>
+</div>
+
+<div th:unless="${authenticated}">
+    <a href="/oauth2/authorization/keycloak" class="btn btn-primary">
+        Sign In with Keycloak
+    </a>
+</div>
+</body>
+
+<body class="bg-light">
     <div class="alert alert-danger vstack" role="alert" th:if="${errors!=null}" th:each="error : ${errors}">
         <span th:text="${error}"/>
     </div>

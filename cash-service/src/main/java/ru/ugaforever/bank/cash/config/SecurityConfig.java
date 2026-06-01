@@ -66,9 +66,8 @@ public class SecurityConfig {
                 .map(role -> (GrantedAuthority) new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toList());
 
-        // Дополнительно маппим бизнес-право на отдельный authority
-        if (roles.contains("ACCOUNTS_WRITE")) {
-            authorities.add(new SimpleGrantedAuthority("accounts.write"));
+        if (roles.contains("CASH_WRITE")) {
+            authorities.add(new SimpleGrantedAuthority("cash.write"));
         }
 
         return authorities;
