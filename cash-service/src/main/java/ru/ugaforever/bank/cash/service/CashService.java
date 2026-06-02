@@ -68,11 +68,15 @@ public class CashService {
         log.debug("Balance updated: login={}, newBalance={}",
                 account.getLogin(), account.getBalance().add(request.getAmount()));
 
-        Cash cash = Cash.builder()
-                .login(account.getLogin())
-                .action(CashAction.DEPOSIT)
+        Cash.CashBuilder builder = Cash.builder()
+                .login(request.getLogin())
                 .amount(request.getAmount())
-                .build();
+                .action(CashAction.DEPOSIT)
+                .actionAt(Instant.now());
+        if (idempotencyKey != null && !idempotencyKey.isBlank()) {
+            builder.idempotencyKey(idempotencyKey);
+        }
+        Cash cash = builder.build();
 
         // от простого к сложному: если idempotencyKey уже сохранен, значит deposit успешный (неуспешны не сохраняется)
         repository.save(cash);

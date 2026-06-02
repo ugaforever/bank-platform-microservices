@@ -25,10 +25,20 @@ public class Cash {
     @Column(nullable = false, updatable = false)
     private Instant actionAt;
 
+    @Column(unique = true)
     private String idempotencyKey;
 
     @PrePersist
     protected void onCreate() {
         actionAt = Instant.now();
+    }
+
+    public static class CashBuilder {
+        public CashBuilder idempotencyKey(String idempotencyKey) {
+            if (idempotencyKey != null && !idempotencyKey.isBlank()) {
+                this.idempotencyKey = idempotencyKey;
+            }
+            return this;
+        }
     }
 }

@@ -1,10 +1,9 @@
 package ru.ugaforever.bank.cash.mapper;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.mapstruct.factory.Mappers;
 import ru.ugaforever.bank.cash.model.Cash;
 import ru.ugaforever.bank.chassis.dto.cash.CashAction;
 import ru.ugaforever.bank.chassis.dto.cash.CashResponseDto;
@@ -14,16 +13,19 @@ import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-@ActiveProfiles("test")
 public class CashMapperTest {
 
     private static final Long CASH_ID = 1L;
     private static final String LOGIN = "ivanov";
     private static final BigDecimal AMOUNT = BigDecimal.valueOf(100);
+    private static final String IDEMPOTENCY_KEY = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
 
-    @Autowired
     private CashMapper mapper;
+
+    @BeforeEach
+    void setUp() {
+        mapper = Mappers.getMapper(CashMapper.class);
+    }
 
     @Test
     @DisplayName("Должен маппить Cash в CashResponseDto")
@@ -33,6 +35,7 @@ public class CashMapperTest {
                 .login(LOGIN)
                 .action(CashAction.WITHDRAW)
                 .amount(AMOUNT)
+                .idempotencyKey(IDEMPOTENCY_KEY)
                 .actionAt(Instant.now())
                 .build();
 
