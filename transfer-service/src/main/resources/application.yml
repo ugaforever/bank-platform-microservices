@@ -106,9 +106,7 @@ resilience4j.circuitbreaker:
       permittedNumberOfCallsInHalfOpenState: 5
       automaticTransitionFromOpenToHalfOpenEnabled: true
   instances:
-    cashServiceDeposit:
-      registerHealthIndicator: true
-    cashServiceWithdraw:
+    transferServiceSubmit:
       registerHealthIndicator: true
 
 logging:
