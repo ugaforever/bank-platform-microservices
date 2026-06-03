@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.ugaforever.bank.chassis.client.AccountClient;
@@ -35,7 +36,7 @@ public class SagaOrchestrator {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(topics = "transfer.public.transfer_outbox", groupId = "transfer-saga-orchestrator")
-    public void handleOutboxEvent(String message) {
+    public void handleOutboxEvent(String message, Acknowledgment ack) {
         log.info("Received outbox event: {}", message);
 
         try {
@@ -43,6 +44,7 @@ public class SagaOrchestrator {
 
             JsonNode after = root.get("after");
             if (after == null) {
+                ack.acknowledge();
                 log.error("No 'after' field in message");
                 return;
             }
@@ -68,7 +70,11 @@ public class SagaOrchestrator {
                     break;
             }
 
+            ack.acknowledge();
+
         } catch (Exception e) {
+            // не вызываем ack — Kafka перечитает
+            // можно уточнять Exception и принимать решение стоит ли вообще перечитает Kafka если знаем что-то точно будет повторная ошибка (тогда просто ack.acknowledge())
             log.error("Failed to process outbox event: {}", message, e);
         }
     }
