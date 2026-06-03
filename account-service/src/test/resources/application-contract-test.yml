@@ -1,0 +1,24 @@
+spring:
+  cloud:
+    bootstrap:
+      enabled: false
+    consul:
+      enabled: false
+      config:
+        enabled: false
+      discovery:
+        enabled: false
+    loadbalancer:
+      enabled: false
+  autoconfigure:
+    exclude:
+      - org.springframework.cloud.openfeign.FeignAutoConfiguration
+      - org.springframework.cloud.consul.ConsulAutoConfiguration
+
+feign:
+  hystrix:
+    enabled: false
+
+notification:
+  service:
+    url: http://localhost:9006

@@ -1,0 +1,45 @@
+server:
+  port: ${FRONTEND_PORT:9000}
+
+gateway:
+  url: ${GATEWAY_URL:http://localhost:9001}
+
+spring:
+  application:
+    name: front-ui
+
+  security:
+    oauth2:
+      client:
+        registration:
+          # Регистрация для пользователей (Authorization Code Flow)
+          keycloak:
+            client-id: front-ui
+            client-secret: 20zNiqfaKgA4AW5SN5cgGvqojfr3hWzL
+            authorization-grant-type: authorization_code
+            scope: openid, profile, email
+            redirect-uri: "http://localhost:9000/login/oauth2/code/keycloak"
+            provider: keycloak
+        provider:
+          keycloak:
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9002/realms/bank-realm}
+
+feign:
+  httpclient:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    ru.ugaforever.bank.frontui: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    feign: DEBUG

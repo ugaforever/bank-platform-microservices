@@ -1,0 +1,322 @@
+services:
+# ================================
+# Keycloak (Auth)
+# ================================
+  bank-keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: bank-keycloak
+    command: start-dev --import-realm --features=scripts
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HOSTNAME: bank-keycloak
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_PORT: 9002
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "${KEYCLOAK_PORT}:9002"
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import
+    healthcheck:
+      test: ["CMD", "sh", "-c", "exit 0"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+# ================================
+# Consul (Service Discovery and Distributed Config Server)
+# ================================
+  bank-consul:
+    image: hashicorp/consul:latest
+    container_name: bank-consul
+    restart: unless-stopped
+    ports:
+      - "${CONSUL_HTTP_PORT}:8500"
+      - "${CONSUL_DNS_PORT}:8600/udp"
+    command: 'agent -server -bootstrap-expect=1 -ui -bind=0.0.0.0 -client=0.0.0.0'
+    volumes:
+      - consul-data:/consul/data
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8500/v1/status/leader" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+# ================================
+# Kafka
+# ================================
+  bank-kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: bank-kafka
+    environment:
+      KAFKA_ENABLE_KRAFT: 'true'
+      KAFKA_KRAFT_CLUSTER_ID: '76a0a197-802d-420b-93a9-0ed9e471bec5'
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@bank-kafka:9093'
+      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://bank-kafka:9092'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_LOG_DIRS: '/var/lib/kafka/data'
+      ALLOW_PLAINTEXT_LISTENER: 'yes'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    ports:
+      - "${KAFKA_PORT}:9092"
+
+# ================================
+# Debezium
+# ================================
+  bank-debezium:
+    image: debezium/connect:2.5
+    container_name: bank-debezium
+    depends_on:
+      - bank-kafka
+      - bank-transfer-db
+    ports:
+      - "${DEBEZIUM_PORT}:8083"
+    environment:
+      BOOTSTRAP_SERVERS: bank-kafka:9092
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: connect_configs
+      OFFSET_STORAGE_TOPIC: connect_offsets
+      STATUS_STORAGE_TOPIC: connect_statuses
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8083/connectors" ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  debezium-setup:
+    image: alpine/curl:latest
+    container_name: debezium-setup
+    depends_on:
+      bank-debezium:
+        condition: service_healthy
+    volumes:
+      - ./debezium/transfer-outbox-connector.sh:/transfer-outbox-connector.sh:ro
+      - ./debezium/transfer-outbox-connector.json:/transfer-outbox-connector.json:ro
+    command: sh /transfer-outbox-connector.sh
+    restart: "no"
+
+# ================================
+# PostgreSQL Databases
+# ================================
+  bank-account-db:
+    image: postgres:16
+    container_name: bank-account-db
+    environment:
+      POSTGRES_DB: ${ACCOUNT_DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${ACCOUNT_DB_PORT}:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - account-db-data:/var/lib/postgresql/data
+
+  bank-cash-db:
+    image: postgres:16
+    container_name: bank-cash-db
+    environment:
+      POSTGRES_DB: ${CASH_DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${CASH_DB_PORT}:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - cash-db-data:/var/lib/postgresql/data
+
+  bank-transfer-db:
+    image: postgres:16
+    container_name: bank-transfer-db
+    environment:
+      POSTGRES_DB: ${TRANSFER_DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${TRANSFER_DB_PORT}:5432"
+    command: postgres -c wal_level=logical
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - transfer-db-data:/var/lib/postgresql/data
+
+  bank-notification-db:
+    image: postgres:16
+    container_name: bank-notification-db
+    environment:
+      POSTGRES_DB: ${NOTIFICATION_DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${NOTIFICATION_DB_PORT}:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - notification-db-data:/var/lib/postgresql/data
+
+
+# ================================
+# Services
+# ================================
+  front:
+    build:
+      context: .
+      dockerfile: front-ui/Dockerfile
+    container_name: bank-front
+    environment:
+      SERVER_PORT: ${FRONTEND_PORT}
+      CONSUL_HOST: ${CONSUL_HOST}
+      CONSUL_PORT: ${CONSUL_HTTP_PORT}
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
+      GATEWAY_URL: ${GATEWAY_URL}
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    depends_on:
+      bank-consul:
+        condition: service_healthy
+      bank-keycloak:
+        condition: service_healthy
+
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    container_name: bank-gateway
+    environment:
+      CONSUL_HOST: ${CONSUL_HOST}
+      CONSUL_PORT: ${CONSUL_HTTP_PORT}
+      SERVER_PORT: ${GATEWAY_PORT}
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
+    ports:
+      - "${GATEWAY_PORT}:${GATEWAY_PORT}"
+    depends_on:
+      bank-consul:
+        condition: service_healthy
+      bank-keycloak:
+        condition: service_healthy
+
+  account-service:
+    build:
+      context: .
+      dockerfile: account-service/Dockerfile
+    container_name: bank-account-service
+    environment:
+      CONSUL_HOST: ${CONSUL_HOST}
+      CONSUL_PORT: ${CONSUL_HTTP_PORT}
+      SERVER_PORT: ${ACCOUNT_SERVICE_PORT}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL_ACCOUNT}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
+      NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL}
+    ports:
+      - "${ACCOUNT_SERVICE_PORT}:${ACCOUNT_SERVICE_PORT}"
+    depends_on:
+      bank-account-db:
+        condition: service_healthy
+      bank-consul:
+        condition: service_healthy
+      bank-keycloak:
+        condition: service_healthy
+
+  cash-service:
+    build:
+      context: .
+      dockerfile: cash-service/Dockerfile
+    container_name: bank-cash-service
+    environment:
+      CONSUL_HOST: ${CONSUL_HOST}
+      CONSUL_PORT: ${CONSUL_HTTP_PORT}
+      SERVER_PORT: ${CASH_SERVICE_PORT}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL_CASH}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
+      NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL}
+      ACCOUNT_SERVICE_URL: ${ACCOUNT_SERVICE_URL}
+    ports:
+      - "${CASH_SERVICE_PORT}:${CASH_SERVICE_PORT}"
+    depends_on:
+      bank-cash-db:
+        condition: service_healthy
+      bank-consul:
+        condition: service_healthy
+      bank-keycloak:
+        condition: service_healthy
+
+  transfer-service:
+    build:
+      context: .
+      dockerfile: transfer-service/Dockerfile
+    container_name: bank-transfer-service
+    environment:
+      CONSUL_HOST: ${CONSUL_HOST}
+      CONSUL_PORT: ${CONSUL_HTTP_PORT}
+      SERVER_PORT: ${TRANSFER_SERVICE_PORT}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL_TRANSFER}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
+      NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL}
+      ACCOUNT_SERVICE_URL: ${ACCOUNT_SERVICE_URL}
+    ports:
+      - "${TRANSFER_SERVICE_PORT}:${TRANSFER_SERVICE_PORT}"
+    depends_on:
+      bank-transfer-db:
+        condition: service_healthy
+      bank-consul:
+        condition: service_healthy
+      bank-keycloak:
+        condition: service_healthy
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: notification-service/Dockerfile
+    container_name: bank-notification-service
+    environment:
+      CONSUL_HOST: ${CONSUL_HOST}
+      CONSUL_PORT: ${CONSUL_HTTP_PORT}
+      SERVER_PORT: ${NOTIFICATION_SERVICE_PORT}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL_NOTIFICATION}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
+    ports:
+      - "${NOTIFICATION_SERVICE_PORT}:${NOTIFICATION_SERVICE_PORT}"
+    depends_on:
+      bank-notification-db:
+        condition: service_healthy
+      bank-consul:
+        condition: service_healthy
+      bank-keycloak:
+        condition: service_healthy
+
+volumes:
+  account-db-data:
+  cash-db-data:
+  transfer-db-data:
+  notification-db-data:
+  consul-data:
+  kafka_data:

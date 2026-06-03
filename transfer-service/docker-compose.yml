@@ -1,0 +1,11 @@
+services:
+
+  cash-db:
+    image: postgres:16
+    container_name: transfer-db
+    environment:
+      POSTGRES_DB: transfers
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"

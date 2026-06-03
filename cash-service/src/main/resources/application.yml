@@ -1,0 +1,111 @@
+server:
+  port: ${CASH_SERVER_PORT:9004}
+
+account:
+  service:
+    url: ${ACCOUNT_SERVICE_URL:lb://account-service}
+
+notification:
+  service:
+    url: ${NOTIFICATION_SERVICE_URL:lb://notification-service}
+
+spring:
+  application:
+    name: cash-service
+
+  config:
+    import: "optional:consul:${CONSUL_HOST:localhost}:${CONSUL_PORT:8500}"
+
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      config:
+        #spring.datasource.* изменение в Consul не может обновить в приложении из-за особенности бина datasource
+        format: PROPERTIES
+        prefix: config
+        name: ${spring.application.name}
+        data-key: data
+      discovery:
+        enabled: true
+        instance-id: ${spring.application.name}:${random.value}
+        prefer-ip-address: true
+        service-name: ${spring.application.name}
+        health-check-path: /actuator/health
+        health-check-interval: 10s
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    drop-first: false
+    default-schema: public
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9002/realms/bank-realm}
+      client:
+        registration:
+          account-service:
+            provider: keycloak
+            client-id: account-service
+            client-secret: Pq2E38wIGf2sjEuM9QswDcXt5zoshMCy
+            authorization-grant-type: client_credentials
+          notification-service:
+            provider: keycloak
+            client-id: notification-service
+            client-secret: V7SsZKjFfLc6Ww6bkJSvrnjz3wvBfOgN
+            authorization-grant-type: client_credentials
+        provider:
+          keycloak:
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9002/realms/bank-realm}
+
+feign:
+  httpclient:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,circuitbreakers
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+    metrics:
+      enabled: true
+    circuitbreakers:
+      enabled: true
+
+logging:
+  level:
+    org.springframework.cloud.consul: DEBUG
+    org.springframework.boot.context.config: DEBUG
+
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      registerHealthIndicator: true
+      slidingWindowType: COUNT_BASED
+      slidingWindowSize: 10
+      minimumNumberOfCalls: 10
+      failureRateThreshold: 50
+      waitDurationInOpenState: 30000
+      permittedNumberOfCallsInHalfOpenState: 5
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+  instances:
+    cashServiceDeposit:
+      registerHealthIndicator: true
+    cashServiceWithdraw:
+      registerHealthIndicator: true

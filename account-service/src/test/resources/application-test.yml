@@ -1,0 +1,43 @@
+spring:
+  cloud:
+    bootstrap:
+      enabled: false
+    consul:
+      enabled: false
+      config:
+        enabled: false
+      discovery:
+        enabled: false
+        discovery:
+          enabled: false
+    openfeign:
+      enabled: false
+    loadbalancer:
+      enabled: false
+  autoconfigure:
+    exclude:
+      - org.springframework.cloud.openfeign.FeignAutoConfiguration
+      - org.springframework.cloud.consul.ConsulAutoConfiguration
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+feign:
+  hystrix:
+    enabled: false
+
+account:
+  service:
+    url: http://localhost:9005
+
+notification:
+  service:
+    url: http://localhost:9006

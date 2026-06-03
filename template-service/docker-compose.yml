@@ -1,0 +1,11 @@
+services:
+
+  template-account-db:
+    image: postgres:16
+    container_name: template-db
+    environment:
+      POSTGRES_DB: templates
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
