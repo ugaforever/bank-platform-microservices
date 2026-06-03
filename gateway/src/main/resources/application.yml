@@ -31,21 +31,21 @@ spring:
           predicates:
             - Path=/account/**
           filters:
-            - name: TokenRelay
+            - name: JwtTokenRelay
 
         - id: cash-service-route
           uri: lb://cash-service
           predicates:
             - Path=/cash/**
           filters:
-            - name: TokenRelay
+            - name: JwtTokenRelay
 
         - id: transfer-service-route
           uri: lb://transfer-service
           predicates:
             - Path=/transfer/**
           filters:
-            - name: TokenRelay
+            - name: JwtTokenRelay
 
 management:
   endpoints:
