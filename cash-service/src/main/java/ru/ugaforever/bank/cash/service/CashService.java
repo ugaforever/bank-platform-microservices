@@ -138,12 +138,15 @@ public class CashService {
         log.debug("Balance updated: login={}, newBalance={}",
                 account.getLogin(), account.getBalance().subtract(request.getAmount()));
 
-        Cash cash = Cash.builder()
-                .login(account.getLogin())
-                .action(CashAction.WITHDRAW)
+        Cash.CashBuilder builder = Cash.builder()
+                .login(request.getLogin())
                 .amount(request.getAmount())
-                .actionAt(Instant.now())
-                .build();
+                .action(CashAction.WITHDRAW)
+                .actionAt(Instant.now());
+        if (idempotencyKey != null && !idempotencyKey.isBlank()) {
+            builder.idempotencyKey(idempotencyKey);
+        }
+        Cash cash = builder.build();
         repository.save(cash);
         log.debug("Cash operation saved: id={}", cash.getId());
 
