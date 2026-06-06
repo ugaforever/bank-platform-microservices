@@ -7,7 +7,12 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner;
 import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import ru.ugaforever.bank.account.config.TestContractConfig;
 import ru.ugaforever.bank.chassis.client.NotificationClient;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationResponseDto;
@@ -19,10 +24,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureStubRunner(
-        ids = "ru.ugaforever.bank.notification:notification-service:+:stubs:9006",
+        //ids = "ru.ugaforever.bank.notification:notification-service:+:stubs:9006",
+        ids = "ru.ugaforever.bank.notification:notification-service:+:stubs:0",
         stubsMode = StubRunnerProperties.StubsMode.LOCAL
 )
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
+@Import(TestContractConfig.class)
 @ActiveProfiles("contract-test")
 public class NotificationAccountContractTest {
 
@@ -31,7 +38,10 @@ public class NotificationAccountContractTest {
     @Autowired
     private NotificationClient notificationClient;
 
-    @Test
+    @MockitoBean
+    private JwtDecoder jwtDecoder;
+
+/*    @Test
     @Disabled("Временно отключен из-за проблем с портом. не удается переопределить порт 9006 на любой другой, пробовал разные варианты. когда порт свободен тест отрабатывает.")
     void shouldSendNotification() {
 
@@ -46,5 +56,5 @@ public class NotificationAccountContractTest {
         assertThat(result.getMessage()).isEqualTo(MESSAGE);
         assertThat(result.getActionAt()).isNotNull();
         assertThat(result.getActionAt()).isInstanceOf(Instant.class);
-    }
+    }*/
 }

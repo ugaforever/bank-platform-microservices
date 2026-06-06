@@ -110,6 +110,10 @@
             <version>4.2.1</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-jackson</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

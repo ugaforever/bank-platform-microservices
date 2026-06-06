@@ -18,6 +18,8 @@ spring:
     exclude:
       - org.springframework.cloud.openfeign.FeignAutoConfiguration
       - org.springframework.cloud.consul.ConsulAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
 
   datasource:
     url: jdbc:h2:mem:testdb
