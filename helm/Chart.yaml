@@ -1,24 +1,56 @@
 apiVersion: v2
 name: helm
-description: A Helm chart for deploying Bank platform microservices
-
-# A chart can be either an 'application' or a 'library' chart.
-#
-# Application charts are a collection of templates that can be packaged into versioned archives
-# to be deployed.
-#
-# Library charts provide useful utilities or functions for the chart developer. They're included as
-# a dependency of application charts to inject those utilities and functions into the rendering
-# pipeline. Library charts do not define any templates and therefore cannot be deployed.
+description: A Umbrella chart for deploying Bank platform microservices
 type: application
-
-# This is the chart version. This version number should be incremented each time you make changes
-# to the chart and its templates, including the app version.
-# Versions are expected to follow Semantic Versioning (https://semver.org/)
 version: 0.1.0
+appVersion: "1.0.0"
 
-# This is the version number of the application being deployed. This version number should be
-# incremented each time you make changes to the application. Versions are not expected to
-# follow Semantic Versioning. They should reflect the version the application is using.
-# It is recommended to use it with quotes.
-appVersion: "1.16.0"
+dependencies:
+  # Subchart for Account Service
+  - name: account-service
+    version: "0.1.0"
+    repository: "file://./charts/account-service" # Local path reference
+
+  # Subchart for Cash Service
+  - name: cash-service
+    version: "0.1.0"
+    repository: "file://./charts/cash-service"  # Local path reference
+
+  # Subchart for Transfer Service
+  - name: transfer-service
+    version: "0.1.0"
+    repository: "file://./charts/transfer-service"  # Local path reference
+
+  # Subchart for Notification Service
+  - name: notification-service
+    version: "0.1.0"
+    repository: "file://./charts/notification-service"  # Local path reference
+
+  # Dependency for Account DB (e.g., PostgreSQL)
+  - name: postgresql
+    version: "18.2.0" # Using a specific known stable version from Bitnami history
+    repository: "oci://registry-1.docker.io/bitnamicharts"
+    alias: account-db # Alias to distinguish this instance
+    condition: account-db.enabled # Allow disabling if needed
+
+  # Dependency for Cash DB (e.g., PostgreSQL)
+  - name: postgresql
+    version: "18.2.0" # Using a specific known stable version from Bitnami history
+    repository: "oci://registry-1.docker.io/bitnamicharts"
+    alias: cash-db # Alias to distinguish this instance
+    condition: cash-db.enabled # Allow disabling if needed
+
+  # Dependency for Transfer DB (e.g., PostgreSQL)
+  - name: postgresql
+    version: "18.2.0" # Using a specific known stable version from Bitnami history
+    repository: "oci://registry-1.docker.io/bitnamicharts"
+    alias: transfer-db # Alias to distinguish this instance
+    condition: transfer-db.enabled # Allow disabling if needed
+
+  # Dependency for Notification DB (e.g., PostgreSQL)
+  - name: postgresql
+    version: "18.2.0" # Using a specific known stable version from Bitnami history
+    repository: "oci://registry-1.docker.io/bitnamicharts"
+    alias: notification-db # Alias to distinguish this instance
+    condition: notification-db.enabled # Allow disabling if needed
+

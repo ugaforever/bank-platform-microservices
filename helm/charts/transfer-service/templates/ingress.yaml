@@ -1,17 +1,19 @@
 {{- if .Values.ingress.enabled -}}
+  {{- $fullName := include "transfer-service.fullname" . -}}
+  {{- $svcPort := .Values.service.port -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "helm.fullname" . }}
+  name: {{ $fullName }}
   labels:
-    {{- include "helm.labels" . | nindent 4 }}
+    {{- include "transfer-service.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- with .Values.ingress.className }}
-  ingressClassName: {{ . }}
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className }}
   {{- end }}
   {{- if .Values.ingress.tls }}
   tls:
@@ -30,14 +32,13 @@ spec:
         paths:
           {{- range .paths }}
           - path: {{ .path }}
-            {{- with .pathType }}
-            pathType: {{ . }}
-            {{- end }}
+            pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ include "helm.fullname" $ }}
+                name: {{ $fullName }}
                 port:
-                  number: {{ $.Values.service.port }}
+                  # Use the *name* of the service port (defined as 'http' in service.yaml)
+                  name: http
           {{- end }}
     {{- end }}
-{{- end }}
+  {{- end }}
