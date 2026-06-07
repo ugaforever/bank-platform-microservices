@@ -180,9 +180,3 @@ keycloak:
     hostIP: "192.168.10.197"
     # hostname: "keycloak.bank.local"
     annotations: {}
-
-env:
-  NOTIFICATION_SERVICE_URL: "http://bank-chart-notification-service:9006"
-  CASH_SERVICE_URL: "http://bank-chart-cash-service:9004"
-  TRANSFER_SERVICE_URL: "http://bank-chart-transfer-service:9003"
-  ACCOUNT_SERVICE_URL: "http://bank-chart-account-service:9005"
