@@ -54,13 +54,14 @@ pipeline {
             }
             stage('Build Docker Images') {
                 steps {
-                   sh """
-                   docker build -t account-service:${IMAGE_TAG} account-service
-                   docker build -t cash-service:${IMAGE_TAG} cash-service
-                   docker build -t notification-service:${IMAGE_TAG} notification-service
-                   docker build -t transfer-service:${IMAGE_TAG} transfer-service
-                   docker build -t gateway:${IMAGE_TAG} gateway
-                   """
+                   docker.build("account-service:latest", "-f account-service/Dockerfile .")
+//                    sh """
+//                    docker build -t account-service:${IMAGE_TAG} account-service
+//                    docker build -t cash-service:${IMAGE_TAG} cash-service
+//                    docker build -t notification-service:${IMAGE_TAG} notification-service
+//                    docker build -t transfer-service:${IMAGE_TAG} transfer-service
+//                    docker build -t gateway:${IMAGE_TAG} gateway
+//                    """
             }
         }
     }
