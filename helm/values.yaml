@@ -16,7 +16,7 @@ account-service:
     # -----------------------------
   service:
     type: ClusterIP
-    port: 8080
+    port: 9005
   ingress:
     enabled: true
     className: "nginx" # Specify your ingress controller class
@@ -46,7 +46,7 @@ cash-service:
     # -----------------------------
   service:
     type: ClusterIP
-    port: 8081 # Different port for order service
+    port: 9004 # Different port for order service
   ingress:
     enabled: true
     className: "nginx"
@@ -72,7 +72,7 @@ transfer-service:
     # -----------------------------
   service:
     type: ClusterIP
-    port: 8082 # Different port for order service
+    port: 9003 # Different port for order service
   ingress:
     enabled: true
     className: "nginx"
@@ -98,7 +98,7 @@ notification-service:
     # -----------------------------
   service:
     type: ClusterIP
-    port: 8083 # Different port for order service
+    port: 9006 # Different port for order service
   ingress:
     enabled: true
     className: "nginx"
@@ -169,3 +169,20 @@ notification-db:
     persistence:
       enabled: true
       size: 1Gi # Small size for example
+
+keycloak:
+  external:
+    enabled: true
+    serviceName: bank-keycloak
+    serviceType: ClusterIP
+    port: 9002
+    targetPort: 9002
+    hostIP: "192.168.10.197"
+    # hostname: "keycloak.bank.local"
+    annotations: {}
+
+env:
+  NOTIFICATION_SERVICE_URL: "http://bank-chart-notification-service:9006"
+  CASH_SERVICE_URL: "http://bank-chart-cash-service:9004"
+  TRANSFER_SERVICE_URL: "http://bank-chart-transfer-service:9003"
+  ACCOUNT_SERVICE_URL: "http://bank-chart-account-service:9005"

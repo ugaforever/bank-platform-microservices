@@ -1,0 +1,28 @@
+{{- if .Values.keycloak.external.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.keycloak.external.serviceName | default "keycloak-external" }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: keycloak-external
+    component: auth
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: {{ .Values.keycloak.external.port | default 9002 }}
+      targetPort: {{ .Values.keycloak.external.targetPort | default 9002 }}
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: {{ .Values.keycloak.external.serviceName | default "keycloak-external" }}
+  namespace: {{ .Release.Namespace }}
+subsets:
+  - addresses:
+      - ip: {{ .Values.keycloak.external.hostIP }}
+    ports:
+      - port: {{ .Values.keycloak.external.targetPort | default 9002 }}
+{{- end }}

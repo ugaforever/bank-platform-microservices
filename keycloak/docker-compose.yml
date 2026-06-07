@@ -1,0 +1,23 @@
+services:
+  bank-keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: bank-keycloak
+    command: start-dev --import-realm --features=scripts
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HOSTNAME: bank-keycloak
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_PORT: 9002
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "0.0.0.0:9002:9002"
+    volumes:
+      - ./:/opt/keycloak/data/import
+    healthcheck:
+      test: ["CMD", "sh", "-c", "exit 0"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
