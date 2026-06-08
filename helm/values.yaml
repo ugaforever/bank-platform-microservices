@@ -2,6 +2,11 @@
 global:
   domain: bank.local # Example domain for ingress
 
+  keycloak:
+    issuerUri: "http://bank-keycloak:9002/realms/bank-realm"
+
+
+
 # Configuration for the customer-service subchart
 # NOTE: For local development (Minikube/Kind/Docker Desktop), build the image locally
 # (e.g., `docker build -t customer-service:latest in customer-service dir)
@@ -218,32 +223,9 @@ kafka:
   volumePermissions:
     enabled: false
 
-#debezium:
-#  enabled: true
-#
-#  image:
-#    repository: debezium/connect
-#    tag: "2.5"
-#    pullPolicy: IfNotPresent
-#
-#  service:
-#    type: ClusterIP
-#    port: 8083
-#
-#  bootstrapServers: "kafka:9092"
-#
-#  config:
-#    groupId: 1
-#    configStorageTopic: "connect_configs"
-#    offsetStorageTopic: "connect_offsets"
-#    statusStorageTopic: "connect_statuses"
-#    keyConverter: "org.apache.kafka.connect.json.JsonConverter"
-#    valueConverter: "org.apache.kafka.connect.json.JsonConverter"
-#    keyConverterSchemasEnable: false
-#    valueConverterSchemasEnable: false
-
-env:
-  NOTIFICATION_SERVICE_URL: "http://bank-chart-notification-service:9006"
-  CASH_SERVICE_URL: "http://bank-chart-cash-service:9004"
-  TRANSFER_SERVICE_URL: "http://bank-chart-transfer-service:9003"
-  ACCOUNT_SERVICE_URL: "http://bank-chart-account-service:9005"
+keycloak-external:
+  enabled: true
+  externalIP: 10.42.0.1  # IP хоста для Rancher Desktop
+  service:
+    name: bank-keycloak
+    port: 9002

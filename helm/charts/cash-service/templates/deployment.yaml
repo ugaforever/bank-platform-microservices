@@ -55,6 +55,8 @@ spec:
             - configMapRef:
                 name: {{ include "cash-service.fullname" . }}
           env:
+            - name: KEYCLOAK_ISSUER_URI
+              value: "http://bank-keycloak:9002/realms/bank-realm"
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:

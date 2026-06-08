@@ -81,19 +81,19 @@ pipeline {
             stage('Create DB Secrets for TEST') {
                 steps {
                     sh """
-                    kubectl create secret generic account-service-account-db \\
+                    kubectl create secret generic account-service-db \\
                     --from-literal=password=${DB_PASSWORD} \\
                     -n test --dry-run=client -o yaml | kubectl apply -f -
 
-                    kubectl create secret generic cash-service-cash-db \\
+                    kubectl create secret generic cash-service-db \\
                     --from-literal=password=${DB_PASSWORD} \\
                     -n test --dry-run=client -o yaml | kubectl apply -f -
 
-                    kubectl create secret generic transfer-service-transfer-db \\
+                    kubectl create secret generic transfer-service-db \\
                     --from-literal=password=${DB_PASSWORD} \\
                     -n test --dry-run=client -o yaml | kubectl apply -f -
 
-                    kubectl create secret generic notification-service-notification-db \\
+                    kubectl create secret generic notification-service-db \\
                     --from-literal=password=${DB_PASSWORD} \\
                     -n test --dry-run=client -o yaml | kubectl apply -f -
                     """
@@ -103,41 +103,13 @@ pipeline {
             stage('Helm Deploy to TEST') {
                 steps {
                     sh """
-                    helm upgrade --install account-service helm/charts/account-service \\
+                    helm upgrade --install bank helm/ \\
                       --namespace test --create-namespace \\
-                      --set image.repository=account-service \\
-                      --set image.tag=${IMAGE_TAG} \\
-                      --set ingress.enabled=true \\
-                      --set ingress.hosts[0].host=account.test.local \\
-                      --set ingress.hosts[0].paths[0].path="/" \\
-                      --set ingress.hosts[0].paths[0].pathType="ImplementationSpecific"
-
-                    helm upgrade --install cash-service helm/charts/cash-service \\
-                      --namespace test --create-namespace \\
-                      --set image.repository=cash-service \\
-                      --set image.tag=${IMAGE_TAG} \\
-                      --set ingress.enabled=true \\
-                      --set ingress.hosts[0].host=cash.test.local \\
-                      --set ingress.hosts[0].paths[0].path="/" \\
-                      --set ingress.hosts[0].paths[0].pathType="ImplementationSpecific"
-
-                    helm upgrade --install transfer-service helm/charts/transfer-service \\
-                      --namespace test --create-namespace \\
-                      --set image.repository=transfer-service \\
-                      --set image.tag=${IMAGE_TAG} \\
-                      --set ingress.enabled=true \\
-                      --set ingress.hosts[0].host=transfer.test.local \\
-                      --set ingress.hosts[0].paths[0].path="/" \\
-                      --set ingress.hosts[0].paths[0].pathType="ImplementationSpecific"
-
-                    helm upgrade --install notification-service helm/charts/notification-service \\
-                      --namespace test --create-namespace \\
-                      --set image.repository=notification-service \\
-                      --set image.tag=${IMAGE_TAG} \\
-                      --set ingress.enabled=true \\
-                      --set ingress.hosts[0].host=notification.test.local \\
-                      --set ingress.hosts[0].paths[0].path="/" \\
-                      --set ingress.hosts[0].paths[0].pathType="ImplementationSpecific"
+                      --set kafka.enabled=true \\
+                      --set account-db.enabled=true \\
+                      --set cash-db.enabled=true \\
+                      --set transfer-db.enabled=true \\
+                      --set notification-db.enabled=true
                     """
                 }
             }

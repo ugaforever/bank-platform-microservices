@@ -6,6 +6,11 @@ version: 0.1.0
 appVersion: "1.0.0"
 
 dependencies:
+  # Subchart for External Keycloak
+  - name: keycloak-external
+    version: 0.1.0
+    condition: keycloak-external.enabled
+
   # Subchart for Account Service
   - name: account-service
     version: "0.1.0"
@@ -58,9 +63,3 @@ dependencies:
     version: "25.0.0"
     repository: "file://./charts/kafka-25.0.0.tgz"
     condition: kafka.enabled
-#
-#  - name: debezium-platform
-#    version: "3.1.0-beta1"
-#    repository: "https://charts.debezium.io"
-#    alias: debezium
-#    condition: debezium.enabled
