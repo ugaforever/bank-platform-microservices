@@ -3,26 +3,41 @@
 ## Задание
 На основе существующего микросервисного приложения «Банк» девятого спринта реализуйте развёртывание микросервисов в Kubernetes с использованием Helm-чартов.
 
-## Архитектура проекта
-![Architecture Diagram](images/arch.png)
+1. Jenkins
+```bash
+   java -Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true -jar jenkins.war
+```
+2. Keycloak
+```bash
+   cd ./keycloak
+   docker compose up -d
+   ./create_users.sh
+```   
+3. Helm
+```bash
+cd ./helm/
+helm dependency update
+helm dependency build
+helm dependency list
 
-## Компоненты
-| name                 | docker                    | port  |
-|----------------------|---------------------------|-------|
-| front                | bank-front                | 9000  |
-| gateway              | bank-gateway              | 9001  |
-| keycloak             | bank-keycloak             | 9002  |
-| transfer service     | bank-transfer-service     | 9003  |
-| cash service         | bank-cash-service         | 9004  |
-| account service      | bank-account-service      | 9005  |
-| notification service | bank-notification-service | 9006  |
-| consul               | bank-consul               | 8500  |
-| transfer db          | bank-transfer-db          | 5433  |
-| cash db              | bank-cash-db              | 5434  |
-| account db           | bank-account-db           | 5435  |
-| notification db      | bank-notification-db      | 5436  |
-| kafka                | bank-kafka                | 9092  |
-| debezium             | bank-debezium             | 8083  |
+# Проверка корректности
+helm template my-app .
+helm install my-app . --dry-run --debug
+
+# Установка со ВСЕМИ компонентами (именно bank, пример URL bank-account-service:9005)
+helm install bank . \
+  --set kafka.enabled=true \
+  --set account-db.enabled=true \
+  --set cash-db.enabled=true \
+  --set transfer-db.enabled=true \
+  --set notification-db.enabled=true
+```
+
+4. etc
+```bash
+sudo nano /etc/hosts
+127.0.0.1 account.bank.local cash.bank.local transfer.bank.local notification.bank.local
+```
 
 ## Запуск сервисов
 ```bash

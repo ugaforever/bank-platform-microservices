@@ -54,3 +54,13 @@ dependencies:
     alias: notification-db # Alias to distinguish this instance
     condition: notification-db.enabled # Allow disabling if needed
 
+  - name: kafka
+    version: "25.0.0"
+    repository: "file://./charts/kafka-25.0.0.tgz"
+    condition: kafka.enabled
+#
+#  - name: debezium-platform
+#    version: "3.1.0-beta1"
+#    repository: "https://charts.debezium.io"
+#    alias: debezium
+#    condition: debezium.enabled

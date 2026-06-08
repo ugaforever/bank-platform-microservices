@@ -10,7 +10,7 @@ account-service:
   replicaCount: 1
   image:
     # --- REVERTED TO LOCAL REPO ---
-    repository: account-service # Removed registry prefix
+    repository: bank-platform-microservices-account-service # Removed registry prefix
     tag: "latest"
     pullPolicy: IfNotPresent # Use IfNotPresent for local images
     # -----------------------------
@@ -40,7 +40,7 @@ cash-service:
   replicaCount: 1
   image:
     # --- REVERTED TO LOCAL REPO ---
-    repository: cash-service # Removed registry prefix
+    repository: bank-platform-microservices-cash-service # Removed registry prefix
     tag: "latest"
     pullPolicy: IfNotPresent # Use IfNotPresent for local images
     # -----------------------------
@@ -66,7 +66,7 @@ transfer-service:
   replicaCount: 1
   image:
     # --- REVERTED TO LOCAL REPO ---
-    repository: transfer-service # Removed registry prefix
+    repository: bank-platform-microservices-transfer-service # Removed registry prefix
     tag: "latest"
     pullPolicy: IfNotPresent # Use IfNotPresent for local images
     # -----------------------------
@@ -92,7 +92,7 @@ notification-service:
   replicaCount: 1
   image:
     # --- REVERTED TO LOCAL REPO ---
-    repository: notification-service # Removed registry prefix
+    repository: bank-platform-microservices-notification-service # Removed registry prefix
     tag: "latest"
     pullPolicy: IfNotPresent # Use IfNotPresent for local images
     # -----------------------------
@@ -180,6 +180,67 @@ keycloak:
     hostIP: "192.168.10.197"
     # hostname: "keycloak.bank.local"
     annotations: {}
+
+kafka:
+  enabled: true
+
+  controller:
+    replicaCount: 1
+  broker:
+    replicaCount: 1
+
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/kafka
+    tag: 3.5.1-debian-11-r25
+
+  kraft:
+    enabled: true
+    clusterId: "5Lx7d9n6Qr2Rv5x8Yz3wXA"
+
+  listeners:
+    client:
+      protocol: PLAINTEXT
+      containerPort: 9092
+    controller:
+      protocol: PLAINTEXT
+      containerPort: 9093
+
+  advertisedListeners: "PLAINTEXT://bank-kafka:9092"
+
+  persistence:
+    enabled: true
+    size: 10Gi
+
+  zookeeper:
+    enabled: false
+
+  volumePermissions:
+    enabled: false
+
+#debezium:
+#  enabled: true
+#
+#  image:
+#    repository: debezium/connect
+#    tag: "2.5"
+#    pullPolicy: IfNotPresent
+#
+#  service:
+#    type: ClusterIP
+#    port: 8083
+#
+#  bootstrapServers: "kafka:9092"
+#
+#  config:
+#    groupId: 1
+#    configStorageTopic: "connect_configs"
+#    offsetStorageTopic: "connect_offsets"
+#    statusStorageTopic: "connect_statuses"
+#    keyConverter: "org.apache.kafka.connect.json.JsonConverter"
+#    valueConverter: "org.apache.kafka.connect.json.JsonConverter"
+#    keyConverterSchemasEnable: false
+#    valueConverterSchemasEnable: false
 
 env:
   NOTIFICATION_SERVICE_URL: "http://bank-chart-notification-service:9006"
