@@ -7,25 +7,31 @@
 ```bash
    java -Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true -jar jenkins.war
 ```
+
 2. Keycloak
 ```bash
    cd ./keycloak
    docker compose up -d
    ./create_users.sh
 ```   
+
 3. Helm
 ```bash
 cd ./helm/
 helm dependency update
 helm dependency build
 helm dependency list
+```
 
 4. Проверка корректности
+```bash
 helm template my-app .
 helm install my-app . --dry-run --debug
 helm lint .
+```
 
 5. Установка
+```bash
 helm upgrade --install bank helm/ \
   --namespace test --create-namespace \
   --set kafka.enabled=true \
