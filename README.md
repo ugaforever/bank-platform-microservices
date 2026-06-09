@@ -25,7 +25,8 @@ helm template my-app .
 helm install my-app . --dry-run --debug
 
 # Установка со ВСЕМИ компонентами (именно bank, пример URL bank-account-service:9005)
-helm install bank . \
+helm upgrade --install bank helm/ \
+  --namespace test --create-namespace \
   --set kafka.enabled=true \
   --set account-db.enabled=true \
   --set cash-db.enabled=true \

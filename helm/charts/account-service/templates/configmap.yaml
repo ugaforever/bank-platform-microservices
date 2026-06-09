@@ -23,6 +23,8 @@ data:
     SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: "http://bank-keycloak:9002/realms/bank-realm"
     KEYCLOAK_ISSUER_URI: "http://bank-keycloak:9002/realms/bank-realm"
     LOGGING_LEVEL_ORG_SPRINGFRAMEWORK: "DEBUG"
+    SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: "false"
+    SPRING_CLOUD_KUBERNETES_ENABLED: "false"
     # SPRING_DATASOURCE_PASSWORD would typically come from a secret, not this ConfigMap.
 
     # Example: Include other config defined in values.yaml

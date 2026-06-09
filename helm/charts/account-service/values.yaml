@@ -48,17 +48,13 @@ ingress:
           pathType: Prefix
   tls: []
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-#   memory: 128Mi
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
 
 autoscaling:
   enabled: false
@@ -77,10 +73,10 @@ config:
   database_url: "jdbc:postgresql://postgres-postgresql.{{ .Release.Namespace }}.svc.cluster.local:5432/mydb"
   database_username: "myuser"
 
-#env:
-#  - name: SPRING_CLOUD_KUBERNETES_ENABLED
-#    value: "false"
-#  - name: SPRING_CLOUD_KUBERNETES_DISCOVERY_ENABLED
-#    value: "false"
-#  - name: SPRING_CLOUD_KUBERNETES_CONFIG_ENABLED
-#    value: "false"
+env:
+  - name: KEYCLOAK_ISSUER_URI
+    value: "http://bank-keycloak:9002/realms/bank-realm"
+  - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
+    value: "http://bank-keycloak:9002/realms/bank-realm"
+  - name: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI
+    value: "http://bank-keycloak:9002/realms/bank-realm"
