@@ -63,7 +63,8 @@ pipeline {
                                             echo "All images built successfully!"
                                             docker images | grep -E "account|notification|cash|transfer|gateway"
                                         '''
-                                    }
+                    }
+                }
             }
 
             stage('Install PostgreSQL to TEST') {
@@ -113,6 +114,5 @@ pipeline {
                     """
                 }
             }
-        }
     }
 }
