@@ -20,11 +20,12 @@ helm dependency update
 helm dependency build
 helm dependency list
 
-# Проверка корректности
+4. Проверка корректности
 helm template my-app .
 helm install my-app . --dry-run --debug
+helm lint .
 
-# Установка со ВСЕМИ компонентами (именно bank, пример URL bank-account-service:9005)
+5. Установка
 helm upgrade --install bank helm/ \
   --namespace test --create-namespace \
   --set kafka.enabled=true \
@@ -34,16 +35,18 @@ helm upgrade --install bank helm/ \
   --set notification-db.enabled=true
 ```
 
-4. etc
+6. Записи в hosts
 ```bash
 sudo nano /etc/hosts
-127.0.0.1 account.bank.local cash.bank.local transfer.bank.local notification.bank.local
+127.0.0.1 account.bank.local
+127.0.0.1 cash.bank.local
+127.0.0.1 transfer.bank.local
+127.0.0.1 notification.bank.local
 ```
 
-## Запуск сервисов
-```bash
-docker compose up
-```
+## Pipeline Jenkins
+Интеграция в Jenkins файла Jenkinsfile.
+
 ## Что выполнено
 Смотри pull-реквесты.
 
