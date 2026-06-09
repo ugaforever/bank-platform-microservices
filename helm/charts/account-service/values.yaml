@@ -76,3 +76,11 @@ affinity: {}
 config:
   database_url: "jdbc:postgresql://postgres-postgresql.{{ .Release.Namespace }}.svc.cluster.local:5432/mydb"
   database_username: "myuser"
+
+#env:
+#  - name: SPRING_CLOUD_KUBERNETES_ENABLED
+#    value: "false"
+#  - name: SPRING_CLOUD_KUBERNETES_DISCOVERY_ENABLED
+#    value: "false"
+#  - name: SPRING_CLOUD_KUBERNETES_CONFIG_ENABLED
+#    value: "false"

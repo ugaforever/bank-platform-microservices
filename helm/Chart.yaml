@@ -61,5 +61,5 @@ dependencies:
 
   - name: kafka
     version: "25.0.0"
-    repository: "file://./charts/kafka-25.0.0.tgz"
+    repository: "oci://registry-1.docker.io/bitnamicharts"
     condition: kafka.enabled

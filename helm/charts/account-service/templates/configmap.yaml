@@ -19,6 +19,10 @@ data:
     # Use the 'tpl' function to render the database_url which contains Helm templating itself
     SPRING_DATASOURCE_URL: {{ tpl .Values.config.database_url . | quote }}
     SPRING_DATASOURCE_USERNAME: {{ .Values.config.database_username | quote }}
+    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: "http://bank-keycloak:9002/realms/bank-realm"
+    SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: "http://bank-keycloak:9002/realms/bank-realm"
+    KEYCLOAK_ISSUER_URI: "http://bank-keycloak:9002/realms/bank-realm"
+    LOGGING_LEVEL_ORG_SPRINGFRAMEWORK: "DEBUG"
     # SPRING_DATASOURCE_PASSWORD would typically come from a secret, not this ConfigMap.
 
     # Example: Include other config defined in values.yaml

@@ -81,3 +81,11 @@ affinity: {}
 config:
   database_url: "jdbc:postgresql://postgres-postgresql.{{ .Release.Namespace }}.svc.cluster.local:5432/mydb"
   database_username: "myuser"
+
+env:
+  - name: KEYCLOAK_ISSUER_URI
+    value: "http://bank-keycloak:9002/realms/bank-realm"
+  - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
+    value: "http://bank-keycloak:9002/realms/bank-realm"
+  - name: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI
+    value: "http://bank-keycloak:9002/realms/bank-realm"
