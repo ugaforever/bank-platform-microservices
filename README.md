@@ -7,6 +7,7 @@
 ```bash
    java -Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true -jar jenkins.war
 ```
+В Jenkins через админ-панель добавляем пароли DB_PASSWORD,ACCOUNT_PASSWORD,CASH_PASSWORD,TRANSFER_PASSWORD,NOTIFICATION_PASSWORD
 
 2. Keycloak
 ```bash

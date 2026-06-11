@@ -2,11 +2,15 @@ pipeline {
     agent any
 
     environment {
-        DB_NAME         = 'mydb'
-        DB_USER         = 'myuser'
-        DB_PASSWORD     = credentials('DB_PASSWORD')
-        IMAGE_TAG       = "latest"
-        ROOT_DIR = '/home/user/java/github/bank-platform-microservices'
+        DB_NAME               = 'mydb'
+        DB_USER               = 'myuser'
+        DB_PASSWORD           = credentials('DB_PASSWORD')
+        ACCOUNT_PASSWORD      = credentials('ACCOUNT_PASSWORD')
+        CASH_PASSWORD         = credentials('CASH_PASSWORD')
+        TRANSFER_PASSWORD     = credentials('TRANSFER_PASSWORD')
+        NOTIFICATION_PASSWORD = credentials('NOTIFICATION_PASSWORD')
+        IMAGE_TAG             = "latest"
+        ROOT_DIR              = '/home/user/java/github/bank-platform-microservices'
     }
 
     stages {
@@ -83,20 +87,20 @@ pipeline {
             stage('Create DB Secrets for TEST') {
                 steps {
                     sh """
-                    kubectl create secret generic account-service-db \\
-                    --from-literal=password=${DB_PASSWORD} \\
+                    kubectl create secret generic account-service-db-secret \\
+                    --from-literal=password=${ACCOUNT_PASSWORD} \\
                     -n test --dry-run=client -o yaml | kubectl apply -f -
 
-                    kubectl create secret generic cash-service-db \\
-                    --from-literal=password=${DB_PASSWORD} \\
+                    kubectl create secret generic cash-service-db-secret \\
+                    --from-literal=password=${CASH_PASSWORD} \\
                     -n test --dry-run=client -o yaml | kubectl apply -f -
 
-                    kubectl create secret generic transfer-service-db \\
-                    --from-literal=password=${DB_PASSWORD} \\
+                    kubectl create secret generic transfer-service-db-secret \\
+                    --from-literal=password=${TRANSFER_PASSWORD} \\
                     -n test --dry-run=client -o yaml | kubectl apply -f -
 
-                    kubectl create secret generic notification-service-db \\
-                    --from-literal=password=${DB_PASSWORD} \\
+                    kubectl create secret generic notification-service-db-secret \\
+                    --from-literal=password=${NOTIFICATION_PASSWORD} \\
                     -n test --dry-run=client -o yaml | kubectl apply -f -
                     """
                 }
@@ -107,12 +111,32 @@ pipeline {
                     dir(ROOT_DIR) {
                         sh """
                         helm upgrade --install bank ./helm/ \\
-                          --namespace test --create-namespace \\
-                          --set kafka.enabled=true \\
-                          --set account-db.enabled=true \\
-                          --set cash-db.enabled=true \\
-                          --set transfer-db.enabled=true \\
-                          --set notification-db.enabled=true
+                        --namespace test --create-namespace \\
+                        --set kafka.enabled=true \\
+                        \\
+                        --set account-db.enabled=true \\
+                        --set account-db.auth.database=accounts \\
+                        --set account-db.auth.username=account_user \\
+                        --set account-db.auth.password=${ACCOUNT_PASSWORD} \\
+                        --set account-db.auth.postgresPassword=${ACCOUNT_PASSWORD} \\
+                        \\
+                        --set cash-db.enabled=true \\
+                        --set cash-db.auth.database=cashes \\
+                        --set cash-db.auth.username=cash_user \\
+                        --set cash-db.auth.password=${CASH_PASSWORD} \\
+                        --set cash-db.auth.postgresPassword=${CASH_PASSWORD} \\
+                        \\
+                        --set transfer-db.enabled=true \\
+                        --set transfer-db.auth.database=transfers \\
+                        --set transfer-db.auth.username=transfer_user \\
+                        --set transfer-db.auth.password=${TRANSFER_PASSWORD} \\
+                        --set transfer-db.auth.postgresPassword=${TRANSFER_PASSWORD} \\
+                        \\
+                        --set notification-db.enabled=true \\
+                        --set notification-db.auth.database=notifications \\
+                        --set notification-db.auth.username=notification_user \\
+                        --set notification-db.auth.password=${NOTIFICATION_PASSWORD} \\
+                        --set notification-db.auth.postgresPassword=${NOTIFICATION_PASSWORD}
                         """
                     }
                 }
