@@ -1,10 +1,12 @@
 package ru.ugaforever.bank.account.contract;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.ActiveProfiles;
-import ru.ugaforever.bank.account.config.TestContractConfig;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import ru.ugaforever.bank.account.TestAccountApplication;
+import ru.ugaforever.bank.account.repository.AccountRepository;
 import ru.ugaforever.bank.chassis.client.NotificationClient;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationResponseDto;
@@ -16,14 +18,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest(classes = TestContractConfig.class)
+@SpringBootTest(
+        classes = { TestAccountApplication.class },
+        properties = {
+                "spring.cloud.discovery.enabled=false",
+                "spring.cloud.loadbalancer.enabled=false",
+                "spring.cloud.openfeign.enabled=false",
+                "spring.security.enabled=false"
+        }
+)
 @ActiveProfiles("contract-test")
 public class NotificationAccountContractTest {
 
     private static final String MESSAGE = "Your operation was successful";
 
-    @Autowired
+    @MockitoBean
     private NotificationClient notificationClient;
+
+    @MockitoBean
+    private JwtDecoder jwtDecoder;
+
+    @MockitoBean
+    private AccountRepository accountRepository;
 
     @Test
     void shouldSendNotification() {
