@@ -86,4 +86,4 @@ env:
   - name: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI
     value: "http://bank-keycloak:9002/realms/bank-realm"
   - name: JAVA_OPTS
-    value: "-Xmx256m -Xms128m -XX:+UseContainerSupport"
+    value: "-XX:+UseZGC -Xmx256m -Xms128m -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"

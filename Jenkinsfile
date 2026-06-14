@@ -79,7 +79,8 @@ pipeline {
                     --namespace test --create-namespace \\
                     --set auth.database=${DB_NAME} \\
                     --set auth.username=${DB_USER} \\
-                    --set auth.password=${DB_PASSWORD}
+                    --set auth.password=${DB_PASSWORD} \\
+                    --set fullnameOverride=bank-secret-db
                     """
                 }
             }
@@ -87,19 +88,19 @@ pipeline {
             stage('Create DB Secrets for TEST') {
                 steps {
                     sh """
-                    kubectl create secret generic account-service-db-secret \\
+                    kubectl create secret generic bank-account-db-secret \\
                     --from-literal=password=${ACCOUNT_PASSWORD} \\
                     -n test --dry-run=client -o yaml | kubectl apply -f -
 
-                    kubectl create secret generic cash-service-db-secret \\
+                    kubectl create secret generic bank-cash-db-secret \\
                     --from-literal=password=${CASH_PASSWORD} \\
                     -n test --dry-run=client -o yaml | kubectl apply -f -
 
-                    kubectl create secret generic transfer-service-db-secret \\
+                    kubectl create secret generic bank-transfer-db-secret \\
                     --from-literal=password=${TRANSFER_PASSWORD} \\
                     -n test --dry-run=client -o yaml | kubectl apply -f -
 
-                    kubectl create secret generic notification-service-db-secret \\
+                    kubectl create secret generic bank-notification-db-secret \\
                     --from-literal=password=${NOTIFICATION_PASSWORD} \\
                     -n test --dry-run=client -o yaml | kubectl apply -f -
                     """

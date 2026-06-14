@@ -23,9 +23,9 @@ account-service:
             pathType: ImplementationSpecific
   # Database connection details passed to account-service configmap
   config:
-    database_url: "jdbc:postgresql://{{ .Release.Name }}-account-db:5432/accountdb"
+    database_url: "jdbc:postgresql://{{ .Release.Name }}-account-db:5432/accounts"
     database_username: "account_user"
-    database_password_secret: "account-service-db-secret"
+    database_password_secret: "bank-account-db-secret"
     database_password_secret_key: "password"
 
 cash-service:
@@ -46,9 +46,9 @@ cash-service:
           - path: /
             pathType: ImplementationSpecific
   config:
-    database_url: "jdbc:postgresql://{{ .Release.Name }}-cash-db:5432/cashdb"
+    database_url: "jdbc:postgresql://{{ .Release.Name }}-cash-db:5432/cashes"
     database_username: "cash_user"
-    database_password_secret: "cash-service-db-secret"
+    database_password_secret: "bank-cash-db-secret"
     database_password_secret_key: "password"
 
 transfer-service:
@@ -69,9 +69,9 @@ transfer-service:
           - path: /
             pathType: ImplementationSpecific
   config:
-    database_url: "jdbc:postgresql://{{ .Release.Name }}-transfer-db:5432/transferdb"
+    database_url: "jdbc:postgresql://{{ .Release.Name }}-transfer-db:5432/transfers"
     database_username: "transfer_user"
-    database_password_secret: "transfer-service-db-secret"
+    database_password_secret: "bank-transfer-db-secret"
     database_password_secret_key: "password"
 
 notification-service:
@@ -92,17 +92,17 @@ notification-service:
           - path: /
             pathType: ImplementationSpecific
   config:
-    database_url: "jdbc:postgresql://{{ .Release.Name }}-notification-db:5432/notificationdb"
+    database_url: "jdbc:postgresql://{{ .Release.Name }}-notification-db:5432/notifications"
     database_username: "notification_user"
-    database_password_secret: "notification-service-db-secret"
+    database_password_secret: "bank-notification-db-secret"
     database_password_secret_key: "password"
 
 account-db:
   enabled: true
   auth:
-    database: accountdb
+    database: accounts
     username: account_user
-    existingSecret: account-service-db-secret
+    existingSecret: bank-account-db-secret
   primary:
     persistence:
       enabled: true
@@ -111,9 +111,9 @@ account-db:
 cash-db:
   enabled: true
   auth:
-    database: cashdb
+    database: cashes
     username: cash_user
-    existingSecret: cash-service-db-secret
+    existingSecret: bank-cash-db-secret
   primary:
     persistence:
       enabled: true
@@ -122,9 +122,9 @@ cash-db:
 transfer-db:
   enabled: true
   auth:
-    database: transferdb
+    database: transfers
     username: transfer_user
-    existingSecret: transfer-service-db-secret
+    existingSecret: bank-transfer-db-secret
   primary:
     persistence:
       enabled: true
@@ -133,9 +133,9 @@ transfer-db:
 notification-db:
   enabled: true
   auth:
-    database: notificationdb
+    database: notifications
     username: notification_user
-    existingSecret: notification-service-db-secret
+    existingSecret: bank-notification-db-secret
   primary:
     persistence:
       enabled: true

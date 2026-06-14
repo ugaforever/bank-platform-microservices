@@ -11,9 +11,8 @@
 
 2. Keycloak
 ```bash
-   cd ./keycloak
-   docker compose up -d
-   ./create_users.sh
+   docker compose up -d bank-keycloak
+   ./keycloak/create_users.sh
 ```   
 
 3. Helm

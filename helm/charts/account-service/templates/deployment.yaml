@@ -43,7 +43,7 @@ spec:
               port: http
             initialDelaySeconds: 0
             periodSeconds: 10
-            failureThreshold: 30
+            failureThreshold: 60
             timeoutSeconds: 5
           livenessProbe:
             httpGet:
@@ -68,7 +68,7 @@ spec:
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-account-db
+                  name: {{ .Release.Name }}-account-db-secret
                   key: password
       {{- with .Values.nodeSelector }}
       nodeSelector:
