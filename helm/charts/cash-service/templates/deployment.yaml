@@ -37,13 +37,21 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }} # Use the service port value from values.yaml
               protocol: TCP
-          livenessProbe: # Example for Spring Boot Actuator
+          startupProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            failureThreshold: 30
+            timeoutSeconds: 5
+          livenessProbe:
             httpGet:
               path: /actuator/health/liveness
               port: http
             initialDelaySeconds: 90
             periodSeconds: 10
-          readinessProbe: # Example for Spring Boot Actuator
+          readinessProbe:
             httpGet:
               path: /actuator/health/readiness
               port: http

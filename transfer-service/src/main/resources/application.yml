@@ -83,16 +83,22 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,circuitbreakers
+        include: health, info, metrics, circuitbreakers
       base-path: /actuator
   endpoint:
-    health:
-      show-details: always
-      show-components: always
     metrics:
       enabled: true
     circuitbreakers:
       enabled: true
+    health:
+      show-details: when-authorized
+      show-components: always
+      probes:
+        enabled: true
+        liveness-state:
+          enabled: true
+        readiness-state:
+          enabled: true
 
 resilience4j.circuitbreaker:
   configs:
