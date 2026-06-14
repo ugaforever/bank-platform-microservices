@@ -107,6 +107,18 @@ pipeline {
                 }
             }
 
+            stage('Build Helm Chart') {
+                steps {
+                    dir(ROOT_DIR) {
+                        sh """
+                        helm dependency update ./helm/
+
+                        helm dependency build ./helm/
+                        """
+                    }
+                }
+            }
+
             stage('Helm Deploy to TEST') {
                 steps {
                     dir(ROOT_DIR) {
