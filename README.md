@@ -51,7 +51,7 @@ sudo nano /etc/hosts
 ```
 
 ## Pipeline Jenkins
-Интеграция в Jenkins файла Jenkinsfile.
+Интеграция в Jenkins (Jenkinsfile).
 
 ## Что выполнено
 Смотри pull-реквесты.
