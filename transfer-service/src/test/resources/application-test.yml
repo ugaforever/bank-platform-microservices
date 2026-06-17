@@ -1,4 +1,12 @@
 spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      auto-offset-reset: earliest
+      group-id: test-group
+    listener:
+      auto-startup: false
+
   cloud:
     bootstrap:
       enabled: false
@@ -16,6 +24,8 @@ spring:
     exclude:
       - org.springframework.cloud.openfeign.FeignAutoConfiguration
       - org.springframework.cloud.consul.ConsulAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
 
   datasource:
     url: jdbc:h2:mem:testdb
@@ -35,3 +45,4 @@ account:
 notification:
   service:
     url: http://localhost:9006
+

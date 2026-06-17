@@ -11,10 +11,10 @@ Contract.make {
         url '/notification'
         headers {
             header 'Content-Type', applicationJson()
-            /*header 'Authorization', value(
+            header 'Authorization', value(
                     consumer(regex('Bearer\\s+.+')),
                     producer('Bearer test-token')
-            )*/
+            )
         }
         body(
                 source: 'CASH_SERVICE',

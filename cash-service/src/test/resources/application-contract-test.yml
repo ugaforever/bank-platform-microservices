@@ -1,5 +1,7 @@
 spring:
   cloud:
+    loadbalancer:
+      enabled: true
     bootstrap:
       enabled: false
     consul:

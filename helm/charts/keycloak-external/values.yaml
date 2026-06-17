@@ -1,0 +1,7 @@
+service:
+  name: keycloak
+  port: 9002
+  targetPort: 9002
+
+# Внешний IP Keycloak (у меня так)
+externalIP: 10.42.0.1

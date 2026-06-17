@@ -1,38 +1,38 @@
 server:
-  port: ${CASH_SERVER_PORT:9004}
+  port: ${CASH_SERVICE_PORT:9004}
 
 account:
   service:
-    url: ${ACCOUNT_SERVICE_URL:lb://account-service}
+    url: ${ACCOUNT_SERVICE_URL:http://bank-account-service:9005}
 
 notification:
   service:
-    url: ${NOTIFICATION_SERVICE_URL:lb://notification-service}
+    url: ${NOTIFICATION_SERVICE_URL:http://bank-notification-service:9006}
 
 spring:
   application:
     name: cash-service
 
-  config:
-    import: "optional:consul:${CONSUL_HOST:localhost}:${CONSUL_PORT:8500}"
+#  config:
+#    import: "optional:consul:${CONSUL_HOST:localhost}:${CONSUL_PORT:8500}"
 
-  cloud:
-    consul:
-      host: ${CONSUL_HOST:localhost}
-      port: ${CONSUL_PORT:8500}
-      config:
-        #spring.datasource.* изменение в Consul не может обновить в приложении из-за особенности бина datasource
-        format: PROPERTIES
-        prefix: config
-        name: ${spring.application.name}
-        data-key: data
-      discovery:
-        enabled: true
-        instance-id: ${spring.application.name}:${random.value}
-        prefer-ip-address: true
-        service-name: ${spring.application.name}
-        health-check-path: /actuator/health
-        health-check-interval: 10s
+#  cloud:
+#    consul:
+#      host: ${CONSUL_HOST:localhost}
+#      port: ${CONSUL_PORT:8500}
+#      config:
+#        #spring.datasource.* изменение в Consul не может обновить в приложении из-за особенности бина datasource
+#        format: PROPERTIES
+#        prefix: config
+#        name: ${spring.application.name}
+#        data-key: data
+#      discovery:
+#        enabled: true
+#        instance-id: ${spring.application.name}:${random.value}
+#        prefer-ip-address: true
+#        service-name: ${spring.application.name}
+#        health-check-path: /actuator/health
+#        health-check-interval: 10s
 
   jpa:
     hibernate:
@@ -77,16 +77,22 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,circuitbreakers
+        include: health, info, metrics, circuitbreakers
       base-path: /actuator
   endpoint:
-    health:
-      show-details: always
-      show-components: always
     metrics:
       enabled: true
     circuitbreakers:
       enabled: true
+    health:
+      show-details: when-authorized
+      show-components: always
+      probes:
+        enabled: true
+        liveness-state:
+          enabled: true
+        readiness-state:
+          enabled: true
 
 logging:
   level:

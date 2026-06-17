@@ -1,5 +1,12 @@
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri:
   cloud:
+    openfeign:
+      enabled: true
     bootstrap:
       enabled: false
     consul:
@@ -12,13 +19,25 @@ spring:
       enabled: false
   autoconfigure:
     exclude:
+      - org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
       - org.springframework.cloud.openfeign.FeignAutoConfiguration
-      - org.springframework.cloud.consul.ConsulAutoConfiguration
 
-feign:
-  hystrix:
-    enabled: false
+#feign:
+#  client:
+#    config:
+#      default:
+#        connectTimeout: 5000
+#        readTimeout: 5000
 
-notification:
-  service:
-    url: http://localhost:9006
+stubrunner:
+  cloud:
+    loadbalancer:
+      enabled: false
+#  ids: 'ru.ugaforever.bank.notification:notification-service:+:stubs:0'
+#  stubs:
+#    port: 0
+
+#notification:
+#  service:
+#    url: "http://localhost:${stubrunner.stubs.port}"

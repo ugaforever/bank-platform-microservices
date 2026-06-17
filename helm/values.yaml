@@ -1,0 +1,197 @@
+global:
+  domain: bank.local
+
+  keycloak:
+    issuerUri: "http://bank-keycloak:9002/realms/bank-realm"
+
+account-service:
+  replicaCount: 1
+  image:
+    repository: bank-platform-microservices-account-service
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 9005
+  ingress:
+    enabled: true
+    className: "nginx"
+    hosts:
+      - host: account.bank.local
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+  # Database connection details passed to account-service configmap
+  config:
+    database_url: "jdbc:postgresql://{{ .Release.Name }}-account-db:5432/accounts"
+    database_username: "account_user"
+    database_password_secret: "bank-account-db-secret"
+    database_password_secret_key: "password"
+
+cash-service:
+  replicaCount: 1
+  image:
+    repository: bank-platform-microservices-cash-service
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 9004
+  ingress:
+    enabled: true
+    className: "nginx"
+    hosts:
+      - host: cash.bank.local
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+  config:
+    database_url: "jdbc:postgresql://{{ .Release.Name }}-cash-db:5432/cashes"
+    database_username: "cash_user"
+    database_password_secret: "bank-cash-db-secret"
+    database_password_secret_key: "password"
+
+transfer-service:
+  replicaCount: 1
+  image:
+    repository: bank-platform-microservices-transfer-service
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 9003
+  ingress:
+    enabled: true
+    className: "nginx"
+    hosts:
+      - host: transfer.bank.local
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+  config:
+    database_url: "jdbc:postgresql://{{ .Release.Name }}-transfer-db:5432/transfers"
+    database_username: "transfer_user"
+    database_password_secret: "bank-transfer-db-secret"
+    database_password_secret_key: "password"
+
+notification-service:
+  replicaCount: 1
+  image:
+    repository: bank-platform-microservices-notification-service
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 9006
+  ingress:
+    enabled: true
+    className: "nginx"
+    hosts:
+      - host: notification.bank.local
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+  config:
+    database_url: "jdbc:postgresql://{{ .Release.Name }}-notification-db:5432/notifications"
+    database_username: "notification_user"
+    database_password_secret: "bank-notification-db-secret"
+    database_password_secret_key: "password"
+
+account-db:
+  enabled: true
+  auth:
+    database: accounts
+    username: account_user
+    existingSecret: bank-account-db-secret
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+
+cash-db:
+  enabled: true
+  auth:
+    database: cashes
+    username: cash_user
+    existingSecret: bank-cash-db-secret
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+
+transfer-db:
+  enabled: true
+  auth:
+    database: transfers
+    username: transfer_user
+    existingSecret: bank-transfer-db-secret
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+
+notification-db:
+  enabled: true
+  auth:
+    database: notifications
+    username: notification_user
+    existingSecret: bank-notification-db-secret
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+
+keycloak:
+  external:
+    enabled: true
+    serviceName: bank-keycloak
+    serviceType: ClusterIP
+    port: 9002
+    targetPort: 9002
+    hostIP: "192.168.10.197"
+    # hostname: "keycloak.bank.local"
+    annotations: {}
+
+kafka:
+  enabled: true
+
+  controller:
+    replicaCount: 1
+  broker:
+    replicaCount: 1
+
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/kafka
+    tag: 3.5.1-debian-11-r25
+
+  kraft:
+    enabled: true
+    clusterId: "5Lx7d9n6Qr2Rv5x8Yz3wXA"
+
+  listeners:
+    client:
+      protocol: PLAINTEXT
+      containerPort: 9092
+    controller:
+      protocol: PLAINTEXT
+      containerPort: 9093
+
+  advertisedListeners: "PLAINTEXT://bank-kafka:9092"
+
+  persistence:
+    enabled: true
+    size: 10Gi
+
+  zookeeper:
+    enabled: false
+
+  volumePermissions:
+    enabled: false
+
+keycloak-external:
+  enabled: true
+  externalIP: 10.42.0.1  # IP хоста для Rancher Desktop
+  service:
+    name: bank-keycloak
+    port: 9002
