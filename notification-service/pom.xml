@@ -18,10 +18,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>-->
-        <dependency>
+        <!--<dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
+        </dependency>-->
         <!--<dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
@@ -42,7 +42,7 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-consul-discovery</artifactId>
         </dependency>-->
-        <dependency>
+        <!--<dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-contract-verifier</artifactId>
             <scope>test</scope>
@@ -51,7 +51,7 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-contract-spec</artifactId>
             <scope>test</scope>
-        </dependency>
+        </dependency>-->
         <!--<dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-consul-config</artifactId>
@@ -90,15 +90,20 @@
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-commons</artifactId>
             <version>4.2.1</version>
             <scope>compile</scope>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -128,7 +133,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
             <!-- Spring Cloud Contract Plugin -->
-            <plugin>
+            <!--<plugin>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-contract-maven-plugin</artifactId>
                 <version>${spring-cloud-contract-maven-plugin.version}</version>
@@ -136,8 +141,8 @@
                 <configuration>
                     <baseClassForTests>ru.ugaforever.bank.notification.contract.NotificationContractBaseTest</baseClassForTests>
                     <testFramework>JUNIT5</testFramework>
-                    <!--<stubsOutputDirectory>${project.build.directory}/stubs</stubsOutputDirectory>
-                    <generateStubs>true</generateStubs>-->
+                    &lt;!&ndash;<stubsOutputDirectory>${project.build.directory}/stubs</stubsOutputDirectory>
+                    <generateStubs>true</generateStubs>&ndash;&gt;
                 </configuration>
                 <executions>
                     <execution>
@@ -156,7 +161,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
 
             <!-- Maven Jar Plugin для создания stubs JAR -->
             <!--plugin>

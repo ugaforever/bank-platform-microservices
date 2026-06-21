@@ -1,4 +1,4 @@
-package ru.ugaforever.bank.notification.service;
+package ru.ugaforever.bank.notification.consumer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

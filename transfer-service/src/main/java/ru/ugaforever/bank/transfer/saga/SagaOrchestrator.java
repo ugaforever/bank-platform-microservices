@@ -15,9 +15,9 @@ import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationSource;
 import ru.ugaforever.bank.chassis.dto.transfer.TransferStatus;
 import ru.ugaforever.bank.chassis.exception.ResourceNotFoundException;
-import ru.ugaforever.bank.chassis.kafka.NotificationProducer;
 import ru.ugaforever.bank.transfer.model.Transfer;
 import ru.ugaforever.bank.transfer.model.TransferOutbox;
+import ru.ugaforever.bank.transfer.producer.NotificationProducer;
 import ru.ugaforever.bank.transfer.repository.OutboxRepository;
 import ru.ugaforever.bank.transfer.repository.TransferRepository;
 

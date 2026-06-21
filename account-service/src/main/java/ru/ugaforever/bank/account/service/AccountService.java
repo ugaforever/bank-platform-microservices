@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.ugaforever.bank.account.producer.NotificationProducer;
 import ru.ugaforever.bank.chassis.dto.account.AccountRequestDto;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
@@ -18,7 +19,7 @@ import ru.ugaforever.bank.account.model.Account;
 import ru.ugaforever.bank.account.repository.AccountRepository;
 import ru.ugaforever.bank.chassis.exception.BusinessRuleException;
 import ru.ugaforever.bank.chassis.exception.ValidationException;
-import ru.ugaforever.bank.chassis.kafka.NotificationProducer;
+
 
 import java.math.BigDecimal;
 import java.util.List;
