@@ -1,3 +1,4 @@
+/*
 package ru.ugaforever.bank.chassis.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
@@ -17,3 +18,4 @@ public interface NotificationClient {
     @PostMapping("/notification")
     NotificationResponseDto sendNotification(@RequestBody NotificationRequestDto request);
 }
+*/

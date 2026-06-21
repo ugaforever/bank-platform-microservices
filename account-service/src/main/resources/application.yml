@@ -60,10 +60,6 @@ spring:
           keycloak:
             issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9002/realms/bank-realm}
 
-feign:
-  httpclient:
-    enabled: true
-
 management:
   endpoints:
     web:

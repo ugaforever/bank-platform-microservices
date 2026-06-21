@@ -8,13 +8,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.kafka.annotation.EnableKafka;
 import ru.ugaforever.bank.chassis.advice.GlobalExceptionHandler;
 import ru.ugaforever.bank.chassis.client.AccountClient;
-import ru.ugaforever.bank.chassis.client.NotificationClient;
 import ru.ugaforever.bank.chassis.config.FeignConfig;
 
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients(
-        clients = {AccountClient.class, NotificationClient.class},
+        clients = {AccountClient.class},
         defaultConfiguration = FeignConfig.class
 )
 @Import(GlobalExceptionHandler.class)

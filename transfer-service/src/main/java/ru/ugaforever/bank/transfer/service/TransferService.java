@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.ugaforever.bank.chassis.client.AccountClient;
-import ru.ugaforever.bank.chassis.client.NotificationClient;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.transfer.TransferRequestDto;
 import ru.ugaforever.bank.chassis.dto.transfer.TransferResponseDto;

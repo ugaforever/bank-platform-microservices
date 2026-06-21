@@ -8,7 +8,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.ugaforever.bank.chassis.client.AccountClient;
-import ru.ugaforever.bank.chassis.client.NotificationClient;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.transfer.TransferRequestDto;
 import ru.ugaforever.bank.chassis.dto.transfer.TransferResponseDto;
@@ -18,6 +17,7 @@ import ru.ugaforever.bank.chassis.exception.ValidationException;
 import ru.ugaforever.bank.transfer.mapper.TransferMapper;
 import ru.ugaforever.bank.transfer.model.Transfer;
 import ru.ugaforever.bank.transfer.model.TransferOutbox;
+import ru.ugaforever.bank.transfer.producer.NotificationProducer;
 import ru.ugaforever.bank.transfer.repository.OutboxRepository;
 import ru.ugaforever.bank.transfer.repository.TransferRepository;
 
@@ -32,9 +32,6 @@ class TransferServiceTest {
 
     @Mock
     private AccountClient accountClient;
-
-    @Mock
-    private NotificationClient notificationClient;
 
     @Mock
     private TransferRepository transferRepository;
