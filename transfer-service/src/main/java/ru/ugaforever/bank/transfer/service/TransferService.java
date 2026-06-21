@@ -31,7 +31,6 @@ public class TransferService {
     private static final Logger log = LoggerFactory.getLogger(TransferService.class);
 
     private final AccountClient accountClient;
-    private final NotificationClient notificationClient;
     private final TransferRepository transferRepository;
     private final OutboxRepository outboxRepository;
     private final TransferMapper mapper;

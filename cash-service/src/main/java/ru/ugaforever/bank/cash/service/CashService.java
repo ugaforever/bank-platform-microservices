@@ -21,6 +21,7 @@ import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationSource;
 import ru.ugaforever.bank.chassis.exception.BusinessRuleException;
 import ru.ugaforever.bank.chassis.exception.ValidationException;
+import ru.ugaforever.bank.chassis.kafka.NotificationProducerService;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -34,7 +35,7 @@ public class CashService {
     private static final Logger log = LoggerFactory.getLogger(CashService.class);
 
     private final AccountClient accountClient;
-    private final NotificationClient notificationClient;
+    private final NotificationProducerService notificationProducerService;
     private final CashRepository repository;
     private final CashMapper mapper;
 
@@ -89,7 +90,7 @@ public class CashService {
                         request.getAmount(),
                         account.getBalance().add(request.getAmount())))
                 .build();
-        notificationClient.sendNotification(notificationRequestDto);
+        notificationProducerService.sendNotification(notificationRequestDto);
         log.info("Notification sent: login={}, type=DEPOSIT", account.getLogin());
 
         log.info("Deposit completed: login={}, amount={}, newBalance={}",
@@ -157,7 +158,7 @@ public class CashService {
                         request.getAmount(),
                         account.getBalance().subtract(request.getAmount())))
                 .build();
-        notificationClient.sendNotification(notificationRequestDto);
+        notificationProducerService.sendNotification(notificationRequestDto);
         log.info("Notification sent: login={}, type=WITHDRAWAL", account.getLogin());
 
         log.info("Withdraw completed: login={}, amount={}, newBalance={}",

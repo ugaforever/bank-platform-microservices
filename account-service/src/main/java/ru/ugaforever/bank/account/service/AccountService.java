@@ -19,6 +19,7 @@ import ru.ugaforever.bank.account.model.Account;
 import ru.ugaforever.bank.account.repository.AccountRepository;
 import ru.ugaforever.bank.chassis.exception.BusinessRuleException;
 import ru.ugaforever.bank.chassis.exception.ValidationException;
+import ru.ugaforever.bank.chassis.kafka.NotificationProducerService;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -31,7 +32,7 @@ public class AccountService {
 
     private static final Logger log = LoggerFactory.getLogger(AccountService.class);
 
-    private final NotificationClient notificationClient;
+    private final NotificationProducerService notificationProducerService;
     private final AccountRepository repository;
     private final AccountMapper mapper;
 
@@ -43,7 +44,7 @@ public class AccountService {
                 .source(NotificationSource.ACCOUNT_SERVICE)
                 .message(String.format("Created new account: login=%s", saved.getLogin()))
                 .build();
-        notificationClient.sendNotification(notificationRequestDto);
+        notificationProducerService.sendNotification(notificationRequestDto);
 
         return mapper.toDto(saved);
     }
@@ -95,7 +96,7 @@ public class AccountService {
                 .source(NotificationSource.ACCOUNT_SERVICE)
                 .message(String.format("Account updated: login=%s", saved.getLogin()))
                 .build();
-        notificationClient.sendNotification(notificationRequestDto);
+        notificationProducerService.sendNotification(notificationRequestDto);
         log.info("Notification sent: login={}, type=UPDATE", account.getLogin());
 
         log.info("Update completed: login={}, fields={}", login, updateDto);
