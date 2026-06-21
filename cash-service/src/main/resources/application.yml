@@ -13,6 +13,12 @@ spring:
   application:
     name: cash-service
 
+  kafka:
+    producer:
+      bootstrap-servers: bank-kafka:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
 #  config:
 #    import: "optional:consul:${CONSUL_HOST:localhost}:${CONSUL_PORT:8500}"
 

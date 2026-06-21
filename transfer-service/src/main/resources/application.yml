@@ -65,6 +65,9 @@ spring:
 
   kafka:
     bootstrap-servers: bank-kafka:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
     consumer:
       group-id: transfer-saga-orchestrator
       auto-offset-reset: earliest
