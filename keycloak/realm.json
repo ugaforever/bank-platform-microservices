@@ -47,15 +47,6 @@
   "roles": {
     "realm": [
       {
-        "id": "eaaa7899-3743-4516-8792-8031401a9d41",
-        "name": "NOTIFICATION_WRITE",
-        "description": "разрешает отправлять уведомления в notification-service",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "5ef712fd-c39c-4b5b-8c18-703fc32c31c2",
-        "attributes": {}
-      },
-      {
         "id": "c24f27fe-1a7b-410e-aaa0-503dbdbea83b",
         "name": "ACCOUNT_READ",
         "description": "разрешает только чтение из account-service",
@@ -579,7 +570,6 @@
       "disableableCredentialTypes": [],
       "requiredActions": [],
       "realmRoles": [
-        "NOTIFICATION_WRITE",
         "default-roles-bank-realm",
         "SERVICE"
       ],
@@ -602,7 +592,6 @@
       "disableableCredentialTypes": [],
       "requiredActions": [],
       "realmRoles": [
-        "NOTIFICATION_WRITE",
         "default-roles-bank-realm",
         "ACCOUNT_WRITE",
         "SERVICE"
@@ -626,7 +615,6 @@
       "disableableCredentialTypes": [],
       "requiredActions": [],
       "realmRoles": [
-        "NOTIFICATION_WRITE",
         "default-roles-bank-realm",
         "SERVICE"
       ],
@@ -649,7 +637,6 @@
       "disableableCredentialTypes": [],
       "requiredActions": [],
       "realmRoles": [
-        "NOTIFICATION_WRITE",
         "default-roles-bank-realm",
         "ACCOUNT_WRITE",
         "SERVICE"
