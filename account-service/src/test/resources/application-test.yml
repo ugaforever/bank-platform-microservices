@@ -1,25 +1,28 @@
 spring:
-  cloud:
-    bootstrap:
-      enabled: false
-    consul:
-      enabled: false
-      config:
-        enabled: false
-      discovery:
-        enabled: false
-        discovery:
-          enabled: false
-    openfeign:
-      enabled: false
-    loadbalancer:
-      enabled: false
   autoconfigure:
     exclude:
       - org.springframework.cloud.openfeign.FeignAutoConfiguration
       - org.springframework.cloud.consul.ConsulAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
       - org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
       - org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: notification-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-serializer: org.apache.kafka.common.serialization.StringDeserializer
+
+  security:
+    enabled: false
 
   datasource:
     url: jdbc:h2:mem:testdb
@@ -32,14 +35,6 @@ spring:
       ddl-auto: create-drop
     show-sql: false
 
-feign:
-  hystrix:
+management:
+  security:
     enabled: false
-
-account:
-  service:
-    url: http://localhost:9005
-
-notification:
-  service:
-    url: http://localhost:9006
