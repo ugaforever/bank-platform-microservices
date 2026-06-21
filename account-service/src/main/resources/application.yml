@@ -10,8 +10,8 @@ spring:
     name: account-service
 
   kafka:
+    bootstrap-servers: bank-kafka:9092
     producer:
-      bootstrap-servers: bank-kafka:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
 

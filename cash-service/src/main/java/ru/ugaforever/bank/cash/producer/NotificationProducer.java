@@ -1,4 +1,4 @@
-package ru.ugaforever.bank.chassis.kafka;
+package ru.ugaforever.bank.cash.producer;
 
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
