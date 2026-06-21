@@ -5,9 +5,11 @@
 1. Добавить в проект распределённую платформу Apache Kafka.
 2. Реализовать отправку уведомлений в сервис Notifications через Apache Kafka.
 
+## Обновленная схема с Kafka
+![Architecture Diagram](images/arch2.png)
 
 
-
+## Запуск
 1. Jenkins
 ```bash
    java -Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true -jar jenkins.war
