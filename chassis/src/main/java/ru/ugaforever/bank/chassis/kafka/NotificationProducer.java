@@ -4,15 +4,15 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
 
-@Service
-public class NotificationProducerService {
+@Component
+public class NotificationProducer {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public NotificationProducerService(KafkaTemplate<String, String> kafkaTemplate) {
+    public NotificationProducer(KafkaTemplate<String, String> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 

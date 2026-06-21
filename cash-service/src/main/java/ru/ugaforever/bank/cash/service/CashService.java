@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.ugaforever.bank.cash.interceptor.IdempotencyInterceptor;
 import ru.ugaforever.bank.cash.model.Cash;
 import ru.ugaforever.bank.chassis.client.AccountClient;
-import ru.ugaforever.bank.chassis.client.NotificationClient;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.cash.CashAction;
 import ru.ugaforever.bank.chassis.dto.cash.CashResponseDto;
@@ -21,7 +20,7 @@ import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationSource;
 import ru.ugaforever.bank.chassis.exception.BusinessRuleException;
 import ru.ugaforever.bank.chassis.exception.ValidationException;
-import ru.ugaforever.bank.chassis.kafka.NotificationProducerService;
+import ru.ugaforever.bank.chassis.kafka.NotificationProducer;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -35,7 +34,7 @@ public class CashService {
     private static final Logger log = LoggerFactory.getLogger(CashService.class);
 
     private final AccountClient accountClient;
-    private final NotificationProducerService notificationProducerService;
+    private final NotificationProducer notificationProducer;
     private final CashRepository repository;
     private final CashMapper mapper;
 
@@ -90,7 +89,7 @@ public class CashService {
                         request.getAmount(),
                         account.getBalance().add(request.getAmount())))
                 .build();
-        notificationProducerService.sendNotification(notificationRequestDto);
+        notificationProducer.sendNotification(notificationRequestDto);
         log.info("Notification sent: login={}, type=DEPOSIT", account.getLogin());
 
         log.info("Deposit completed: login={}, amount={}, newBalance={}",
@@ -158,7 +157,7 @@ public class CashService {
                         request.getAmount(),
                         account.getBalance().subtract(request.getAmount())))
                 .build();
-        notificationProducerService.sendNotification(notificationRequestDto);
+        notificationProducer.sendNotification(notificationRequestDto);
         log.info("Notification sent: login={}, type=WITHDRAWAL", account.getLogin());
 
         log.info("Withdraw completed: login={}, amount={}, newBalance={}",

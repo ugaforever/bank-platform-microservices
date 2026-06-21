@@ -5,24 +5,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
-import ru.ugaforever.bank.chassis.dto.notification.NotificationResponseDto;
 import ru.ugaforever.bank.notification.mapper.NotificationMapper;
 import ru.ugaforever.bank.notification.model.Notification;
 import ru.ugaforever.bank.notification.repository.NotificationRepository;
 
-@Service
+@Component
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class NotificationService {
+public class NotificationConsumer {
 
     private final NotificationRepository repository;
-    private final NotificationMapper mapper;
 
-    public NotificationResponseDto notification(NotificationRequestDto request) {
+    @KafkaListener(topics = "bank.notification")
+    public void listen(NotificationRequestDto request){
         log.info("Notification: source={}, message={}", request.getSource(), request.getMessage());
 
         Notification notification = Notification.builder()
@@ -32,9 +31,5 @@ public class NotificationService {
         repository.save(notification);
 
         log.info("Notification completed: source={}, message={}", request.getSource(), request.getMessage());
-
-        return mapper.toDto(notification);
-
     }
-
 }

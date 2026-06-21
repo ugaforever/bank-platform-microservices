@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.ugaforever.bank.chassis.client.NotificationClient;
 import ru.ugaforever.bank.chassis.dto.account.AccountRequestDto;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
@@ -19,7 +18,7 @@ import ru.ugaforever.bank.account.model.Account;
 import ru.ugaforever.bank.account.repository.AccountRepository;
 import ru.ugaforever.bank.chassis.exception.BusinessRuleException;
 import ru.ugaforever.bank.chassis.exception.ValidationException;
-import ru.ugaforever.bank.chassis.kafka.NotificationProducerService;
+import ru.ugaforever.bank.chassis.kafka.NotificationProducer;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -32,7 +31,7 @@ public class AccountService {
 
     private static final Logger log = LoggerFactory.getLogger(AccountService.class);
 
-    private final NotificationProducerService notificationProducerService;
+    private final NotificationProducer notificationProducer;
     private final AccountRepository repository;
     private final AccountMapper mapper;
 
@@ -44,7 +43,7 @@ public class AccountService {
                 .source(NotificationSource.ACCOUNT_SERVICE)
                 .message(String.format("Created new account: login=%s", saved.getLogin()))
                 .build();
-        notificationProducerService.sendNotification(notificationRequestDto);
+        notificationProducer.sendNotification(notificationRequestDto);
 
         return mapper.toDto(saved);
     }
@@ -96,7 +95,7 @@ public class AccountService {
                 .source(NotificationSource.ACCOUNT_SERVICE)
                 .message(String.format("Account updated: login=%s", saved.getLogin()))
                 .build();
-        notificationProducerService.sendNotification(notificationRequestDto);
+        notificationProducer.sendNotification(notificationRequestDto);
         log.info("Notification sent: login={}, type=UPDATE", account.getLogin());
 
         log.info("Update completed: login={}, fields={}", login, updateDto);

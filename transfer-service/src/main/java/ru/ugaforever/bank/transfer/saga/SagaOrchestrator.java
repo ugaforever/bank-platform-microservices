@@ -9,14 +9,13 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.ugaforever.bank.chassis.client.AccountClient;
-import ru.ugaforever.bank.chassis.client.NotificationClient;
 import ru.ugaforever.bank.chassis.dto.cash.DepositRequestDto;
 import ru.ugaforever.bank.chassis.dto.cash.WithdrawRequestDto;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationSource;
 import ru.ugaforever.bank.chassis.dto.transfer.TransferStatus;
 import ru.ugaforever.bank.chassis.exception.ResourceNotFoundException;
-import ru.ugaforever.bank.chassis.kafka.NotificationProducerService;
+import ru.ugaforever.bank.chassis.kafka.NotificationProducer;
 import ru.ugaforever.bank.transfer.model.Transfer;
 import ru.ugaforever.bank.transfer.model.TransferOutbox;
 import ru.ugaforever.bank.transfer.repository.OutboxRepository;
@@ -33,7 +32,7 @@ public class SagaOrchestrator {
     private final TransferRepository transferRepository;
     private final OutboxRepository outboxRepository;
     private final AccountClient accountClient;
-    private final NotificationProducerService notificationProducerService;
+    private final NotificationProducer notificationProducer;
     private final ObjectMapper objectMapper;
 
     @KafkaListener(topics = "transfer.public.transfer_outbox", groupId = "transfer-saga-orchestrator")
@@ -218,7 +217,7 @@ public class SagaOrchestrator {
                     .message(String.format("Transfer completed: from=%s, to=%s, amount=%.2f",
                             transfer.getFromLogin(), transfer.getToLogin(), transfer.getAmount()))
                     .build();
-            notificationProducerService.sendNotification(notification);
+            notificationProducer.sendNotification(notification);
             log.info("Notification sent for transferId={}", transfer.getId());
         } catch (Exception e) {
             log.error("Failed to send notification for transferId={}", transfer.getId(), e);
@@ -233,7 +232,7 @@ public class SagaOrchestrator {
                     .message(String.format("Transfer FAILED: from=%s, to=%s, amount=%.2f. Compensated.",
                             transfer.getFromLogin(), transfer.getToLogin(), transfer.getAmount()))
                     .build();
-            notificationProducerService.sendNotification(notification);
+            notificationProducer.sendNotification(notification);
         } catch (Exception e) {
             log.error("Failed to send error notification", e);
         }
