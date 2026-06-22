@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.ugaforever.bank.account.config.TestKafkaConfig;
@@ -31,13 +32,13 @@ import static org.mockito.Mockito.when;
         topics = {"bank.notification", "bank.notification.dlt"},
         partitions = 1,
         brokerProperties = {
-                "listeners=PLAINTEXT://localhost:9092",
-                "auto.create.topics.enable=true",
-                "log.dir=/tmp/embedded-kafka"
+                "listeners=PLAINTEXT://localhost:0",
+                "auto.create.topics.enable=true"
         }
 )
 @ActiveProfiles("test")
 @Import(TestKafkaConfig.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NotificationProducerIntegrationTest {
 
         @Autowired
