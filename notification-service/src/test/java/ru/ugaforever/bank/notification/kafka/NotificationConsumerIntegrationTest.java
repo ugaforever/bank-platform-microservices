@@ -10,6 +10,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationSource;
@@ -30,9 +31,8 @@ import static org.mockito.Mockito.*;
         topics = {"bank.notification", "bank.notification.dlt"},
         partitions = 1,
         brokerProperties = {
-                "listeners=PLAINTEXT://localhost:9092",
-                "auto.create.topics.enable=true",
-                "log.dir=/tmp/embedded-kafka"
+                "listeners=PLAINTEXT://localhost:0",
+                "auto.create.topics.enable=true"
         }
 )
 @Import(TestKafkaConfig.class)
