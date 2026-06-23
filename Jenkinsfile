@@ -127,6 +127,8 @@ pipeline {
                         --namespace test --create-namespace \\
                         --set kafka.enabled=true \\
                         \\
+                        --set debezium-operator.enabled=true \\
+                        \\
                         --set account-db.enabled=true \\
                         --set account-db.auth.database=accounts \\
                         --set account-db.auth.username=account_user \\

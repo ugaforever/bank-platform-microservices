@@ -129,6 +129,14 @@ transfer-db:
     persistence:
       enabled: true
       size: 1Gi
+    configuration: |
+      wal_level = logical
+      listen_addresses = '*'
+      port = 5432
+  initdbScripts:
+   create-replication-user.sql: |
+      CREATE USER debezium WITH REPLICATION LOGIN PASSWORD 'debezium';
+      GRANT SELECT ON ALL TABLES IN SCHEMA public TO debezium;
 
 notification-db:
   enabled: true
@@ -195,3 +203,57 @@ keycloak-external:
   service:
     name: bank-keycloak
     port: 9002
+
+debezium-operator:
+  enabled: true
+
+  server:
+    enabled: true
+
+  replicaCount: 1
+
+  image:
+    repository: quay.io/debezium/operator
+    tag: "3.2.0.Final"
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 8080
+
+  config:
+    BOOTSTRAP_SERVERS: "bank-kafka:9092"
+    GROUP_ID: "1"
+    CONFIG_STORAGE_TOPIC: "connect_configs"
+    OFFSET_STORAGE_TOPIC: "connect_offsets"
+    STATUS_STORAGE_TOPIC: "connect_statuses"
+    KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+    VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+    KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+    VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+  connectors:
+    transfer-outbox:
+      enabled: true
+      name: "transfer-outbox-connector"
+      config:
+        connector.class: "io.debezium.connector.postgresql.PostgresConnector"
+        database.hostname: "bank-transfer-db"
+        database.port: "5432"
+        database.user: "postgres"
+        database.password: "postgres"
+        database.dbname: "transfers"
+        topic.prefix: "transfer"
+        table.include.list: "public.transfer_outbox"
+        plugin.name: "pgoutput"
+        publication.name: "dbz_publication"
+        slot.name: "outbox_slot"
+  resources:
+    limits:
+      memory: 1Gi
+      cpu: 500m
+    requests:
+      memory: 512Mi
+      cpu: 250m
+  persistence:
+    enabled: true
+    size: 1Gi

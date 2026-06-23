@@ -44,6 +44,7 @@ helm lint .
 helm upgrade --install bank helm/ \
   --namespace test --create-namespace \
   --set kafka.enabled=true \
+  --set debezium-operator.enabled=true \
   --set account-db.enabled=true \
   --set cash-db.enabled=true \
   --set transfer-db.enabled=true \
