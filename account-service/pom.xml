@@ -112,6 +112,7 @@
             <artifactId>spring-kafka-test</artifactId>
             <scope>test</scope>
         </dependency>
+<!--        ранее удалены зависимости от notification-service с classifier stubs (в ветке 11 спринта контрактные тесты удалены)-->
     </dependencies>
 
     <build>
