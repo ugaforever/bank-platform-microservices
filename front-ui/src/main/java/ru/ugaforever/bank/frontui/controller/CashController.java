@@ -44,7 +44,7 @@ public class CashController {
         String login = (String) oAuth2User.getAttributes().get("preferred_username");
         log.info("Cash operation: login={}, action={}, value={}", login, action, value);
 
-        CashResponseDto cash = switch (action) {
+        switch (action) {
             case WITHDRAW -> cashService.withdraw(login, value);
             case DEPOSIT -> cashService.deposit(login, value);
         };
