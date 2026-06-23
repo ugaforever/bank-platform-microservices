@@ -171,7 +171,7 @@ keycloak:
     serviceType: ClusterIP
     port: 9002
     targetPort: 9002
-    hostIP: "192.168.10.197"
+#    hostIP: "192.168.10.197"
     # hostname: "keycloak.bank.local"
     annotations: {}
 
@@ -214,7 +214,7 @@ kafka:
 
 keycloak-external:
   enabled: true
-  externalIP: 10.42.0.1  # IP хоста для Rancher Desktop
+#  externalIP: 10.42.0.1  # IP хоста для Rancher Desktop
   service:
     name: bank-keycloak
     port: 9002

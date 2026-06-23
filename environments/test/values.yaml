@@ -1,0 +1,6 @@
+keycloak-external:
+  externalIP: 10.42.0.1
+
+keycloak:
+  external:
+    hostIP: "192.168.10.197"

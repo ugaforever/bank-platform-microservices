@@ -4,4 +4,4 @@ service:
   targetPort: 9002
 
 # Внешний IP Keycloak (у меня так)
-externalIP: 10.42.0.1
+#externalIP: 10.42.0.1
