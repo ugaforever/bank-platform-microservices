@@ -4,6 +4,9 @@ global:
   keycloak:
     issuerUri: "http://bank-keycloak:9002/realms/bank-realm"
 
+  kafka:
+     bootstrapServers: "bank-kafka:9092"
+
 account-service:
   replicaCount: 1
   image:
@@ -27,6 +30,9 @@ account-service:
     database_username: "account_user"
     database_password_secret: "bank-account-db-secret"
     database_password_secret_key: "password"
+  env:
+    - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+      value: "{{ .Values.global.kafka.bootstrapServers }}"
 
 cash-service:
   replicaCount: 1
@@ -50,6 +56,9 @@ cash-service:
     database_username: "cash_user"
     database_password_secret: "bank-cash-db-secret"
     database_password_secret_key: "password"
+  env:
+    - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+      value: "{{ .Values.global.kafka.bootstrapServers }}"
 
 transfer-service:
   replicaCount: 1
@@ -73,6 +82,9 @@ transfer-service:
     database_username: "transfer_user"
     database_password_secret: "bank-transfer-db-secret"
     database_password_secret_key: "password"
+  env:
+    - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+      value: "{{ .Values.global.kafka.bootstrapServers }}"
 
 notification-service:
   replicaCount: 1
@@ -96,6 +108,9 @@ notification-service:
     database_username: "notification_user"
     database_password_secret: "bank-notification-db-secret"
     database_password_secret_key: "password"
+  env:
+    - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+      value: "{{ .Values.global.kafka.bootstrapServers }}"
 
 account-db:
   enabled: true
