@@ -1,10 +1,14 @@
 package ru.ugaforever.bank.chassis.dto.transfer;
 
 public enum TransferStatus {
-    PENDING,
+    TRANSFER_PENDING,
+    TRANSFER_COMPLETED,
+    TRANSFER_COMPENSATED,
+    TRANSFER_FAILED,
+    WITHDRAW_PENDING,
     WITHDRAW_COMPLETED,
+    WITHDRAW_FAILED,
+    DEPOSIT_PENDING,
     DEPOSIT_COMPLETED,
-    COMPLETED,
-    FAILED,
-    COMPENSATED
+    DEPOSIT_FAILED
 }

@@ -69,7 +69,7 @@ public class TransferControllerTest {
                 .fromLogin(FROM_LOGIN)
                 .toLogin(TO_LOGIN)
                 .amount(AMOUNT)
-                .status(TransferStatus.PENDING)
+                .status(TransferStatus.TRANSFER_PENDING)
                 .build();
     }
 
@@ -86,7 +86,7 @@ public class TransferControllerTest {
                 .andExpect(jsonPath("$.fromLogin").value(FROM_LOGIN))
                 .andExpect(jsonPath("$.toLogin").value(TO_LOGIN))
                 .andExpect(jsonPath("$.amount").value(AMOUNT.doubleValue()))
-                .andExpect(jsonPath("$.status").value("PENDING"));
+                .andExpect(jsonPath("$.status").value(TransferStatus.TRANSFER_PENDING.name()));
     }
 
     @Test
@@ -188,7 +188,7 @@ public class TransferControllerTest {
                 .fromLogin(FROM_LOGIN)
                 .toLogin(TO_LOGIN)
                 .amount(new BigDecimal("0.01"))
-                .status(TransferStatus.PENDING)
+                .status(TransferStatus.TRANSFER_PENDING)
                 .build();
 
         when(transferService.submit(any(TransferRequestDto.class))).thenReturn(minAmountResponse);
@@ -215,7 +215,7 @@ public class TransferControllerTest {
                 .fromLogin(FROM_LOGIN)
                 .toLogin(TO_LOGIN)
                 .amount(largeAmount)
-                .status(TransferStatus.PENDING)
+                .status(TransferStatus.TRANSFER_PENDING)
                 .build();
 
         when(transferService.submit(any(TransferRequestDto.class))).thenReturn(largeAmountResponse);

@@ -68,7 +68,7 @@ class TransferServiceTest {
                 .fromLogin("user1")
                 .toLogin("user2")
                 .amount(new BigDecimal("100.50"))
-                .status(TransferStatus.PENDING)
+                .status(TransferStatus.TRANSFER_PENDING)
                 .sagaStep(0)
                 .build();
 
@@ -77,7 +77,7 @@ class TransferServiceTest {
                 .fromLogin("user1")
                 .toLogin("user2")
                 .amount(new BigDecimal("100.50"))
-                .status(TransferStatus.PENDING)
+                .status(TransferStatus.TRANSFER_PENDING)
                 .build();
     }
 
@@ -95,7 +95,7 @@ class TransferServiceTest {
         // Assert
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1L);
-        assertThat(result.getStatus()).isEqualTo(TransferStatus.PENDING);
+        assertThat(result.getStatus()).isEqualTo(TransferStatus.TRANSFER_PENDING);
 
         ArgumentCaptor<Transfer> transferCaptor = ArgumentCaptor.forClass(Transfer.class);
         verify(transferRepository).save(transferCaptor.capture());
@@ -103,7 +103,7 @@ class TransferServiceTest {
         assertThat(capturedTransfer.getFromLogin()).isEqualTo("user1");
         assertThat(capturedTransfer.getToLogin()).isEqualTo("user2");
         assertThat(capturedTransfer.getAmount()).isEqualTo(new BigDecimal("100.50"));
-        assertThat(capturedTransfer.getStatus()).isEqualTo(TransferStatus.PENDING);
+        assertThat(capturedTransfer.getStatus()).isEqualTo(TransferStatus.TRANSFER_PENDING);
         assertThat(capturedTransfer.getSagaStep()).isEqualTo(0);
 
         ArgumentCaptor<TransferOutbox> outboxCaptor = ArgumentCaptor.forClass(TransferOutbox.class);

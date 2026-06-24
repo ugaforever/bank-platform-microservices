@@ -93,6 +93,19 @@ public class SagaOrchestrator {
         log.info("Processing WITHDRAW for transferId={}, fromLogin={}, amount={}",
                 transferId, fromLogin, amount);
 
+        if (transfer.getStatus() == TransferStatus.WITHDRAW_COMPLETED) {
+            log.info("WITHDRAW already completed for transferId={}, skipping", transferId);
+            return;
+        }
+
+        if (transfer.getStatus() == TransferStatus.WITHDRAW_PENDING) {
+            log.warn("WITHDRAW already in progress for transferId={}, checking status...", transferId);
+            return;
+        }
+
+        transfer.setStatus(TransferStatus.WITHDRAW_PENDING);
+        transferRepository.save(transfer);
+
         try {
             WithdrawRequestDto withdrawDto = WithdrawRequestDto.builder()
                     .login(fromLogin)
@@ -110,7 +123,7 @@ public class SagaOrchestrator {
         } catch (Exception e) {
             //отмена перевода на этапе списания. нечего откатывать
             log.error("Withdraw failed for transferId={}", transferId, e);
-            transfer.setStatus(TransferStatus.FAILED);
+            transfer.setStatus(TransferStatus.WITHDRAW_FAILED);
             transferRepository.save(transfer);
         }
     }
@@ -122,6 +135,19 @@ public class SagaOrchestrator {
 
         log.info("Processing DEPOSIT for transferId={}, toLogin={}, amount={}",
                 transferId, toLogin, amount);
+
+        if (transfer.getStatus() == TransferStatus.DEPOSIT_COMPLETED) {
+            log.info("DEPOSIT already completed for transferId={}, skipping", transferId);
+            return;
+        }
+
+        if (transfer.getStatus() == TransferStatus.DEPOSIT_PENDING) {
+            log.warn("DEPOSIT already in progress for transferId={}, checking status...", transferId);
+            return;
+        }
+
+        transfer.setStatus(TransferStatus.DEPOSIT_PENDING);
+        transferRepository.save(transfer);
 
         try {
             DepositRequestDto depositDto = DepositRequestDto.builder()
@@ -139,7 +165,7 @@ public class SagaOrchestrator {
 
         } catch (Exception e) {
             log.error("Deposit failed for transferId={}, starting compensation", transferId, e);
-            transfer.setStatus(TransferStatus.FAILED);
+            transfer.setStatus(TransferStatus.DEPOSIT_FAILED);
             transferRepository.save(transfer);
 
             // Публикуем компенсацию
@@ -151,7 +177,7 @@ public class SagaOrchestrator {
         Long transferId = transfer.getId();
 
         try {
-            transfer.setStatus(TransferStatus.COMPLETED);
+            transfer.setStatus(TransferStatus.TRANSFER_COMPLETED);
             transfer.setSagaStep(3);
             transferRepository.save(transfer);
             log.info("Transfer COMPLETED successfully: transferId={}", transferId);
@@ -171,6 +197,11 @@ public class SagaOrchestrator {
         log.warn("Processing COMPENSATION for transferId={}, returning money to={}, amount={}",
                 transferId, fromLogin, amount);
 
+        if (transfer.getStatus() == TransferStatus.TRANSFER_COMPENSATED) {
+            log.info("TRANSFER already compensated for transferId={}, skipping", transferId);
+            return;
+        }
+
         try {
             // возвращаем деньги отправителю
             DepositRequestDto compensationDto = DepositRequestDto.builder()
@@ -179,7 +210,7 @@ public class SagaOrchestrator {
                     .build();
             accountClient.deposit(fromLogin, compensationDto);
 
-            transfer.setStatus(TransferStatus.COMPENSATED);
+            transfer.setStatus(TransferStatus.TRANSFER_COMPENSATED);
             transfer.setSagaStep(0);
             transferRepository.save(transfer);
             log.info("Compensation completed for transferId={}", transferId);
@@ -189,10 +220,9 @@ public class SagaOrchestrator {
 
         } catch (Exception e) {
             log.error("Compensation FAILED for transferId={}, NEED MANUAL INTERVENTION!", transferId, e);
-            transfer.setStatus(TransferStatus.FAILED);
+            transfer.setStatus(TransferStatus.TRANSFER_FAILED);
             transferRepository.save(transfer);
-
-            // нужна дополнительная обработка - ALARM
+            //сохранять в БД в таблицу ошибок компансаций transfer TODO:
         }
     }
 

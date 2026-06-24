@@ -59,7 +59,7 @@ public class TransferService {
                         .fromLogin(request.getFromLogin())
                         .toLogin(request.getToLogin())
                         .amount(request.getAmount())
-                        .status(TransferStatus.PENDING)
+                        .status(TransferStatus.TRANSFER_PENDING)
                         .sagaStep(0)
                         .build()
         );
