@@ -7,7 +7,7 @@ metadata:
   annotations:
     "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-weight": "5"
-    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
 spec:
   ttlSecondsAfterFinished: 300
   template:
@@ -32,8 +32,8 @@ spec:
                             
               create_topic() {
                 TOPIC=$1
-                PARTITIONS=$2
-                REPLICATION=$3
+                PARTITIONS=${2:-1}
+                REPLICATION=${3:-1}
 
                 if kafka-topics.sh --bootstrap-server $KAFKA_BOOTSTRAP --list | grep -q "^$TOPIC$"; then
                   echo "Topic $TOPIC already exists"
@@ -47,10 +47,10 @@ spec:
                 fi
               }
               
-              create_topic "bank.notification" "1"
-              create_topic "bank.notification.dlt" "1"
-              create_topic "bank.transfer" "1"
-              create_topic "bank.transfer.dlt" "1"
+              create_topic "bank.notification" "1" "1"
+              create_topic "bank.notification.dlt" "1" "1"
+              create_topic "bank.transfer" "1" "1"
+              create_topic "bank.transfer.dlt" "1" "1"
               
               echo "All topics created successfully!"
               echo "Current topics:"
