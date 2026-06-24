@@ -36,7 +36,7 @@ public class SagaOrchestrator {
     private final NotificationProducer notificationProducer;
     private final ObjectMapper objectMapper;
 
-    @KafkaListener(topics = "transfer.public.transfer_outbox", groupId = "transfer-saga-orchestrator")
+    @KafkaListener(topics = "bank.transfer", groupId = "transfer-saga-orchestrator")
     public void handleOutboxEvent(String message, Acknowledgment ack) {
         log.info("Received outbox event: {}", message);
 

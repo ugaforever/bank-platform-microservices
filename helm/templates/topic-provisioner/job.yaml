@@ -1,0 +1,72 @@
+  {{- if .Values.kafka.topics.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-kafka-topics
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  ttlSecondsAfterFinished: 300
+  template:
+    metadata:
+      name: {{ .Release.Name }}-kafka-topics
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: topic-provisioner
+          image: docker.io/bitnamilegacy/kafka:3.5.1-debian-11-r25
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              
+              KAFKA_BOOTSTRAP="${SPRING_KAFKA_BOOTSTRAP_SERVERS:-bank-kafka:9092}"
+              
+              until kafka-topics.sh --bootstrap-server $KAFKA_BOOTSTRAP --list > /dev/null 2>&1; do
+                sleep 5
+              done
+                            
+              create_topic() {
+                TOPIC=$1
+                PARTITIONS=$2
+                REPLICATION=$3
+
+                if kafka-topics.sh --bootstrap-server $KAFKA_BOOTSTRAP --list | grep -q "^$TOPIC$"; then
+                  echo "Topic $TOPIC already exists"
+                else
+                  echo "Creating topic: $TOPIC"
+                  kafka-topics.sh --bootstrap-server $KAFKA_BOOTSTRAP \
+                    --create --topic "$TOPIC" \
+                    --partitions "$PARTITIONS" \
+                    --replication-factor "$REPLICATION"
+                  echo "Topic $TOPIC created"
+                fi
+              }
+              
+              create_topic "bank.notification" "1"
+              create_topic "bank.notification.dlt" "1"
+              create_topic "bank.transfer" "1"
+              create_topic "bank.transfer.dlt" "1"
+              
+              echo "All topics created successfully!"
+              echo "Current topics:"
+              kafka-topics.sh --bootstrap-server $KAFKA_BOOTSTRAP --list
+          volumeMounts:
+            - name: topics-config
+              mountPath: /config
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: 500m
+            requests:
+              memory: 256Mi
+              cpu: 250m
+      volumes:
+        - name: topics-config
+          configMap:
+            name: {{ .Release.Name }}-kafka-topics-config
+  {{- end }}

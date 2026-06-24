@@ -177,6 +177,25 @@ keycloak:
 
 kafka:
   enabled: true
+  topics:
+    enabled: true
+    list:
+      - name: bank.notification
+        partitions: 1
+        replicationFactor: 1
+        config: "cleanup.policy=compact,retention.ms=604800000"
+      - name: bank.notification.dlt
+        partitions: 1
+        replicationFactor: 1
+        config: "cleanup.policy=compact"
+      - name: bank.transfer
+        partitions: 1
+        replicationFactor: 1
+        config: "cleanup.policy=compact"
+      - name: bank.transfer.dlt
+        partitions: 1
+        replicationFactor: 1
+        config: "cleanup.policy=compact"
 
   controller:
     replicaCount: 1
@@ -258,7 +277,7 @@ debezium-operator:
         database.password: "postgres"
         database.dbname: "transfers"
         topic.prefix: "transfer"
-        table.include.list: "public.transfer_outbox"
+        table.include.list: "bank.transfer"
         plugin.name: "pgoutput"
         publication.name: "dbz_publication"
         slot.name: "outbox_slot"
