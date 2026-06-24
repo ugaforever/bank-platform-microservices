@@ -66,7 +66,7 @@ public class CashService {
 
         AccountResponseDto account = accountClient.deposit(request.getLogin(), request);
         log.debug("Balance updated: login={}, newBalance={}",
-                account.getLogin(), account.getBalance().add(request.getAmount()));
+                account.getLogin(), account.getBalance());
 
         Cash.CashBuilder builder = Cash.builder()
                 .login(request.getLogin())
