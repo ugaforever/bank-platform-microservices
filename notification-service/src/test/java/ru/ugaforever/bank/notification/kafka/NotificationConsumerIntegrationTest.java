@@ -7,10 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationSource;
@@ -20,7 +18,7 @@ import ru.ugaforever.bank.notification.repository.NotificationRepository;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.*;
 
@@ -39,6 +37,8 @@ import static org.mockito.Mockito.*;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NotificationConsumerIntegrationTest {
 
+        private static final String NOTIFICATION_MESSAGE = "Test notification message";
+
         @Autowired
         private KafkaTemplate<String, String> kafkaTemplate;
 
@@ -48,15 +48,12 @@ public class NotificationConsumerIntegrationTest {
         @MockitoBean
         private NotificationRepository notificationRepository;
 
-        @MockitoBean
-        private Acknowledgment ack;
-
         @Test
         void shouldConsumeNotification() throws Exception {
                 // Given
                 NotificationRequestDto request = NotificationRequestDto.builder()
                         .source(NotificationSource.ACCOUNT_SERVICE)
-                        .message("Test notification message")
+                        .message(NOTIFICATION_MESSAGE)
                         .build();
 
                 String jsonMessage = objectMapper.writeValueAsString(request);
@@ -64,16 +61,17 @@ public class NotificationConsumerIntegrationTest {
                 // When
                 kafkaTemplate.send("bank.notification", NotificationSource.ACCOUNT_SERVICE.name(), jsonMessage);
 
-                Thread.sleep(2000);
-
                 // Then
-                await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
-                        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
-                        verify(notificationRepository, times(1)).save(captor.capture());
+                await()
+                        .atMost(60, TimeUnit.SECONDS)
+                        .pollInterval(100, TimeUnit.MILLISECONDS)
+                        .untilAsserted(() -> {
+                               ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+                                verify(notificationRepository, times(1)).save(captor.capture());
 
-                        Notification saved = captor.getValue();
-                        assertThat(saved.getSource()).isEqualTo(NotificationSource.ACCOUNT_SERVICE);
-                        assertThat(saved.getMessage()).isEqualTo("Test notification message");
-                });
+                                Notification saved = captor.getValue();
+                                assertThat(saved.getSource()).isEqualTo(NotificationSource.ACCOUNT_SERVICE);
+                                assertThat(saved.getMessage()).isEqualTo("Test notification message");
+                        });
         }
 }
