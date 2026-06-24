@@ -1,5 +1,6 @@
 package ru.ugaforever.bank.transfer.saga;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -72,10 +73,15 @@ public class SagaOrchestrator {
 
             ack.acknowledge();
 
+        } catch (ResourceNotFoundException | IllegalArgumentException | JsonProcessingException e) {
+            // Permanent error. можно отправить в DLT (через бросание исключения ErrorHandler'у, в TODO)
+            log.error("Permanent error: {}", e.getMessage(), e);
+            ack.acknowledge();
+
         } catch (Exception e) {
-            // не вызываем ack — Kafka перечитает
-            // можно уточнять Exception и принимать решение стоит ли вообще перечитает Kafka если знаем что-то точно будет повторная ошибка (тогда просто ack.acknowledge())
-            log.error("Failed to process outbox event: {}", message, e);
+            // Transient ошибка. не коммитим, Kafka перечитает (retry)
+            log.warn("Transient error, will retry: {}", e.getMessage(), e);
+            // ack НЕ вызываем!
         }
     }
 
