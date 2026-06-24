@@ -53,3 +53,6 @@ logs/
 ### OS ###
 .DS_Store
 Thumbs.db
+
+# Локальные настройки окружений (не коммитить!)
+environments/**/*

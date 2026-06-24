@@ -9,7 +9,13 @@ spring:
   application:
     name: account-service
 
-#  config:
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:bank-kafka:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+  #  config:
 #    import: "optional:consul:${CONSUL_HOST:localhost}:${CONSUL_PORT:8500}"
 
 #  cloud:
@@ -53,10 +59,6 @@ spring:
         provider:
           keycloak:
             issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9002/realms/bank-realm}
-
-feign:
-  httpclient:
-    enabled: true
 
 management:
   endpoints:

@@ -1,8 +1,17 @@
 # Микросервисное приложение «Банк» с использованием Spring Boot, интеграций Spring Cloud и паттернов микросервисной архитектуры.
 
 ## Задание
-На основе существующего микросервисного приложения «Банк» девятого спринта реализуйте развёртывание микросервисов в Kubernetes с использованием Helm-чартов.
+Доработать микросервисное приложение «Банк» (https://github.com/ugaforever/bank-platform-microservices/tree/module_three_sprint_ten_branch):
+1. Добавить в проект распределённую платформу Apache Kafka.
+2. Реализовать отправку уведомлений в сервис Notifications через Apache Kafka.
 
+Ранее реализованный паттерн SAGA с оркестрацией с использованием Kafka остался в проекте.
+
+## Обновленная схема с Kafka
+![Architecture Diagram](images/arch2.png)
+
+
+## Запуск
 1. Jenkins
 ```bash
    java -Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true -jar jenkins.war
@@ -32,9 +41,12 @@ helm lint .
 
 5. Установка
 ```bash
-helm upgrade --install bank helm/ \
+helm upgrade --install bank ./helm/ \
   --namespace test --create-namespace \
+  -f ./helm/values.yaml \
+  -f ./environments/test/values.yaml \
   --set kafka.enabled=true \
+  --set debezium-operator.enabled=true \
   --set account-db.enabled=true \
   --set cash-db.enabled=true \
   --set transfer-db.enabled=true \

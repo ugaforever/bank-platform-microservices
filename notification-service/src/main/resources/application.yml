@@ -5,6 +5,21 @@ spring:
   application:
     name: notification-service
 
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:bank-kafka:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: notification-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      max-poll-records: 10
+      enable-auto-commit: false
+    listener:
+      ack-mode: MANUAL_IMMEDIATE
+
 #  config:
 #    import: "optional:consul:${CONSUL_HOST:localhost}:${CONSUL_PORT:8500}"
 

@@ -1,5 +1,6 @@
 package ru.ugaforever.bank.transfer.saga;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,6 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.ugaforever.bank.chassis.client.AccountClient;
-import ru.ugaforever.bank.chassis.client.NotificationClient;
 import ru.ugaforever.bank.chassis.dto.cash.DepositRequestDto;
 import ru.ugaforever.bank.chassis.dto.cash.WithdrawRequestDto;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
@@ -18,6 +18,7 @@ import ru.ugaforever.bank.chassis.dto.transfer.TransferStatus;
 import ru.ugaforever.bank.chassis.exception.ResourceNotFoundException;
 import ru.ugaforever.bank.transfer.model.Transfer;
 import ru.ugaforever.bank.transfer.model.TransferOutbox;
+import ru.ugaforever.bank.transfer.producer.NotificationProducer;
 import ru.ugaforever.bank.transfer.repository.OutboxRepository;
 import ru.ugaforever.bank.transfer.repository.TransferRepository;
 
@@ -32,10 +33,10 @@ public class SagaOrchestrator {
     private final TransferRepository transferRepository;
     private final OutboxRepository outboxRepository;
     private final AccountClient accountClient;
-    private final NotificationClient notificationClient;
+    private final NotificationProducer notificationProducer;
     private final ObjectMapper objectMapper;
 
-    @KafkaListener(topics = "transfer.public.transfer_outbox", groupId = "transfer-saga-orchestrator")
+    @KafkaListener(topics = "bank.transfer", groupId = "transfer-saga-orchestrator")
     public void handleOutboxEvent(String message, Acknowledgment ack) {
         log.info("Received outbox event: {}", message);
 
@@ -72,10 +73,15 @@ public class SagaOrchestrator {
 
             ack.acknowledge();
 
+        } catch (ResourceNotFoundException | IllegalArgumentException | JsonProcessingException e) {
+            // Permanent error. можно отправить в DLT (через бросание исключения ErrorHandler'у, в TODO)
+            log.error("Permanent error: {}", e.getMessage(), e);
+            ack.acknowledge();
+
         } catch (Exception e) {
-            // не вызываем ack — Kafka перечитает
-            // можно уточнять Exception и принимать решение стоит ли вообще перечитает Kafka если знаем что-то точно будет повторная ошибка (тогда просто ack.acknowledge())
-            log.error("Failed to process outbox event: {}", message, e);
+            // Transient ошибка. не коммитим, Kafka перечитает (retry)
+            log.warn("Transient error, will retry: {}", e.getMessage(), e);
+            // ack НЕ вызываем!
         }
     }
 
@@ -86,6 +92,19 @@ public class SagaOrchestrator {
 
         log.info("Processing WITHDRAW for transferId={}, fromLogin={}, amount={}",
                 transferId, fromLogin, amount);
+
+        if (transfer.getStatus() == TransferStatus.WITHDRAW_COMPLETED) {
+            log.info("WITHDRAW already completed for transferId={}, skipping", transferId);
+            return;
+        }
+
+        if (transfer.getStatus() == TransferStatus.WITHDRAW_PENDING) {
+            log.warn("WITHDRAW already in progress for transferId={}, checking status...", transferId);
+            return;
+        }
+
+        transfer.setStatus(TransferStatus.WITHDRAW_PENDING);
+        transferRepository.save(transfer);
 
         try {
             WithdrawRequestDto withdrawDto = WithdrawRequestDto.builder()
@@ -104,7 +123,7 @@ public class SagaOrchestrator {
         } catch (Exception e) {
             //отмена перевода на этапе списания. нечего откатывать
             log.error("Withdraw failed for transferId={}", transferId, e);
-            transfer.setStatus(TransferStatus.FAILED);
+            transfer.setStatus(TransferStatus.WITHDRAW_FAILED);
             transferRepository.save(transfer);
         }
     }
@@ -116,6 +135,19 @@ public class SagaOrchestrator {
 
         log.info("Processing DEPOSIT for transferId={}, toLogin={}, amount={}",
                 transferId, toLogin, amount);
+
+        if (transfer.getStatus() == TransferStatus.DEPOSIT_COMPLETED) {
+            log.info("DEPOSIT already completed for transferId={}, skipping", transferId);
+            return;
+        }
+
+        if (transfer.getStatus() == TransferStatus.DEPOSIT_PENDING) {
+            log.warn("DEPOSIT already in progress for transferId={}, checking status...", transferId);
+            return;
+        }
+
+        transfer.setStatus(TransferStatus.DEPOSIT_PENDING);
+        transferRepository.save(transfer);
 
         try {
             DepositRequestDto depositDto = DepositRequestDto.builder()
@@ -133,7 +165,7 @@ public class SagaOrchestrator {
 
         } catch (Exception e) {
             log.error("Deposit failed for transferId={}, starting compensation", transferId, e);
-            transfer.setStatus(TransferStatus.FAILED);
+            transfer.setStatus(TransferStatus.DEPOSIT_FAILED);
             transferRepository.save(transfer);
 
             // Публикуем компенсацию
@@ -145,7 +177,7 @@ public class SagaOrchestrator {
         Long transferId = transfer.getId();
 
         try {
-            transfer.setStatus(TransferStatus.COMPLETED);
+            transfer.setStatus(TransferStatus.TRANSFER_COMPLETED);
             transfer.setSagaStep(3);
             transferRepository.save(transfer);
             log.info("Transfer COMPLETED successfully: transferId={}", transferId);
@@ -165,6 +197,11 @@ public class SagaOrchestrator {
         log.warn("Processing COMPENSATION for transferId={}, returning money to={}, amount={}",
                 transferId, fromLogin, amount);
 
+        if (transfer.getStatus() == TransferStatus.TRANSFER_COMPENSATED) {
+            log.info("TRANSFER already compensated for transferId={}, skipping", transferId);
+            return;
+        }
+
         try {
             // возвращаем деньги отправителю
             DepositRequestDto compensationDto = DepositRequestDto.builder()
@@ -173,7 +210,7 @@ public class SagaOrchestrator {
                     .build();
             accountClient.deposit(fromLogin, compensationDto);
 
-            transfer.setStatus(TransferStatus.COMPENSATED);
+            transfer.setStatus(TransferStatus.TRANSFER_COMPENSATED);
             transfer.setSagaStep(0);
             transferRepository.save(transfer);
             log.info("Compensation completed for transferId={}", transferId);
@@ -183,10 +220,9 @@ public class SagaOrchestrator {
 
         } catch (Exception e) {
             log.error("Compensation FAILED for transferId={}, NEED MANUAL INTERVENTION!", transferId, e);
-            transfer.setStatus(TransferStatus.FAILED);
+            transfer.setStatus(TransferStatus.TRANSFER_FAILED);
             transferRepository.save(transfer);
-
-            // нужна дополнительная обработка - ALARM
+            //сохранять в БД в таблицу ошибок компансаций transfer TODO:
         }
     }
 
@@ -217,7 +253,7 @@ public class SagaOrchestrator {
                     .message(String.format("Transfer completed: from=%s, to=%s, amount=%.2f",
                             transfer.getFromLogin(), transfer.getToLogin(), transfer.getAmount()))
                     .build();
-            notificationClient.sendNotification(notification);
+            notificationProducer.sendNotification(notification);
             log.info("Notification sent for transferId={}", transfer.getId());
         } catch (Exception e) {
             log.error("Failed to send notification for transferId={}", transfer.getId(), e);
@@ -232,7 +268,7 @@ public class SagaOrchestrator {
                     .message(String.format("Transfer FAILED: from=%s, to=%s, amount=%.2f. Compensated.",
                             transfer.getFromLogin(), transfer.getToLogin(), transfer.getAmount()))
                     .build();
-            notificationClient.sendNotification(notification);
+            notificationProducer.sendNotification(notification);
         } catch (Exception e) {
             log.error("Failed to send error notification", e);
         }

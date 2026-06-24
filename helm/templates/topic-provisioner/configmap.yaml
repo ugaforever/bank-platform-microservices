@@ -1,0 +1,32 @@
+  {{- if .Values.kafka.topics.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-kafka-topics-config
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-1"
+data:
+  topics.yaml: |
+    topics:
+      - name: bank.notification
+        partitions: 1
+        replicationFactor: 1
+        config: "cleanup.policy=compact,retention.ms=604800000"
+    
+      - name: bank.notification.dlt
+        partitions: 1
+        replicationFactor: 1
+        config: "cleanup.policy=compact"
+    
+      - name: bank.transfer
+        partitions: 1
+        replicationFactor: 1
+        config: "cleanup.policy=compact"
+    
+      - name: bank.transfer.dlt
+        partitions: 1
+        replicationFactor: 1
+        config: "cleanup.policy=compact"
+  {{- end }}

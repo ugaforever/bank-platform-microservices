@@ -8,9 +8,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.ugaforever.bank.cash.mapper.CashMapper;
 import ru.ugaforever.bank.cash.model.Cash;
+import ru.ugaforever.bank.cash.producer.NotificationProducer;
 import ru.ugaforever.bank.cash.repository.CashRepository;
 import ru.ugaforever.bank.chassis.client.AccountClient;
-import ru.ugaforever.bank.chassis.client.NotificationClient;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.cash.CashAction;
 import ru.ugaforever.bank.chassis.dto.cash.CashResponseDto;
@@ -38,10 +38,10 @@ public class CashServiceTest {
     private CashRepository repository;
 
     @Mock
-    private CashMapper mapper;
+    private NotificationProducer notificationProducer;
 
     @Mock
-    private NotificationClient notificationClient;
+    private CashMapper mapper;
 
     @InjectMocks
     private CashService service;

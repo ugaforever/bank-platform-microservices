@@ -125,7 +125,11 @@ pipeline {
                         sh """
                         helm upgrade --install bank ./helm/ \\
                         --namespace test --create-namespace \\
+                        -f ./helm/values.yaml \\
+                        -f ./environments/test/values.yaml \\
                         --set kafka.enabled=true \\
+                        \\
+                        --set debezium-operator.enabled=true \\
                         \\
                         --set account-db.enabled=true \\
                         --set account-db.auth.database=accounts \\

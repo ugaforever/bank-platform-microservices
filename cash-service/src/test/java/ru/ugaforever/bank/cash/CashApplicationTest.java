@@ -7,7 +7,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.ugaforever.bank.cash.config.TestSecurityConfig;
 import ru.ugaforever.bank.chassis.client.AccountClient;
-import ru.ugaforever.bank.chassis.client.NotificationClient;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -16,9 +15,6 @@ class CashApplicationTest {
 
     @MockitoBean
     private AccountClient accountClient;
-
-    @MockitoBean
-    private NotificationClient notificationClient;
 
     @Test
     void contextLoads() {

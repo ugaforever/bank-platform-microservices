@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.ugaforever.bank.cash.interceptor.IdempotencyInterceptor;
 import ru.ugaforever.bank.cash.model.Cash;
 import ru.ugaforever.bank.chassis.client.AccountClient;
-import ru.ugaforever.bank.chassis.client.NotificationClient;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.cash.CashAction;
 import ru.ugaforever.bank.chassis.dto.cash.CashResponseDto;
@@ -21,6 +20,7 @@ import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationSource;
 import ru.ugaforever.bank.chassis.exception.BusinessRuleException;
 import ru.ugaforever.bank.chassis.exception.ValidationException;
+import ru.ugaforever.bank.cash.producer.NotificationProducer;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -34,7 +34,7 @@ public class CashService {
     private static final Logger log = LoggerFactory.getLogger(CashService.class);
 
     private final AccountClient accountClient;
-    private final NotificationClient notificationClient;
+    private final NotificationProducer notificationProducer;
     private final CashRepository repository;
     private final CashMapper mapper;
 
@@ -66,7 +66,7 @@ public class CashService {
 
         AccountResponseDto account = accountClient.deposit(request.getLogin(), request);
         log.debug("Balance updated: login={}, newBalance={}",
-                account.getLogin(), account.getBalance().add(request.getAmount()));
+                account.getLogin(), account.getBalance());
 
         Cash.CashBuilder builder = Cash.builder()
                 .login(request.getLogin())
@@ -89,7 +89,7 @@ public class CashService {
                         request.getAmount(),
                         account.getBalance().add(request.getAmount())))
                 .build();
-        notificationClient.sendNotification(notificationRequestDto);
+        notificationProducer.sendNotification(notificationRequestDto);
         log.info("Notification sent: login={}, type=DEPOSIT", account.getLogin());
 
         log.info("Deposit completed: login={}, amount={}, newBalance={}",
@@ -157,7 +157,7 @@ public class CashService {
                         request.getAmount(),
                         account.getBalance().subtract(request.getAmount())))
                 .build();
-        notificationClient.sendNotification(notificationRequestDto);
+        notificationProducer.sendNotification(notificationRequestDto);
         log.info("Notification sent: login={}, type=WITHDRAWAL", account.getLogin());
 
         log.info("Withdraw completed: login={}, amount={}, newBalance={}",

@@ -8,7 +8,7 @@
     "database.password": "postgres",
     "database.dbname": "transfers",
     "topic.prefix": "transfer",
-    "table.include.list": "public.transfer_outbox",
+    "table.include.list": "bank.transfer",
     "plugin.name": "pgoutput",
     "publication.name": "dbz_publication",
     "slot.name": "outbox_slot",

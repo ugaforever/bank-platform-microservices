@@ -1,25 +1,48 @@
 spring:
-  cloud:
-    bootstrap:
-      enabled: false
-    consul:
-      enabled: false
-      config:
-        enabled: false
-      discovery:
-        enabled: false
-        discovery:
-          enabled: false
-    openfeign:
-      enabled: false
-    loadbalancer:
-      enabled: false
   autoconfigure:
     exclude:
       - org.springframework.cloud.openfeign.FeignAutoConfiguration
       - org.springframework.cloud.consul.ConsulAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
       - org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
       - org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
+
+  cloud:
+    config:
+      enabled: false
+    bootstrap:
+      enabled: false
+    consul:
+      enabled: false
+
+  security:
+    enabled: false
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            enabled: false
+      resourceserver:
+        jwt:
+          issuer-uri:
+        opaquetoken:
+          introspection-uri:
+
+  kafka:
+    bootstrap-servers: ${spring.embedded.kafka.brokers:localhost:9092}
+    consumer:
+      group-id: notification-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: false
+    listener:
+      ack-mode: MANUAL_IMMEDIATE
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
 
   datasource:
     url: jdbc:h2:mem:testdb
@@ -31,15 +54,3 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: false
-
-feign:
-  hystrix:
-    enabled: false
-
-account:
-  service:
-    url: http://localhost:9005
-
-notification:
-  service:
-    url: http://localhost:9006

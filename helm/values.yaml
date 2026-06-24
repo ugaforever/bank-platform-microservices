@@ -4,6 +4,9 @@ global:
   keycloak:
     issuerUri: "http://bank-keycloak:9002/realms/bank-realm"
 
+  kafka:
+     bootstrapServers: "bank-kafka:9092"
+
 account-service:
   replicaCount: 1
   image:
@@ -27,6 +30,9 @@ account-service:
     database_username: "account_user"
     database_password_secret: "bank-account-db-secret"
     database_password_secret_key: "password"
+  env:
+    - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+      value: "{{ .Values.global.kafka.bootstrapServers }}"
 
 cash-service:
   replicaCount: 1
@@ -50,6 +56,9 @@ cash-service:
     database_username: "cash_user"
     database_password_secret: "bank-cash-db-secret"
     database_password_secret_key: "password"
+  env:
+    - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+      value: "{{ .Values.global.kafka.bootstrapServers }}"
 
 transfer-service:
   replicaCount: 1
@@ -73,6 +82,9 @@ transfer-service:
     database_username: "transfer_user"
     database_password_secret: "bank-transfer-db-secret"
     database_password_secret_key: "password"
+  env:
+    - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+      value: "{{ .Values.global.kafka.bootstrapServers }}"
 
 notification-service:
   replicaCount: 1
@@ -96,6 +108,9 @@ notification-service:
     database_username: "notification_user"
     database_password_secret: "bank-notification-db-secret"
     database_password_secret_key: "password"
+  env:
+    - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+      value: "{{ .Values.global.kafka.bootstrapServers }}"
 
 account-db:
   enabled: true
@@ -129,6 +144,14 @@ transfer-db:
     persistence:
       enabled: true
       size: 1Gi
+    configuration: |
+      wal_level = logical
+      listen_addresses = '*'
+      port = 5432
+  initdbScripts:
+   create-replication-user.sql: |
+      CREATE USER debezium WITH REPLICATION LOGIN PASSWORD 'debezium';
+      GRANT SELECT ON ALL TABLES IN SCHEMA public TO debezium;
 
 notification-db:
   enabled: true
@@ -148,12 +171,31 @@ keycloak:
     serviceType: ClusterIP
     port: 9002
     targetPort: 9002
-    hostIP: "192.168.10.197"
+#    hostIP: "192.168.10.197"
     # hostname: "keycloak.bank.local"
     annotations: {}
 
 kafka:
   enabled: true
+  topics:
+    enabled: true
+    list:
+      - name: bank.notification
+        partitions: 1
+        replicationFactor: 1
+        config: "cleanup.policy=compact,retention.ms=604800000"
+      - name: bank.notification.dlt
+        partitions: 1
+        replicationFactor: 1
+        config: "cleanup.policy=compact"
+      - name: bank.transfer
+        partitions: 1
+        replicationFactor: 1
+        config: "cleanup.policy=compact"
+      - name: bank.transfer.dlt
+        partitions: 1
+        replicationFactor: 1
+        config: "cleanup.policy=compact"
 
   controller:
     replicaCount: 1
@@ -191,7 +233,61 @@ kafka:
 
 keycloak-external:
   enabled: true
-  externalIP: 10.42.0.1  # IP хоста для Rancher Desktop
+#  externalIP: 10.42.0.1  # IP хоста для Rancher Desktop
   service:
     name: bank-keycloak
     port: 9002
+
+debezium-operator:
+  enabled: true
+
+  server:
+    enabled: true
+
+  replicaCount: 1
+
+  image:
+    repository: quay.io/debezium/operator
+    tag: "3.2.0.Final"
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 8080
+
+  config:
+    BOOTSTRAP_SERVERS: "bank-kafka:9092"
+    GROUP_ID: "1"
+    CONFIG_STORAGE_TOPIC: "connect_configs"
+    OFFSET_STORAGE_TOPIC: "connect_offsets"
+    STATUS_STORAGE_TOPIC: "connect_statuses"
+    KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+    VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+    KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+    VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+  connectors:
+    transfer-outbox:
+      enabled: true
+      name: "transfer-outbox-connector"
+      config:
+        connector.class: "io.debezium.connector.postgresql.PostgresConnector"
+        database.hostname: "bank-transfer-db"
+        database.port: "5432"
+        database.user: "postgres"
+        database.password: "postgres"
+        database.dbname: "transfers"
+        topic.prefix: "transfer"
+        table.include.list: "bank.transfer"
+        plugin.name: "pgoutput"
+        publication.name: "dbz_publication"
+        slot.name: "outbox_slot"
+  resources:
+    limits:
+      memory: 1Gi
+      cpu: 500m
+    requests:
+      memory: 512Mi
+      cpu: 250m
+  persistence:
+    enabled: true
+    size: 1Gi

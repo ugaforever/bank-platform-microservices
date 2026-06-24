@@ -8,7 +8,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.ugaforever.bank.chassis.client.AccountClient;
-import ru.ugaforever.bank.chassis.client.NotificationClient;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.transfer.TransferRequestDto;
 import ru.ugaforever.bank.chassis.dto.transfer.TransferResponseDto;
@@ -18,6 +17,7 @@ import ru.ugaforever.bank.chassis.exception.ValidationException;
 import ru.ugaforever.bank.transfer.mapper.TransferMapper;
 import ru.ugaforever.bank.transfer.model.Transfer;
 import ru.ugaforever.bank.transfer.model.TransferOutbox;
+import ru.ugaforever.bank.transfer.producer.NotificationProducer;
 import ru.ugaforever.bank.transfer.repository.OutboxRepository;
 import ru.ugaforever.bank.transfer.repository.TransferRepository;
 
@@ -32,9 +32,6 @@ class TransferServiceTest {
 
     @Mock
     private AccountClient accountClient;
-
-    @Mock
-    private NotificationClient notificationClient;
 
     @Mock
     private TransferRepository transferRepository;
@@ -71,7 +68,7 @@ class TransferServiceTest {
                 .fromLogin("user1")
                 .toLogin("user2")
                 .amount(new BigDecimal("100.50"))
-                .status(TransferStatus.PENDING)
+                .status(TransferStatus.TRANSFER_PENDING)
                 .sagaStep(0)
                 .build();
 
@@ -80,7 +77,7 @@ class TransferServiceTest {
                 .fromLogin("user1")
                 .toLogin("user2")
                 .amount(new BigDecimal("100.50"))
-                .status(TransferStatus.PENDING)
+                .status(TransferStatus.TRANSFER_PENDING)
                 .build();
     }
 
@@ -98,7 +95,7 @@ class TransferServiceTest {
         // Assert
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1L);
-        assertThat(result.getStatus()).isEqualTo(TransferStatus.PENDING);
+        assertThat(result.getStatus()).isEqualTo(TransferStatus.TRANSFER_PENDING);
 
         ArgumentCaptor<Transfer> transferCaptor = ArgumentCaptor.forClass(Transfer.class);
         verify(transferRepository).save(transferCaptor.capture());
@@ -106,7 +103,7 @@ class TransferServiceTest {
         assertThat(capturedTransfer.getFromLogin()).isEqualTo("user1");
         assertThat(capturedTransfer.getToLogin()).isEqualTo("user2");
         assertThat(capturedTransfer.getAmount()).isEqualTo(new BigDecimal("100.50"));
-        assertThat(capturedTransfer.getStatus()).isEqualTo(TransferStatus.PENDING);
+        assertThat(capturedTransfer.getStatus()).isEqualTo(TransferStatus.TRANSFER_PENDING);
         assertThat(capturedTransfer.getSagaStep()).isEqualTo(0);
 
         ArgumentCaptor<TransferOutbox> outboxCaptor = ArgumentCaptor.forClass(TransferOutbox.class);
