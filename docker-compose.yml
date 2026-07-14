@@ -69,6 +69,87 @@ services:
       - "${KAFKA_PORT}:9092"
 
 # ================================
+# Elasticsearch
+# ================================
+  bank-elasticsearch:
+    image: elasticsearch:8.12.0
+    container_name: bank-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "${ELASTICSEARCH_PORT}:9200"
+
+# ================================
+# Kibana
+# ================================
+  bank-kibana:
+    image: kibana:8.12.0
+    container_name: bank-kibana
+    depends_on:
+      - bank-elasticsearch
+    ports:
+      - "${KIBANA_PORT}:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://bank-elasticsearch:9200
+
+# ================================
+# Logstash
+# ================================
+  bank-logstash:
+    image: logstash:8.12.0
+    container_name: bank-logstash
+    depends_on:
+      - bank-kafka
+      - bank-elasticsearch
+    volumes:
+      - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    ports:
+      - "${LOGSTASH_PORT}:5044"
+
+# ================================
+# Zipkin
+# ================================
+  bank-zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: bank-zipkin
+    ports:
+      - "${ZIPKIN_PORT}:9411"
+    environment:
+      - STORAGE_TYPE=mem
+
+# ================================
+# Prometheus
+# ================================
+  bank-prometheus:
+    image: prom/prometheus
+    container_name: bank-prometheus
+    ports:
+      - "${PROMETHEUS_PORT}:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus
+
+# ================================
+# Alert Manager
+# ================================
+  bank-alertmanager:
+    image: prom/alertmanager
+    container_name: bank-alertmanager
+    ports:
+      - "${ALERTMANAGER_PORT}:9093"
+
+# ================================
+# Grafana
+# ================================
+  bank-grafana:
+    image: grafana/grafana
+    container_name: bank-grafana
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    depends_on:
+      - bank-prometheus
+
+# ================================
 # Debezium
 # ================================
   bank-debezium:
@@ -230,6 +311,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
       NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL}
+      ZIPKIN_ENDPOINT: ${ZIPKIN_ENDPOINT}
     ports:
       - "${ACCOUNT_SERVICE_PORT}:${ACCOUNT_SERVICE_PORT}"
     depends_on:
@@ -255,6 +337,7 @@ services:
       KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
       NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL}
       ACCOUNT_SERVICE_URL: ${ACCOUNT_SERVICE_URL}
+      ZIPKIN_ENDPOINT: ${ZIPKIN_ENDPOINT}
     ports:
       - "${CASH_SERVICE_PORT}:${CASH_SERVICE_PORT}"
     depends_on:
@@ -280,6 +363,7 @@ services:
       KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
       NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL}
       ACCOUNT_SERVICE_URL: ${ACCOUNT_SERVICE_URL}
+      ZIPKIN_ENDPOINT: ${ZIPKIN_ENDPOINT}
     ports:
       - "${TRANSFER_SERVICE_PORT}:${TRANSFER_SERVICE_PORT}"
     depends_on:

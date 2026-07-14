@@ -1,0 +1,11 @@
+groups:
+  - name: account-service.rules
+    rules:
+      - alert: LowNotificationCreateAccountRate
+        expr: sum(rate(notification_create_account_total[1m])) < 10
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Снизилось количество отправляемых в Kafka уведомлений о создании нового пользователя"
+          description: "Количество создания новых пользователей снизилось до 10 в течение последней минуты (в учебных целях)."

@@ -74,6 +74,8 @@ config:
   database_username: "myuser"
 
 env:
+  - name: ZIPKIN_ENDPOINT
+    value: "http://zipkin:9411/api/v2/spans"
   - name: KEYCLOAK_ISSUER_URI
     value: "http://bank-keycloak:9002/realms/bank-realm"
   - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI

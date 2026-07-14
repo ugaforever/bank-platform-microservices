@@ -20,7 +20,7 @@ import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationSource;
 import ru.ugaforever.bank.chassis.exception.BusinessRuleException;
 import ru.ugaforever.bank.chassis.exception.ValidationException;
-import ru.ugaforever.bank.cash.producer.NotificationProducer;
+import ru.ugaforever.bank.chassis.kafka.NotificationProducer;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -87,13 +87,13 @@ public class CashService {
                 .message(String.format("login=%s, type=DEPOSIT, amount=%.2f, newBalance=%.2f",
                         request.getLogin(),
                         request.getAmount(),
-                        account.getBalance().add(request.getAmount())))
+                        account.getBalance()))
                 .build();
-        notificationProducer.sendNotification(notificationRequestDto);
+        notificationProducer.sendNotificationSync(notificationRequestDto);
         log.info("Notification sent: login={}, type=DEPOSIT", account.getLogin());
 
         log.info("Deposit completed: login={}, amount={}, newBalance={}",
-                request.getLogin(), request.getAmount(), account.getBalance().add(request.getAmount()));
+                request.getLogin(), request.getAmount(), account.getBalance());
 
         return mapper.toDto(cash);
     }
@@ -157,11 +157,11 @@ public class CashService {
                         request.getAmount(),
                         account.getBalance().subtract(request.getAmount())))
                 .build();
-        notificationProducer.sendNotification(notificationRequestDto);
+        notificationProducer.sendNotificationSync(notificationRequestDto);
         log.info("Notification sent: login={}, type=WITHDRAWAL", account.getLogin());
 
         log.info("Withdraw completed: login={}, amount={}, newBalance={}",
-                request.getLogin(), request.getAmount(), account.getBalance().subtract(request.getAmount()));
+                request.getLogin(), request.getAmount(), account.getBalance());
 
         return mapper.toDto(cash);
     }

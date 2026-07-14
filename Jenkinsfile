@@ -129,7 +129,9 @@ pipeline {
                         -f ./environments/test/values.yaml \\
                         --set kafka.enabled=true \\
                         \\
-                        --set debezium-operator.enabled=true \\
+                        --set zipkin.enabled=true \\
+                        --set prometheus.enabled=true \\
+                        --set grafana.enabled=true \\
                         \\
                         --set account-db.enabled=true \\
                         --set account-db.auth.database=accounts \\

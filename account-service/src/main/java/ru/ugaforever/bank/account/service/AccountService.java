@@ -1,13 +1,14 @@
 package ru.ugaforever.bank.account.service;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
+import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.ugaforever.bank.account.producer.NotificationProducer;
 import ru.ugaforever.bank.chassis.dto.account.AccountRequestDto;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
@@ -19,22 +20,27 @@ import ru.ugaforever.bank.account.model.Account;
 import ru.ugaforever.bank.account.repository.AccountRepository;
 import ru.ugaforever.bank.chassis.exception.BusinessRuleException;
 import ru.ugaforever.bank.chassis.exception.ValidationException;
-
+import ru.ugaforever.bank.chassis.kafka.NotificationProducer;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class AccountService {
 
-    private static final Logger log = LoggerFactory.getLogger(AccountService.class);
-
     private final NotificationProducer notificationProducer;
     private final AccountRepository repository;
     private final AccountMapper mapper;
+    private final MeterRegistry meterRegistry;
+
+    @PostConstruct
+    public void init() {
+        meterRegistry.counter("notification.account.create").increment(0);
+    }
 
     public AccountResponseDto createAccount(AccountRequestDto dto) {
         Account account = mapper.toEntity(dto);
@@ -44,7 +50,8 @@ public class AccountService {
                 .source(NotificationSource.ACCOUNT_SERVICE)
                 .message(String.format("Created new account: login=%s", saved.getLogin()))
                 .build();
-        notificationProducer.sendNotification(notificationRequestDto);
+        notificationProducer.sendNotificationSync(notificationRequestDto);
+        meterRegistry.counter("notification.account.create").increment();
 
         return mapper.toDto(saved);
     }
@@ -53,12 +60,17 @@ public class AccountService {
 
         log.debug("Get account: login={}", login);
 
-        return repository.findByLogin(login)
+        Timer timer = Timer.builder("account.get.time")
+                .description("Time to get account by login")
+                .tag("operation", "getAccount")
+                .register(meterRegistry);
+
+        return timer.record(() -> repository.findByLogin(login)
                 .map(mapper::toDto)
                 .orElseThrow(() -> {
                     log.warn("Account not found: {}", login);
                     return new AccountNotFoundException(login);
-                });
+                }));
     }
 
     public List<AccountResponseDto> getAll() {
@@ -71,6 +83,11 @@ public class AccountService {
     }
 
     public AccountResponseDto updateAccount(String login, AccountUpdateDto updateDto) {
+
+        if (updateDto == null) {
+            throw new ValidationException("Account update data cannot be null");
+        }
+
         log.info("Update account: login={}, fields={}", login, updateDto);
 
         if (!updateDto.hasUpdates()) {
@@ -96,7 +113,7 @@ public class AccountService {
                 .source(NotificationSource.ACCOUNT_SERVICE)
                 .message(String.format("Account updated: login=%s", saved.getLogin()))
                 .build();
-        notificationProducer.sendNotification(notificationRequestDto);
+        notificationProducer.sendNotificationSync(notificationRequestDto);
         log.info("Notification sent: login={}, type=UPDATE", account.getLogin());
 
         log.info("Update completed: login={}, fields={}", login, updateDto);

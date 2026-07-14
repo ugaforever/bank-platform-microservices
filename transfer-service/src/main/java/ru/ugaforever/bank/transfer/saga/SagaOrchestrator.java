@@ -16,9 +16,9 @@ import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationSource;
 import ru.ugaforever.bank.chassis.dto.transfer.TransferStatus;
 import ru.ugaforever.bank.chassis.exception.ResourceNotFoundException;
+import ru.ugaforever.bank.chassis.kafka.NotificationProducer;
 import ru.ugaforever.bank.transfer.model.Transfer;
 import ru.ugaforever.bank.transfer.model.TransferOutbox;
-import ru.ugaforever.bank.transfer.producer.NotificationProducer;
 import ru.ugaforever.bank.transfer.repository.OutboxRepository;
 import ru.ugaforever.bank.transfer.repository.TransferRepository;
 
@@ -253,7 +253,7 @@ public class SagaOrchestrator {
                     .message(String.format("Transfer completed: from=%s, to=%s, amount=%.2f",
                             transfer.getFromLogin(), transfer.getToLogin(), transfer.getAmount()))
                     .build();
-            notificationProducer.sendNotification(notification);
+            notificationProducer.sendNotificationSync(notification);
             log.info("Notification sent for transferId={}", transfer.getId());
         } catch (Exception e) {
             log.error("Failed to send notification for transferId={}", transfer.getId(), e);
@@ -268,7 +268,7 @@ public class SagaOrchestrator {
                     .message(String.format("Transfer FAILED: from=%s, to=%s, amount=%.2f. Compensated.",
                             transfer.getFromLogin(), transfer.getToLogin(), transfer.getAmount()))
                     .build();
-            notificationProducer.sendNotification(notification);
+            notificationProducer.sendNotificationSync(notification);
         } catch (Exception e) {
             log.error("Failed to send error notification", e);
         }

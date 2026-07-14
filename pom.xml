@@ -31,6 +31,7 @@
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <spring-cloud.version>2024.0.0</spring-cloud.version>
+        <kafka.version>3.8.0</kafka.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -73,7 +74,7 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>ru.ugaforever.bank</groupId>
+                <groupId>ru.ugaforever.bank.chassis</groupId>
                 <artifactId>chassis</artifactId>
                 <version>${project.version}</version>
             </dependency>

@@ -20,6 +20,7 @@ import ru.ugaforever.bank.account.service.AccountService;
 import ru.ugaforever.bank.chassis.dto.account.AccountRequestDto;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationRequestDto;
 import ru.ugaforever.bank.chassis.dto.notification.NotificationSource;
+import ru.ugaforever.bank.chassis.kafka.NotificationProducer;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -52,6 +53,9 @@ public class NotificationProducerIntegrationTest {
 
         @MockitoBean
         private AccountRepository accountRepository;
+
+        @Autowired
+        private NotificationProducer notificationProducer;
 
         @Autowired
         private KafkaConsumer<String, String> consumer;

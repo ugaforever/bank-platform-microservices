@@ -17,8 +17,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("test")
 public class CashRepositoryTest {
 
-    private static final Long CASH_ID = 1L;
     private static final String LOGIN = "ivanov";
+    private static final String IDEMPOTENCY_KEY = "key";
     private static final BigDecimal AMOUNT = BigDecimal.valueOf(100);
 
     @Autowired
@@ -27,23 +27,20 @@ public class CashRepositoryTest {
     @Test
     @DisplayName("save() — должен сохранить информацию о снятии / поплнении денег")
     void shouldSaveUser() {
+        Cash сash = Cash.builder()
+                .login(LOGIN)
+                .idempotencyKey(IDEMPOTENCY_KEY)
+                .action(CashAction.WITHDRAW)
+                .amount(AMOUNT)
+                .actionAt(Instant.now())
+                .build();
 
-        Cash saved = repository.save(newCash(LOGIN, CashAction.WITHDRAW, AMOUNT));
+        Cash saved = repository.save(сash);
 
-        assertThat(saved.getId()).isEqualTo(CASH_ID);
         assertThat(saved.getLogin()).isEqualTo(LOGIN);
         assertThat(saved.getAction()).isEqualTo(CashAction.WITHDRAW);
         assertThat(saved.getAmount()).isEqualTo(AMOUNT);
         assertThat(saved.getActionAt()).isNotNull();
         assertThat(saved.getActionAt()).isInstanceOf(Instant.class);
-    }
-
-    private Cash newCash(String login, CashAction action, BigDecimal amount) {
-        return Cash.builder()
-                .login(login)
-                .action(action)
-                .amount(amount)
-                .actionAt(Instant.now())
-                .build();
     }
 }

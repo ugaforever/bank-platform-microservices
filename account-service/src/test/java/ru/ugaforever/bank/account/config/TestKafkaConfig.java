@@ -1,5 +1,6 @@
 package ru.ugaforever.bank.account.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -7,10 +8,12 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
+import ru.ugaforever.bank.chassis.kafka.NotificationProducer;
 
 import java.util.HashMap;
 import java.util.List;
@@ -70,6 +73,15 @@ public class TestKafkaConfig {
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(config);
         consumer.subscribe(List.of("bank.notification"));
         return consumer;
+    }
+
+    @Bean
+    @Primary
+    public NotificationProducer testNotificationProducer(
+            KafkaTemplate<String, String> kafkaTemplate,
+            ObjectMapper objectMapper
+    ) {
+        return new NotificationProducer(kafkaTemplate, objectMapper);
     }
 }
 

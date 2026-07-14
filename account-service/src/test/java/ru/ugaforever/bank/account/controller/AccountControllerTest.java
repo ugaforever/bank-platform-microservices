@@ -17,6 +17,7 @@ import ru.ugaforever.bank.account.service.AccountService;
 import ru.ugaforever.bank.chassis.dto.account.AccountRequestDto;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
+import ru.ugaforever.bank.chassis.exception.AccountNotFoundException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -91,11 +92,11 @@ public class AccountControllerTest {
     void shouldReturn404WhenAccountNotFound() throws Exception {
         String missingLogin = "missingLogin";
         when(service.getAccount(missingLogin))
-                .thenThrow(new IllegalArgumentException("Account with ID " + missingLogin + " not found"));
+                .thenThrow(new AccountNotFoundException(missingLogin));
 
         mockMvc.perform(get(BASE_URL + "/" + missingLogin))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("Account with ID " + missingLogin + " not found"));
+                .andExpect(jsonPath("$.message").value("Account with id " + missingLogin + " not found"));
     }
 
     @Test

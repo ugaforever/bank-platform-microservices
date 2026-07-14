@@ -13,6 +13,11 @@ spring:
   application:
     name: transfer-service
 
+  cloud:
+    openfeign:
+      micrometer:
+        enabled: true
+
 #  config:
 #    import: "optional:consul:${CONSUL_HOST:localhost}:${CONSUL_PORT:8500}"
 
@@ -77,6 +82,9 @@ spring:
     listener:
       ack-mode: manual
       shutdown-timeout: 30000
+      observation-enabled: true    # Для Consumer / @KafkaListener
+    template:
+      observation-enabled: true    # Для Producer / KafkaTemplate
 
 feign:
   httpclient:
@@ -102,6 +110,12 @@ management:
           enabled: true
         readiness-state:
           enabled: true
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_ENDPOINT:http://localhost:9411/api/v2/spans}
+  tracing:
+    sampling:
+      probability: 1
 
 resilience4j.circuitbreaker:
   configs:
@@ -117,6 +131,13 @@ resilience4j.circuitbreaker:
   instances:
     transferServiceSubmit:
       registerHealthIndicator: true
+
+outbox:
+  publisher:
+    fixed-delay: 5000      # Интервал проверки новых сообщений (мс)
+    initial-delay: 10000   # Задержка первого запуска (мс)
+    batch-size: 100        # Максимум сообщений за одну итерацию
+    max-retries: 5         # Максимум попыток отправки
 
 logging:
   level:

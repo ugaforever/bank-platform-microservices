@@ -9,6 +9,7 @@ dependencies:
 
   - name: keycloak-external
     version: "0.1.0"
+    repository: "file://./charts/keycloak-external"
     condition: keycloak-external.enabled
 
   - name: account-service
@@ -56,7 +57,17 @@ dependencies:
     repository: "file://./charts/kafka"
     condition: kafka.enabled
 
-  - name: debezium-operator
-    version: "3.2.0-final"
-    repository: "file://./charts/debezium-operator"
-    condition: debezium-operator.enabled
+  - name: zipkin
+    version: "0.7.0"
+    repository: "file://./charts/zipkin"
+    condition: zipkin.enabled
+
+  - name: prometheus
+    version: "25.0.0"
+    repository: "file://./charts/prometheus"
+    condition: prometheus.enabled
+
+  - name: grafana
+    version: "7.0.0"
+    repository: "https://grafana.github.io/helm-charts"
+    condition: grafana.enabled

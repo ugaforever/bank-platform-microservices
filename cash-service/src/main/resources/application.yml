@@ -18,6 +18,13 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    template:
+      observation-enabled: true    # Для Producer / KafkaTemplate
+
+  cloud:
+    openfeign:
+      micrometer:
+        enabled: true
 
 #  config:
 #    import: "optional:consul:${CONSUL_HOST:localhost}:${CONSUL_PORT:8500}"
@@ -99,6 +106,14 @@ management:
           enabled: true
         readiness-state:
           enabled: true
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_ENDPOINT:http://localhost:9411/api/v2/spans}
+  tracing:
+    sampling:
+      probability: 1.0
+    propagation:
+      type: w3c
 
 logging:
   level:

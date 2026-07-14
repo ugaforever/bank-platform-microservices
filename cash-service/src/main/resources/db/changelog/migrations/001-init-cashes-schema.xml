@@ -14,7 +14,7 @@
             <column name="login" type="VARCHAR(100)">
                 <constraints nullable="false"/>
             </column>
-            <column name="action" type="SMALLINT">
+            <column name="action" type="VARCHAR(20)">
                 <constraints nullable="false"/>
             </column>
             <column name="amount" type="DECIMAL(19,2)">

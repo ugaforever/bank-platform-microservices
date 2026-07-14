@@ -52,13 +52,13 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIllegalArgument(IllegalArgumentException exception) {
         log.warn("Illegal argument: {}", exception.getMessage());
 
         return ErrorResponse.of(
-                HttpStatus.NOT_FOUND,
-                "NOT_FOUND",
+                HttpStatus.BAD_REQUEST,
+                "BAD_REQUEST",
                 exception.getMessage());
     }
 

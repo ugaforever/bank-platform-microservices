@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.ugaforever.bank.chassis.dto.transfer.TransferRequestDto;
 import ru.ugaforever.bank.chassis.dto.transfer.TransferResponseDto;
 import ru.ugaforever.bank.chassis.dto.transfer.TransferStatus;
+import ru.ugaforever.bank.chassis.exception.AccountNotFoundException;
 import ru.ugaforever.bank.transfer.service.TransferService;
 
 import java.math.BigDecimal;
@@ -166,7 +167,7 @@ public class TransferControllerTest {
     @DisplayName("POST /transfer — должен вернуть 404 если аккаунт не найден")
     void shouldReturn404WhenAccountNotFound() throws Exception {
         when(transferService.submit(any(TransferRequestDto.class)))
-                .thenThrow(new IllegalArgumentException("Account not found: " + FROM_LOGIN));
+                .thenThrow(new AccountNotFoundException("Account not found: " + FROM_LOGIN));
 
         mockMvc.perform(post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)

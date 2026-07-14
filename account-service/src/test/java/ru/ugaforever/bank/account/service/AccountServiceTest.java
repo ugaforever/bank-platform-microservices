@@ -1,18 +1,21 @@
 package ru.ugaforever.bank.account.service;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.ugaforever.bank.account.mapper.AccountMapper;
 import ru.ugaforever.bank.account.model.Account;
-import ru.ugaforever.bank.account.producer.NotificationProducer;
 import ru.ugaforever.bank.account.repository.AccountRepository;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
 import ru.ugaforever.bank.chassis.exception.ValidationException;
+import ru.ugaforever.bank.chassis.kafka.NotificationProducer;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -42,6 +45,9 @@ public class AccountServiceTest {
 
     @Mock
     private NotificationProducer notificationProducer;
+
+    @Spy
+    private MeterRegistry meterRegistry = new SimpleMeterRegistry();
 
     @InjectMocks
     private AccountService service;
@@ -152,7 +158,8 @@ public class AccountServiceTest {
     void shouldThrowExceptionWhenUpdateDtoIsNull() {
         // when & then
         assertThatThrownBy(() -> service.updateAccount(LOGIN, null))
-                .isInstanceOf(NullPointerException.class);
+                .isInstanceOf(ValidationException.class)
+                .hasMessage("Account update data cannot be null");
     }
 
 }

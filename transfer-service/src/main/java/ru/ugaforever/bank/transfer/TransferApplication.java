@@ -7,11 +7,13 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Import;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import ru.ugaforever.bank.chassis.advice.GlobalExceptionHandler;
 import ru.ugaforever.bank.chassis.client.AccountClient;
 import ru.ugaforever.bank.chassis.config.FeignConfig;
 
 @SpringBootApplication
+@EnableScheduling
 @EnableDiscoveryClient
 @EnableFeignClients(
         clients = {AccountClient.class},
