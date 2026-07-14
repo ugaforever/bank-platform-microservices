@@ -193,6 +193,10 @@ kafka:
         partitions: 1
         replicationFactor: 1
         config: "cleanup.policy=compact"
+      - name: bank.public.transfer_outbox
+        partitions: 1
+        replicationFactor: 1
+        config: "cleanup.policy=compact"
 
   controller:
     replicaCount: 1
@@ -228,9 +232,48 @@ kafka:
   volumePermissions:
     enabled: false
 
+debezium-server:
+  enabled: false
+  replicaCount: 1
+  image:
+    repository: quay.io/debezium/server
+    tag: "2.5"
+    pullPolicy: IfNotPresent
+  sink:
+    type: kafka
+    kafka:
+      bootstrapServers: "{{ .Values.global.kafka.bootstrapServers }}"
+  transfer-outbox:
+    database:
+      hostname: bank-transfer-db
+      port: 5432
+      user: transfer_user
+      dbname: transfers
+      passwordSecret:
+        name: bank-transfer-db-secret
+        key: password
+    source:
+      connectorClass: io.debezium.connector.postgresql.PostgresConnector
+      config:
+        topic.prefix: bank
+        schema.include.list: public
+        table.include.list: public.transfer_outbox
+        plugin.name: pgoutput
+        publication.name: transfer_outbox_publication
+        slot.name: transfer_outbox_slot
+        tombstones.on.delete: "false"
+        decimal.handling.mode: string
+  resources:
+    limits:
+      cpu: 500m
+      memory: 768Mi
+    requests:
+      cpu: 100m
+      memory: 384Mi
+
 keycloak-external:
   enabled: true
-#  externalIP: 10.42.0.1  # IP хоста для Rancher Desktop
+  externalIP: 10.42.0.1  # IP хоста для Rancher Desktop; переопредели под свой кластер
   service:
     name: bank-keycloak
     port: 9002

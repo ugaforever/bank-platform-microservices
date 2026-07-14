@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.TopicPartition;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,12 +16,12 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
+import org.springframework.test.util.ReflectionTestUtils;
 import ru.ugaforever.bank.transfer.metric.OutboxMetrics;
 import ru.ugaforever.bank.transfer.model.OutboxStatus;
 import ru.ugaforever.bank.transfer.model.TransferOutbox;
 import ru.ugaforever.bank.transfer.repository.OutboxRepository;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -52,6 +53,13 @@ public class OutboxPublisherServiceTest {
     private static final Long TRANSFER_ID = 1L;
     private static final Integer MAX_RETRIES = 5;
     private static final String EVENT_TYPE = "DEPOSIT";
+
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(outboxPublisherService, "batchSize", 100);
+        ReflectionTestUtils.setField(outboxPublisherService, "maxRetries", MAX_RETRIES);
+        ReflectionTestUtils.setField(outboxPublisherService, "publishTimeoutSeconds", 10L);
+    }
 
     @Test
     @DisplayName("Должен обработать сообщения и обновить статус")
@@ -122,8 +130,8 @@ public class OutboxPublisherServiceTest {
     }
 
     @Test
-    @DisplayName("Должен установить статус FAILED при превышении лимита ретраев")
-    void shouldSetFailedStatusWhenMaxRetriesExceeded() throws JsonProcessingException {
+    @DisplayName("Должен установить статус EXHAUSTED при превышении лимита ретраев")
+    void shouldSetExhaustedStatusWhenMaxRetriesExceeded() throws JsonProcessingException {
         // Arrange
         TransferOutbox message = createOutboxMessage(OutboxStatus.PENDING);
         message.setRetryCount(MAX_RETRIES - 1); // Предпоследняя попытка
@@ -142,7 +150,7 @@ public class OutboxPublisherServiceTest {
 
         verify(outboxRepository, times(1)).save(outboxCaptor.capture());
         TransferOutbox savedMessage = outboxCaptor.getValue();
-        assertThat(savedMessage.getStatus()).isEqualTo(OutboxStatus.FAILED);
+        assertThat(savedMessage.getStatus()).isEqualTo(OutboxStatus.EXHAUSTED);
         assertThat(savedMessage.getRetryCount()).isEqualTo(MAX_RETRIES);
 
         verify(outboxMetrics, times(1)).incrementFailed();
@@ -152,7 +160,7 @@ public class OutboxPublisherServiceTest {
     @DisplayName("Не должен ничего делать, если нет PENDING и FAILED сообщений")
     void shouldDoNothingWhenNoPendingAndFailedMessages() {
         // Arrange
-        List<OutboxStatus> statuses = Arrays.asList(
+        List<OutboxStatus> statuses = List.of(
                 OutboxStatus.PENDING,
                 OutboxStatus.FAILED
         );

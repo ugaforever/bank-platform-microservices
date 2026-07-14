@@ -24,9 +24,19 @@ public interface AccountClient {
 
     @PostMapping("/account/{login}/deposit")
     AccountResponseDto deposit(@PathVariable("login") String login,
+                               @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
                                @RequestBody DepositRequestDto request);
+
+    default AccountResponseDto deposit(String login, DepositRequestDto request) {
+        return deposit(login, null, request);
+    }
 
     @PostMapping("/account/{login}/withdraw")
     AccountResponseDto withdraw(@PathVariable("login") String login,
+                                @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
                                 @RequestBody WithdrawRequestDto request);
+
+    default AccountResponseDto withdraw(String login, WithdrawRequestDto request) {
+        return withdraw(login, null, request);
+    }
 }

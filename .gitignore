@@ -4,6 +4,7 @@ target/
 
 ### IntelliJ IDEA ###
 .idea
+.PVS-Studio
 *.iws
 *.iml
 *.ipr
@@ -13,7 +14,6 @@ out/
 .project
 
 ### Maven output
-target/
 /target/
 */target/
 **/target/
@@ -36,13 +36,7 @@ target/maven-status/
 *.mv.db
 *.h2.db
 
-### Maven ###
-*.jar
-*.war
-*.ear
-
 ### Logs ###
-*.log
 logs/
 **/logs/
 
@@ -56,3 +50,4 @@ Thumbs.db
 
 # Локальные настройки окружений (не коммитить!)
 environments/**/*
+amplicode.xml

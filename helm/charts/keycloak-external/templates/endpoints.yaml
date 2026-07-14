@@ -5,7 +5,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 subsets:
   - addresses:
-      - ip: {{ .Values.externalIP }}
+      - ip: {{ required "keycloak-external.externalIP is required when keycloak-external is enabled" .Values.externalIP | quote }}
     ports:
       - port: {{ .Values.service.port | default 9002 }}
         protocol: TCP

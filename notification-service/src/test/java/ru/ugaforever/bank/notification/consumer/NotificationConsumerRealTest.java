@@ -30,7 +30,8 @@ import static org.mockito.Mockito.*;
 @EmbeddedKafka(
         topics = {"bank.notification", "bank.notification.dlt"},
         partitions = 1,
-        brokerProperties = {"listeners=PLAINTEXT://localhost:9093", "port=9093"}
+        brokerProperties = {"listeners=PLAINTEXT://localhost:0", "port=0"},
+        bootstrapServersProperty = "spring.kafka.bootstrap-servers"
 )
 @DisplayName("Тесты с реальным бином KafkaTemplate")
 class NotificationConsumerRealTest {
@@ -58,7 +59,6 @@ class NotificationConsumerRealTest {
 
     @DynamicPropertySource
     static void kafkaProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.kafka.bootstrap-servers", () -> "localhost:9093");
         registry.add("spring.kafka.consumer.group-id", () -> GROUP_ID);
         registry.add("spring.kafka.consumer.auto-offset-reset", () -> "earliest");
         registry.add("spring.kafka.listener.ack-mode", () -> "manual");

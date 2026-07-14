@@ -17,6 +17,9 @@ import ru.ugaforever.bank.chassis.dto.notification.NotificationSource;
 import ru.ugaforever.bank.chassis.exception.AccountNotFoundException;
 import ru.ugaforever.bank.account.mapper.AccountMapper;
 import ru.ugaforever.bank.account.model.Account;
+import ru.ugaforever.bank.account.model.AccountOperation;
+import ru.ugaforever.bank.account.model.AccountOperationType;
+import ru.ugaforever.bank.account.repository.AccountOperationRepository;
 import ru.ugaforever.bank.account.repository.AccountRepository;
 import ru.ugaforever.bank.chassis.exception.BusinessRuleException;
 import ru.ugaforever.bank.chassis.exception.ValidationException;
@@ -34,6 +37,7 @@ public class AccountService {
 
     private final NotificationProducer notificationProducer;
     private final AccountRepository repository;
+    private final AccountOperationRepository operationRepository;
     private final AccountMapper mapper;
     private final MeterRegistry meterRegistry;
 
@@ -125,6 +129,19 @@ public class AccountService {
             String login,
             @NotNull(message = "Сумма обязательна") @Positive(message = "Сумма должна быть больше 0") BigDecimal amount) {
 
+        return deposit(login, amount, null);
+    }
+
+    public AccountResponseDto deposit(
+            String login,
+            @NotNull(message = "Сумма обязательна") @Positive(message = "Сумма должна быть больше 0") BigDecimal amount,
+            String idempotencyKey) {
+
+        AccountResponseDto duplicate = getDuplicateOperationResponse(idempotencyKey);
+        if (duplicate != null) {
+            return duplicate;
+        }
+
         Account account = repository.findByLogin(login)
                 .orElseThrow(() -> new AccountNotFoundException(login));
 
@@ -132,6 +149,7 @@ public class AccountService {
         account.setBalance(newBalance);
 
         Account saved = repository.save(account);
+        saveOperation(idempotencyKey, login, AccountOperationType.DEPOSIT, amount, newBalance);
         log.info("Deposited {} to account {}, new balance: {}", amount, login, newBalance);
 
         return mapper.toDto(saved);
@@ -140,6 +158,19 @@ public class AccountService {
     public AccountResponseDto withdraw(
             String login,
             @NotNull(message = "Сумма обязательна") @Positive(message = "Сумма должна быть больше 0") BigDecimal amount) {
+
+        return withdraw(login, amount, null);
+    }
+
+    public AccountResponseDto withdraw(
+            String login,
+            @NotNull(message = "Сумма обязательна") @Positive(message = "Сумма должна быть больше 0") BigDecimal amount,
+            String idempotencyKey) {
+
+        AccountResponseDto duplicate = getDuplicateOperationResponse(idempotencyKey);
+        if (duplicate != null) {
+            return duplicate;
+        }
 
         Account account = repository.findByLogin(login)
                 .orElseThrow(() -> new AccountNotFoundException(login));
@@ -153,8 +184,48 @@ public class AccountService {
         account.setBalance(newBalance);
 
         Account saved = repository.save(account);
+        saveOperation(idempotencyKey, login, AccountOperationType.WITHDRAW, amount, newBalance);
         log.info("Withdrawn {} from account {}, new balance: {}", amount, login, newBalance);
 
         return mapper.toDto(saved);
+    }
+
+    private AccountResponseDto getDuplicateOperationResponse(String idempotencyKey) {
+        if (idempotencyKey == null || idempotencyKey.isBlank()) {
+            return null;
+        }
+
+        return operationRepository.findByIdempotencyKey(idempotencyKey)
+                .map(operation -> {
+                    log.info("Duplicate account operation ignored: idempotencyKey={}, login={}, type={}",
+                            idempotencyKey,
+                            operation.getLogin(),
+                            operation.getOperationType());
+
+                    Account account = repository.findByLogin(operation.getLogin())
+                            .orElseThrow(() -> new AccountNotFoundException(operation.getLogin()));
+                    return mapper.toDto(account);
+                })
+                .orElse(null);
+    }
+
+    private void saveOperation(
+            String idempotencyKey,
+            String login,
+            AccountOperationType operationType,
+            BigDecimal amount,
+            BigDecimal balanceAfter) {
+
+        if (idempotencyKey == null || idempotencyKey.isBlank()) {
+            return;
+        }
+
+        operationRepository.save(AccountOperation.builder()
+                .idempotencyKey(idempotencyKey)
+                .login(login)
+                .operationType(operationType)
+                .amount(amount)
+                .balanceAfter(balanceAfter)
+                .build());
     }
 }
