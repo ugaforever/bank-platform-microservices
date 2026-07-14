@@ -30,13 +30,16 @@ import java.math.BigDecimal;
 @Transactional
 public class SagaOrchestrator {
 
+    private static final String TRANSFER_TOPIC = "bank.transfer";
+    private static final String DEBEZIUM_OUTBOX_TOPIC = "${outbox.debezium-topic:bank.public.transfer_outbox}";
+
     private final TransferRepository transferRepository;
     private final OutboxRepository outboxRepository;
     private final AccountClient accountClient;
     private final NotificationProducer notificationProducer;
     private final ObjectMapper objectMapper;
 
-    @KafkaListener(topics = "bank.transfer", groupId = "transfer-saga-orchestrator")
+    @KafkaListener(topics = {TRANSFER_TOPIC, DEBEZIUM_OUTBOX_TOPIC}, groupId = "transfer-saga-orchestrator")
     public void handleOutboxEvent(String message, Acknowledgment ack) {
         log.info("Received outbox event: {}", message);
 
@@ -69,6 +72,8 @@ public class SagaOrchestrator {
                 case "COMPENSATE":
                     processCompensate(transfer, payload);
                     break;
+                default:
+                    throw new IllegalArgumentException("Unknown outbox event type: " + eventType);
             }
 
             ack.acknowledge();
@@ -99,19 +104,18 @@ public class SagaOrchestrator {
         }
 
         if (transfer.getStatus() == TransferStatus.WITHDRAW_PENDING) {
-            log.warn("WITHDRAW already in progress for transferId={}, checking status...", transferId);
-            return;
+            log.warn("WITHDRAW already in progress for transferId={}, retrying with idempotency key", transferId);
+        } else {
+            transfer.setStatus(TransferStatus.WITHDRAW_PENDING);
+            transferRepository.save(transfer);
         }
-
-        transfer.setStatus(TransferStatus.WITHDRAW_PENDING);
-        transferRepository.save(transfer);
 
         try {
             WithdrawRequestDto withdrawDto = WithdrawRequestDto.builder()
                     .login(fromLogin)
                     .amount(amount)
                     .build();
-            accountClient.withdraw(fromLogin, withdrawDto);
+            accountClient.withdraw(fromLogin, idempotencyKey(transferId, "withdraw"), withdrawDto);
 
             transfer.setStatus(TransferStatus.WITHDRAW_COMPLETED);
             transfer.setSagaStep(1);
@@ -142,19 +146,18 @@ public class SagaOrchestrator {
         }
 
         if (transfer.getStatus() == TransferStatus.DEPOSIT_PENDING) {
-            log.warn("DEPOSIT already in progress for transferId={}, checking status...", transferId);
-            return;
+            log.warn("DEPOSIT already in progress for transferId={}, retrying with idempotency key", transferId);
+        } else {
+            transfer.setStatus(TransferStatus.DEPOSIT_PENDING);
+            transferRepository.save(transfer);
         }
-
-        transfer.setStatus(TransferStatus.DEPOSIT_PENDING);
-        transferRepository.save(transfer);
 
         try {
             DepositRequestDto depositDto = DepositRequestDto.builder()
                     .login(toLogin)
                     .amount(amount)
                     .build();
-            accountClient.deposit(toLogin, depositDto);
+            accountClient.deposit(toLogin, idempotencyKey(transferId, "deposit"), depositDto);
 
             transfer.setStatus(TransferStatus.DEPOSIT_COMPLETED);
             transfer.setSagaStep(2);
@@ -208,7 +211,7 @@ public class SagaOrchestrator {
                     .login(fromLogin)
                     .amount(amount)
                     .build();
-            accountClient.deposit(fromLogin, compensationDto);
+            accountClient.deposit(fromLogin, idempotencyKey(transferId, "compensate"), compensationDto);
 
             transfer.setStatus(TransferStatus.TRANSFER_COMPENSATED);
             transfer.setSagaStep(0);
@@ -272,5 +275,9 @@ public class SagaOrchestrator {
         } catch (Exception e) {
             log.error("Failed to send error notification", e);
         }
+    }
+
+    private String idempotencyKey(Long transferId, String step) {
+        return "transfer-" + transferId + "-" + step;
     }
 }

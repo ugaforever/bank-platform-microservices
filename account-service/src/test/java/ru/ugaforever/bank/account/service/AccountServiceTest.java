@@ -11,6 +11,9 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.ugaforever.bank.account.mapper.AccountMapper;
 import ru.ugaforever.bank.account.model.Account;
+import ru.ugaforever.bank.account.model.AccountOperation;
+import ru.ugaforever.bank.account.model.AccountOperationType;
+import ru.ugaforever.bank.account.repository.AccountOperationRepository;
 import ru.ugaforever.bank.account.repository.AccountRepository;
 import ru.ugaforever.bank.chassis.dto.account.AccountResponseDto;
 import ru.ugaforever.bank.chassis.dto.account.AccountUpdateDto;
@@ -39,6 +42,9 @@ public class AccountServiceTest {
 
     @Mock
     private AccountRepository repository;
+
+    @Mock
+    private AccountOperationRepository operationRepository;
 
     @Mock
     private AccountMapper mapper;
@@ -160,6 +166,43 @@ public class AccountServiceTest {
         assertThatThrownBy(() -> service.updateAccount(LOGIN, null))
                 .isInstanceOf(ValidationException.class)
                 .hasMessage("Account update data cannot be null");
+    }
+
+    @Test
+    @DisplayName("deposit(login, amount, idempotencyKey) — не должен повторно менять баланс для дубля")
+    void shouldNotApplyDuplicateDepositOperation() {
+        String idempotencyKey = "transfer-1-deposit";
+        AccountOperation operation = AccountOperation.builder()
+                .idempotencyKey(idempotencyKey)
+                .login(LOGIN)
+                .operationType(AccountOperationType.DEPOSIT)
+                .amount(BigDecimal.TEN)
+                .balanceAfter(BALANCE)
+                .build();
+        Account account = Account.builder()
+                .id(ACCOUNT_ID)
+                .login(LOGIN)
+                .name(NAME)
+                .birthdate(BIRTHDATE)
+                .balance(BALANCE)
+                .build();
+        AccountResponseDto dto = AccountResponseDto.builder()
+                .id(ACCOUNT_ID)
+                .login(LOGIN)
+                .name(NAME)
+                .birthdate(BIRTHDATE)
+                .balance(BALANCE)
+                .build();
+
+        when(operationRepository.findByIdempotencyKey(idempotencyKey)).thenReturn(Optional.of(operation));
+        when(repository.findByLogin(LOGIN)).thenReturn(Optional.of(account));
+        when(mapper.toDto(account)).thenReturn(dto);
+
+        AccountResponseDto result = service.deposit(LOGIN, BigDecimal.TEN, idempotencyKey);
+
+        assertThat(result.getBalance()).isEqualTo(BALANCE);
+        verify(repository, never()).save(any(Account.class));
+        verify(operationRepository, never()).save(any(AccountOperation.class));
     }
 
 }

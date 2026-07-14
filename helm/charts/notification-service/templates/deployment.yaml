@@ -64,7 +64,7 @@ spec:
                 name: {{ include "notification-service.fullname" . }}
           env:
             {{- with .Values.env }}
-            {{- toYaml . | nindent 12 }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
             {{- end }}
 
             - name: SPRING_DATASOURCE_PASSWORD

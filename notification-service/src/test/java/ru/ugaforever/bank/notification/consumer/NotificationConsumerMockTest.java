@@ -30,7 +30,8 @@ import static org.mockito.Mockito.*;
 @EmbeddedKafka(
         topics = {"bank.notification", "bank.notification.dlt"},
         partitions = 1,
-        brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"}
+        brokerProperties = {"listeners=PLAINTEXT://localhost:0", "port=0"},
+        bootstrapServersProperty = "spring.kafka.bootstrap-servers"
 )
 @DisplayName("Тесты с mock KafkaTemplate")
 public class NotificationConsumerMockTest {

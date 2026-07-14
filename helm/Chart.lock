@@ -29,9 +29,6 @@ dependencies:
 - name: kafka
   repository: file://./charts/kafka
   version: 25.0.0
-- name: debezium-operator
-  repository: file://./charts/debezium-operator
-  version: 3.2.0-final
 - name: zipkin
   repository: file://./charts/zipkin
   version: 0.7.0
@@ -41,5 +38,5 @@ dependencies:
 - name: grafana
   repository: https://grafana.github.io/helm-charts
   version: 7.0.0
-digest: sha256:a48f67fe0c896401d900a46cb1f798964b3f0c437d5ee0f9f6bc53320c26c69a
-generated: "2026-07-05T13:17:00.289834488+03:00"
+digest: sha256:e6db2403e37aaef15edd969a73da770e2cd869d5a36df2de238cc0b202d6eda0
+generated: "2026-07-13T14:56:16.72280468+03:00"

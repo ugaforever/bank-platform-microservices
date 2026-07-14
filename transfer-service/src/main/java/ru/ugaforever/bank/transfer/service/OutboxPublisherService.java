@@ -3,6 +3,8 @@ package ru.ugaforever.bank.transfer.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -13,7 +15,6 @@ import ru.ugaforever.bank.transfer.model.OutboxStatus;
 import ru.ugaforever.bank.transfer.model.TransferOutbox;
 import ru.ugaforever.bank.transfer.repository.OutboxRepository;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@ConditionalOnProperty(value = "outbox.publisher.enabled", havingValue = "true", matchIfMissing = true)
 public class OutboxPublisherService {
     private final OutboxRepository outboxRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
@@ -30,8 +32,15 @@ public class OutboxPublisherService {
     private final OutboxMetrics outboxMetrics;
 
     private static final String OUTBOX_TOPIC = "bank.transfer";
-    private static final int BATCH_SIZE = 100;
-    private static final int MAX_RETRIES = 5;
+
+    @Value("${outbox.publisher.batch-size:100}")
+    private int batchSize;
+
+    @Value("${outbox.publisher.max-retries:5}")
+    private int maxRetries;
+
+    @Value("${outbox.publisher.publish-timeout-seconds:10}")
+    private long publishTimeoutSeconds;
 
     @Scheduled(
             fixedDelayString = "${outbox.publisher.fixed-delay:5000}",
@@ -42,7 +51,7 @@ public class OutboxPublisherService {
         log.info("Starting outbox publishing job");
 
         try {
-            List<OutboxStatus> statuses = Arrays.asList(
+            List<OutboxStatus> statuses = List.of(
                     OutboxStatus.PENDING,
                     OutboxStatus.FAILED
             );
@@ -57,16 +66,16 @@ public class OutboxPublisherService {
             int processedCount = 0;
             int failedCount = 0;
             for (TransferOutbox message : messages) {
+                if (processedCount + failedCount >= Math.max(1, batchSize)) {
+                    log.info("Reached batch size limit, continuing next cycle");
+                    break;
+                }
+
                 boolean processed = processOutboxMessage(message);
                 if (processed) {
                     processedCount++;
                 } else {
                     failedCount++;
-                }
-
-                if (processedCount + failedCount >= BATCH_SIZE) {
-                    log.info("Reached batch size limit, continuing next cycle");
-                    break;
                 }
             }
 
@@ -79,13 +88,21 @@ public class OutboxPublisherService {
 
     @Transactional
     protected boolean processOutboxMessage(TransferOutbox message) {
+        int currentRetryCount = message.getRetryCount() == null ? 0 : message.getRetryCount();
+        if (currentRetryCount >= maxRetries) {
+            message.setStatus(OutboxStatus.EXHAUSTED);
+            outboxRepository.save(message);
+            log.error("Message {} exceeded max retries {}, marked as EXHAUSTED", message.getId(), maxRetries);
+            return false;
+        }
+
         try {
             message.setStatus(OutboxStatus.PROCESSING);
 
             String kafkaMessage = buildKafkaMessage(message);
 
             CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(OUTBOX_TOPIC, kafkaMessage);
-            SendResult<String, String> result = future.get(10, TimeUnit.SECONDS);
+            SendResult<String, String> result = future.get(publishTimeoutSeconds, TimeUnit.SECONDS);
 
             log.info("Message sent to Kafka: transferId={}, eventType={}, offset={}",
                     message.getTransferId(),
@@ -103,13 +120,14 @@ public class OutboxPublisherService {
                     message.getId(), message.getTransferId(), e.getMessage(), e);
 
 
-            message.setStatus(OutboxStatus.FAILED);
-            message.setRetryCount(message.getRetryCount() + 1);
+            int nextRetryCount = currentRetryCount + 1;
+            message.setRetryCount(nextRetryCount);
+            message.setStatus(nextRetryCount >= maxRetries ? OutboxStatus.EXHAUSTED : OutboxStatus.FAILED);
             outboxRepository.save(message);
             outboxMetrics.incrementFailed();
 
-            if (message.getRetryCount() >= MAX_RETRIES) {
-                log.error("Message {} exceeded max retries {}", message.getId(), MAX_RETRIES);
+            if (message.getStatus() == OutboxStatus.EXHAUSTED) {
+                log.error("Message {} exceeded max retries {}", message.getId(), maxRetries);
                 // уведомление админу: telegram, email, sms
             }
 

@@ -10,23 +10,10 @@ metadata:
 data:
   topics.yaml: |
     topics:
-      - name: bank.notification
-        partitions: 1
-        replicationFactor: 1
-        config: "cleanup.policy=compact,retention.ms=604800000"
-    
-      - name: bank.notification.dlt
-        partitions: 1
-        replicationFactor: 1
-        config: "cleanup.policy=compact"
-    
-      - name: bank.transfer
-        partitions: 1
-        replicationFactor: 1
-        config: "cleanup.policy=compact"
-    
-      - name: bank.transfer.dlt
-        partitions: 1
-        replicationFactor: 1
-        config: "cleanup.policy=compact"
+      {{- range .Values.kafka.topics.list }}
+      - name: {{ .name | quote }}
+        partitions: {{ .partitions | default 1 }}
+        replicationFactor: {{ .replicationFactor | default 1 }}
+        config: {{ .config | default "" | quote }}
+      {{- end }}
   {{- end }}

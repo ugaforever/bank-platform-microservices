@@ -1,0 +1,81 @@
+{{- $dbz := index .Values "debezium-server" -}}
+{{- if $dbz.enabled }}
+{{- $name := printf "%s-debezium-server" .Release.Name -}}
+{{- $outbox := index $dbz "transfer-outbox" -}}
+{{- $database := index $outbox "database" -}}
+{{- $source := index $outbox "source" -}}
+{{- $sourceConfig := index $source "config" -}}
+{{- $sink := index $dbz "sink" -}}
+{{- $sinkKafka := index $sink "kafka" -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: debezium-server
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+  application.properties: |
+    debezium.sink.type={{ index $sink "type" | default "kafka" }}
+    debezium.sink.kafka.producer.bootstrap.servers={{ tpl (index $sinkKafka "bootstrapServers" | default .Values.global.kafka.bootstrapServers) . }}
+    debezium.sink.kafka.producer.key.serializer=org.apache.kafka.common.serialization.StringSerializer
+    debezium.sink.kafka.producer.value.serializer=org.apache.kafka.common.serialization.StringSerializer
+
+    debezium.source.connector.class={{ index $source "connectorClass" | default "io.debezium.connector.postgresql.PostgresConnector" }}
+    debezium.source.database.hostname={{ index $database "hostname" }}
+    debezium.source.database.port={{ index $database "port" | quote }}
+    debezium.source.database.user={{ index $database "user" }}
+    debezium.source.database.password=${TRANSFER_DB_PASSWORD}
+    debezium.source.database.dbname={{ index $database "dbname" }}
+    debezium.source.offset.storage.file.filename=/debezium/data/offsets.dat
+    debezium.source.offset.flush.interval.ms=60000
+    {{- range $key, $value := $sourceConfig }}
+    debezium.source.{{ $key }}={{ $value }}
+    {{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: debezium-server
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  replicas: {{ index $dbz "replicaCount" | default 1 }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: debezium-server
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: debezium-server
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: debezium-server
+          image: "{{ index $dbz "image" "repository" }}:{{ index $dbz "image" "tag" }}"
+          imagePullPolicy: {{ index $dbz "image" "pullPolicy" | default "IfNotPresent" }}
+          env:
+            - name: TRANSFER_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ index $database "passwordSecret" "name" }}
+                  key: {{ index $database "passwordSecret" "key" }}
+          resources:
+            {{- toYaml (index $dbz "resources") | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /debezium/conf/application.properties
+              subPath: application.properties
+            - name: data
+              mountPath: /debezium/data
+      volumes:
+        - name: config
+          configMap:
+            name: {{ $name }}
+        - name: data
+          emptyDir: {}
+{{- end }}

@@ -51,17 +51,19 @@ public class AccountController {
     @PreAuthorize("isAuthenticated()")
     public AccountResponseDto deposit(
             @PathVariable String login,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
             @RequestBody DepositRequestDto request) {
 
-        return accountService.deposit(login, request.getAmount());
+        return accountService.deposit(login, request.getAmount(), idempotencyKey);
     }
 
     @PostMapping("/{login}/withdraw")
     @PreAuthorize("isAuthenticated()")
     public AccountResponseDto withdraw(
             @PathVariable String login,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
             @RequestBody WithdrawRequestDto request) {
 
-        return accountService.withdraw(login, request.getAmount());
+        return accountService.withdraw(login, request.getAmount(), idempotencyKey);
     }
 }

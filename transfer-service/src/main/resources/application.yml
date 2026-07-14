@@ -133,11 +133,14 @@ resilience4j.circuitbreaker:
       registerHealthIndicator: true
 
 outbox:
+  debezium-topic: ${OUTBOX_DEBEZIUM_TOPIC:bank.public.transfer_outbox}
   publisher:
+    enabled: ${OUTBOX_PUBLISHER_ENABLED:true}
     fixed-delay: 5000      # Интервал проверки новых сообщений (мс)
     initial-delay: 10000   # Задержка первого запуска (мс)
     batch-size: 100        # Максимум сообщений за одну итерацию
     max-retries: 5         # Максимум попыток отправки
+    publish-timeout-seconds: 10
 
 logging:
   level:

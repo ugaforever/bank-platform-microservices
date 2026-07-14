@@ -87,7 +87,7 @@ public class SagaOrchestratorTest {
         JsonNode payload = createWithdrawPayload(FROM_LOGIN, AMOUNT);
 
         when(transferRepository.findById(TRANSFER_ID)).thenReturn(Optional.of(transfer));
-        when(accountClient.withdraw(anyString(), any(WithdrawRequestDto.class)))
+        when(accountClient.withdraw(anyString(), anyString(), any(WithdrawRequestDto.class)))
                 .thenReturn(createAccountResponse(FROM_LOGIN, new BigDecimal("900.00")));
 
         List<Transfer> savedTransfers = new ArrayList<>();
@@ -133,7 +133,7 @@ public class SagaOrchestratorTest {
         assertWithdrawPayload(outbox, FROM_LOGIN, AMOUNT);
 
         verify(ack).acknowledge();
-        verify(accountClient, times(1)).withdraw(anyString(), any(WithdrawRequestDto.class));
+        verify(accountClient, times(1)).withdraw(eq(FROM_LOGIN), eq("transfer-1-withdraw"), any(WithdrawRequestDto.class));
     }
 
     @Test
@@ -144,7 +144,7 @@ public class SagaOrchestratorTest {
         JsonNode payload = createDepositPayload(TO_LOGIN, AMOUNT);
 
         when(transferRepository.findById(TRANSFER_ID)).thenReturn(Optional.of(transfer));
-        when(accountClient.deposit(anyString(), any(DepositRequestDto.class)))
+        when(accountClient.deposit(anyString(), anyString(), any(DepositRequestDto.class)))
                 .thenReturn(createAccountResponse(TO_LOGIN, new BigDecimal("200.00")));
 
         List<Transfer> savedTransfers = new ArrayList<>();
@@ -191,7 +191,7 @@ public class SagaOrchestratorTest {
         assertThat(notification.getMessage()).containsPattern("amount=100[,\\.]00");
 
         verify(ack).acknowledge();
-        verify(accountClient, times(1)).deposit(anyString(), any(DepositRequestDto.class));
+        verify(accountClient, times(1)).deposit(eq(TO_LOGIN), eq("transfer-1-deposit"), any(DepositRequestDto.class));
         verify(outboxRepository, never()).save(any(TransferOutbox.class));
     }
 
@@ -203,7 +203,7 @@ public class SagaOrchestratorTest {
         JsonNode payload = createDepositPayload(TO_LOGIN, AMOUNT);
 
         when(transferRepository.findById(TRANSFER_ID)).thenReturn(Optional.of(transfer));
-        when(accountClient.deposit(anyString(), any(DepositRequestDto.class)))
+        when(accountClient.deposit(anyString(), anyString(), any(DepositRequestDto.class)))
                 .thenThrow(new RuntimeException("Account not found"));
 
         List<Transfer> savedTransfers = new ArrayList<>();
@@ -242,7 +242,7 @@ public class SagaOrchestratorTest {
         assertThat(outbox.getPayload()).contains(TO_LOGIN);
 
         verify(ack).acknowledge();
-        verify(accountClient, times(1)).deposit(anyString(), any(DepositRequestDto.class));
+        verify(accountClient, times(1)).deposit(eq(TO_LOGIN), eq("transfer-1-deposit"), any(DepositRequestDto.class));
         verify(notificationProducer, never()).sendNotificationSync(any(NotificationRequestDto.class));
     }
 
@@ -255,7 +255,7 @@ public class SagaOrchestratorTest {
         JsonNode payload = createWithdrawPayload(FROM_LOGIN, AMOUNT);
 
         when(transferRepository.findById(TRANSFER_ID)).thenReturn(Optional.of(transfer));
-        when(accountClient.deposit(anyString(), any(DepositRequestDto.class)))
+        when(accountClient.deposit(anyString(), anyString(), any(DepositRequestDto.class)))
                 .thenReturn(createAccountResponse(FROM_LOGIN, new BigDecimal("1000.00")));
 
         ArgumentCaptor<Transfer> transferCaptor = ArgumentCaptor.forClass(Transfer.class);
@@ -273,7 +273,7 @@ public class SagaOrchestratorTest {
         assertThat(savedTransfer.getSagaStep()).isEqualTo(0);
 
         verify(ack).acknowledge();
-        verify(accountClient, times(1)).deposit(anyString(), any(DepositRequestDto.class));
+        verify(accountClient, times(1)).deposit(eq(FROM_LOGIN), eq("transfer-1-compensate"), any(DepositRequestDto.class));
         verify(notificationProducer, times(1)).sendNotificationSync(any(NotificationRequestDto.class));
         verify(outboxRepository, never()).save(any(TransferOutbox.class));
     }
@@ -294,19 +294,21 @@ public class SagaOrchestratorTest {
 
         // Assert
         verify(transferRepository, never()).save(any(Transfer.class));
-        verify(accountClient, never()).withdraw(anyString(), any(WithdrawRequestDto.class));
+        verify(accountClient, never()).withdraw(anyString(), anyString(), any(WithdrawRequestDto.class));
         verify(outboxRepository, never()).save(any(TransferOutbox.class));
         verify(ack).acknowledge();
     }
 
     @Test
-    @DisplayName("WITHDRAW: повторное сообщение не ломает состояние (уже PENDING)")
+    @DisplayName("WITHDRAW: повторное сообщение в PENDING продолжает шаг с тем же idempotency key")
     void shouldSkipWithdrawWhenAlreadyPending() throws Exception {
         // Arrange
         Transfer transfer = createTransfer(TransferStatus.WITHDRAW_PENDING);
         JsonNode payload = createWithdrawPayload(FROM_LOGIN, AMOUNT);
 
         when(transferRepository.findById(TRANSFER_ID)).thenReturn(Optional.of(transfer));
+        when(accountClient.withdraw(anyString(), anyString(), any(WithdrawRequestDto.class)))
+                .thenReturn(createAccountResponse(FROM_LOGIN, new BigDecimal("900.00")));
 
         String message = createOutboxMessage(TRANSFER_ID, "WITHDRAW", payload);
 
@@ -314,9 +316,9 @@ public class SagaOrchestratorTest {
         sagaOrchestrator.handleOutboxEvent(message, ack);
 
         // Assert
-        verify(transferRepository, never()).save(any(Transfer.class));
-        verify(accountClient, never()).withdraw(anyString(), any(WithdrawRequestDto.class));
-        verify(outboxRepository, never()).save(any(TransferOutbox.class));
+        verify(transferRepository, times(1)).save(any(Transfer.class));
+        verify(accountClient, times(1)).withdraw(eq(FROM_LOGIN), eq("transfer-1-withdraw"), any(WithdrawRequestDto.class));
+        verify(outboxRepository, times(1)).save(any(TransferOutbox.class));
         verify(ack).acknowledge();
     }
 
@@ -332,8 +334,8 @@ public class SagaOrchestratorTest {
         // Assert
         verify(ack).acknowledge();
         verify(transferRepository, never()).findById(any());
-        verify(accountClient, never()).withdraw(anyString(), any(WithdrawRequestDto.class));
-        verify(accountClient, never()).deposit(anyString(), any(DepositRequestDto.class));
+        verify(accountClient, never()).withdraw(anyString(), anyString(), any(WithdrawRequestDto.class));
+        verify(accountClient, never()).deposit(anyString(), anyString(), any(DepositRequestDto.class));
         verify(outboxRepository, never()).save(any(TransferOutbox.class));
     }
 
@@ -349,8 +351,8 @@ public class SagaOrchestratorTest {
         // Assert
         verify(ack).acknowledge();
         verify(transferRepository, never()).findById(any());
-        verify(accountClient, never()).withdraw(anyString(), any(WithdrawRequestDto.class));
-        verify(accountClient, never()).deposit(anyString(), any(DepositRequestDto.class));
+        verify(accountClient, never()).withdraw(anyString(), anyString(), any(WithdrawRequestDto.class));
+        verify(accountClient, never()).deposit(anyString(), anyString(), any(DepositRequestDto.class));
         verify(outboxRepository, never()).save(any(TransferOutbox.class));
     }
 
@@ -370,7 +372,7 @@ public class SagaOrchestratorTest {
         verify(ack).acknowledge();
         verify(transferRepository).findById(TRANSFER_ID);
         verify(transferRepository, never()).save(any(Transfer.class));
-        verify(accountClient, never()).withdraw(anyString(), any(WithdrawRequestDto.class));
+        verify(accountClient, never()).withdraw(anyString(), anyString(), any(WithdrawRequestDto.class));
         verify(outboxRepository, never()).save(any(TransferOutbox.class));
     }
 
@@ -391,8 +393,8 @@ public class SagaOrchestratorTest {
         // Assert
         verify(ack).acknowledge();
         verify(transferRepository, never()).save(any(Transfer.class));
-        verify(accountClient, never()).withdraw(anyString(), any(WithdrawRequestDto.class));
-        verify(accountClient, never()).deposit(anyString(), any(DepositRequestDto.class));
+        verify(accountClient, never()).withdraw(anyString(), anyString(), any(WithdrawRequestDto.class));
+        verify(accountClient, never()).deposit(anyString(), anyString(), any(DepositRequestDto.class));
         verify(outboxRepository, never()).save(any(TransferOutbox.class));
     }
 
@@ -422,6 +424,7 @@ public class SagaOrchestratorTest {
         ObjectNode payload = objectMapper.createObjectNode();
         payload.put("type", "withdraw");
         payload.put("fromLogin", login);
+        payload.put("toLogin", TO_LOGIN);
         payload.put("amount", amount.doubleValue());
         return payload;
     }
